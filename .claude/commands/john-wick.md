@@ -4,12 +4,35 @@ description: >
   John Wick — Incident Response Agent for Monte Carlo. Active incidents, threats, breaches.
   Use when: "run john-wick", "investigate this incident", "research this breach", "/john-wick".
   Accepts a freeform incident description, a Linear ticket URL, or a list of IOCs.
+user-invocable: true
 context: fork
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - WebSearch
+  - WebFetch
+  - mcp__linear__get_issue
+  - mcp__linear__list_issues
+  - mcp__linear__save_issue
+  - mcp__linear__save_comment
+  - mcp__okta__get_logs
+  - mcp__okta__list_users
+  - mcp__okta__get_user
+  - mcp__wiz__list_issues
+  - mcp__wiz__get_issue
+  - mcp__wiz__list_findings
+  - mcp__wiz__list_cloud_events
+  - mcp__wiz__get_cloud_event
+  - mcp__wiz__list_threats
+  - mcp__wiz__get_threat
+  - mcp__aikido__aikido_full_scan
+  - mcp__slack__slack_search_public_and_private
+  - mcp__slack__slack_send_message_draft
 ---
 
 <!-- NOTE: Panther audit logging is wired into john_wick.py (SEC-1558).
      Do not use this skill in production until PANTHER_HTTP_SOURCE_URL is set
-     to a live Panther HTTP log source URL. See specs/sec-1558-*.md for setup instructions. -->
 
 # John Wick — Incident Response Agent
 

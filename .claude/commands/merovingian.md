@@ -825,11 +825,11 @@ rm -f /tmp/merovingian-*.json /tmp/merovingian-*.csv
 
 **Setup:**
 
-- Wiz MCP: configured via `.setup/` — should be active in this session
-- Aikido MCP: configured via `.setup/` — should be active in this session
+- Wiz MCP: configured via your MCP server setup — should be active in this session
+- Aikido MCP: configured via your MCP server setup — should be active in this session
 - AWS: ensure `aws sts get-caller-identity` works with a read-only profile
 - GitHub: `gh auth login` with `read:org` and `repo` scopes
-- Notion MCP: configured via `.setup/` — should be active in this session
+- Notion MCP: configured via your MCP server setup — should be active in this session
 
 ---
 

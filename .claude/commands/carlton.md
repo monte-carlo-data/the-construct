@@ -5,6 +5,7 @@ description: >
   Linear and updates the risk register (<your-risk-register>) via PR. Use when: "review risk
   tickets", "run carlton", "update the risk register", "/carlton GRC-134".
 user-invocable: true
+context: fork
 allowed-tools:
   - mcp__linear__list_issues
   - mcp__linear__get_issue

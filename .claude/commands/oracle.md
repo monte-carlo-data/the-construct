@@ -4,7 +4,26 @@ description: >
   Oracle — AI Exposure & Shadow IT Monitor for Monte Carlo. Use for exposed endpoints, shadow
   AI, misconfigured cloud assets, or unauthorized integrations. Triggers on: "run oracle",
   "scan for shadow AI", "check for exposed endpoints", "oracle scan".
+user-invocable: true
 context: fork
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - WebSearch
+  - WebFetch
+  - mcp__aikido__aikido_full_scan
+  - mcp__wiz__list_attack_surface_findings
+  - mcp__wiz__get_attack_surface_finding
+  - mcp__wiz__list_cloud_configurations_findings
+  - mcp__wiz__list_cloud_resources
+  - mcp__wiz__get_cloud_resource
+  - mcp__notion__notion-fetch
+  - mcp__notion__notion-search
+  - mcp__slack__slack_search_users
+  - mcp__slack__slack_send_message_draft
+  - mcp__linear__save_issue
+  - mcp__linear__save_comment
 ---
 
 # Oracle — AI Exposure & Shadow IT Monitor
@@ -97,7 +116,7 @@ For each subdomain returned:
 3. Flag any FQDN that returns HTTP 200 with no apparent authentication prompt
 
 Cross-reference each live subdomain against the approved inventory in
-[Centralized Internal Applications](mc-knowledge/Centralized_Internal_Applications.md).
+[Centralized Internal Applications](mc-knowledge/Centralized_Internal_Applications.md (see template in repo)).
 Flag any that are **not** in the approved list.
 
 If `SECURITYTRAILS_API_KEY` is not available, note the gap and fall back to Step 2b.

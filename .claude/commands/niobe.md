@@ -650,9 +650,9 @@ rm -f /tmp/niobe-*.json
 
 **Setup:**
 
-- Wiz MCP: configured via `.setup/` — should be active in this session
+- Wiz MCP: configured via your MCP server setup — should be active in this session
 - GitHub: `gh auth login` with `read:org` and `repo` scopes
-- Linear MCP: configured via `.setup/` — should be active in this session
+- Linear MCP: configured via your MCP server setup — should be active in this session
 
 ---
 

@@ -115,7 +115,7 @@ Trinity uses the **Okta MCP server** (`mcp__okta__*` tools) for Okta access.
 The MCP server must be running and authenticated. Check by listing tools — if Okta MCP tools
 are not available in the session, tell the engineer:
 
-> "Okta MCP is not configured. Run `.setup/mcp-okta.sh` to set it up. The Okta MCP uses
+> "Okta MCP is not configured. Run your Okta MCP setup script to set it up. The Okta MCP uses
 > Device Authorization Grant — it will open a browser to complete login on first use.
 > Required scopes: `okta.users.read okta.groups.read okta.logs.read okta.apps.read`"
 
@@ -237,7 +237,7 @@ For each privileged group:
 Use `mcp__okta__get_apps` to list all OAuth app integrations.
 
 Flag apps that:
-- Are not in the approved vendor list (check `review-software/` directory for reviewed apps)
+- Are not in the approved vendor list (check `reviews/` directory for reviewed apps)
 - Request scopes beyond `openid profile email` (e.g., `offline_access`, data-access scopes)
 - Were created or last used more than 180 days ago with no active grants
 
@@ -641,7 +641,7 @@ rm -f /tmp/trinity-*.csv /tmp/trinity-*.json
 | AWS IAM | Wiz MCP (preferred) or `aws` CLI | Wiz: read; AWS: `SecurityAuditAccess` managed policy |
 
 **Setup:**
-- Okta MCP: run `.setup/mcp-okta.sh` — docs at `https://developer.okta.com/docs/guides/mcp-server/main/`
+- Okta MCP: configure your Okta MCP server — docs at `https://developer.okta.com/docs/guides/mcp-server/main/`
 - GitHub: `gh auth login`
 - AWS: ensure `aws sts get-caller-identity` works with a profile that has `SecurityAuditAccess`
 

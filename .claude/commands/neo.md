@@ -350,7 +350,7 @@ When evaluating Strix, PentestGPT, Shannon, CAI, or others from the SEC-1425 lis
    tool coverage, CI/CD integration, cost, vendor security (1–5 each)
 3. Document prompt injection posture: does it process web responses and act on them?
 4. Check native Anthropic API support — if OpenAI-only, how hard is the port?
-5. Output the evaluation summary format from `specs/sec-1425-*.md`
+5. Output the evaluation summary format from your own tool evaluation criteria
 
 For any SaaS tool: use a synthetic dummy target only — never real source code,
 real credentials, or production details until a `/vendor-review` is complete.

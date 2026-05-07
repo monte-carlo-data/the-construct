@@ -4,7 +4,19 @@ description: >
   Security concierge for Monte Carlo. Use for any security need: SDD/PR/vendor review,
   compliance, incidents, phishing, IT access, or "I don't know who to ask." Accepts Notion
   URLs, GitHub PRs, vendor names, or freeform descriptions.
+user-invocable: true
 context: fork
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - WebFetch
+  - Agent
+  - mcp__linear__save_issue
+  - mcp__linear__get_issue
+  - mcp__notion__notion-fetch
+  - mcp__notion__notion-search
+  - mcp__slack__slack_send_message_draft
 ---
 
 # Security Steve
@@ -228,7 +240,7 @@ classification is non-obvious, and wait for confirmation before running.
 Before running any SDD or PR review, **load these files in parallel** (use the Agent tool
 with two concurrent reads, then proceed once both are loaded):
 
-**Platform context:** `review-software/guides/platform_context.md`
+**Platform context:** `your-org-context-doc`
 
 This document describes Monte Carlo's architecture: multi-tenancy model (AccountContext,
 AccountAwareSoftDeleteModel), IAM and authentication patterns (JWT tokens, IAM role assumption
@@ -372,7 +384,7 @@ Produce the full review in this format:
 **Recording decisions:** Security questions from this review can be dispositioned using
 `/decision <slug>`. Valid decisions are `Resolved`, `Accepted Risk` (feedback required),
 `Deferred` (feedback required), and `Requires Fix`. Decisions are saved to
-`review-software/reviews/<slug>/decisions.md` as a standalone audit record.
+`reviews/<slug>/decisions.md` as a standalone audit record.
 
 **Skill recommendation:** For future SDD reviews, you can run `/sdd-review <notion_url>`
 directly — it includes TRACKING.md updates, the full queue management workflow, and a
@@ -466,7 +478,7 @@ Produce security questions with the following fields for each:
 **Recording decisions:** Security questions from this review can be dispositioned using
 `/decision <slug>`. Valid decisions are `Resolved`, `Accepted Risk` (feedback required),
 `Deferred` (feedback required), and `Requires Fix`. Decisions are saved to
-`review-software/reviews/<slug>/decisions.md` as a standalone audit record.
+`reviews/<slug>/decisions.md` as a standalone audit record.
 
 **Skill recommendation:** For future PR reviews, you can run `/pr-review <pr_url>` directly —
 it includes inline GitHub comments, artifact output, and a built-in decision capture step.
@@ -564,7 +576,7 @@ After any review that returns **Required** or **Recommended**, offer:
 
 ### Slack notification
 
-Post to **#team-security** (channel `<your-slack-channel-id>`) using the `mcp__slack__slack_post_message`
+Post to **#team-security** (channel `<your-slack-channel-id>`) using the `mcp__slack__slack_send_message_draft`
 tool (or equivalent send tool available in the Slack MCP).
 
 If the Slack MCP is not authenticated (tool returns an auth error), tell the user and provide
@@ -627,8 +639,8 @@ After the review output is presented, ask:
 
 If yes:
 
-- For SDD reviews: write to `review-software/reviews/<slug>/review.md`
-- For PR reviews: write to `review-software/reviews/<slug>/pr-review.md`
+- For SDD reviews: write to `reviews/<slug>/review.md`
+- For PR reviews: write to `reviews/<slug>/pr-review.md`
 - Derive slug from the SDD/PR title: lowercase, spaces to underscores, strip special chars
 - Show the file path and full content before writing
 - Ask for confirmation before writing
@@ -673,6 +685,6 @@ Session summary:
 - Quick check is for triage only — it is not a substitute for a full review.
 - Security Steve does not own TRACKING.md. For full SDD queue management, use `/sdd-review`.
 - PR fetching uses `gh api` — the user must be authenticated via `gh auth login`.
-- Slack notifications use `mcp__slack__slack_post_message`. The Slack MCP is registered but requires OAuth — if auth fails, provide copy-paste message text and direct the user to #team-security. To re-authenticate, run `.setup/mcp-slack.sh`.
+- Slack notifications use `mcp__slack__slack_send_message_draft`. The Slack MCP is registered but requires OAuth — if auth fails, provide copy-paste message text and direct the user to #team-security. To re-authenticate, configure your Slack MCP server.
 - If the review surfaces a need to host or deploy an internal app, delegate to the `common`
   agent to route it correctly.

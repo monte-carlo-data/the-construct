@@ -4,7 +4,18 @@ description: >
   Security code review agent for Monte Carlo — The Architect. Runs security reviews
   against GitHub pull requests. Use when: "review this PR", "security review this pull
   request", "run architect on this". Accepts a GitHub PR URL.
+user-invocable: true
 context: fork
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebFetch
+  - mcp__notion__notion-fetch
+  - mcp__linear__save_issue
+  - mcp__linear__save_comment
+  - mcp__slack__slack_send_message_draft
 ---
 
 # The Architect
@@ -21,7 +32,7 @@ using the `pr-review.yml` GitHub Action. It helps gather the required inputs, ex
 outputs, and walks through the review results.
 
 The full process documentation is in:
-`review-software/automation/pr-review.md`
+`docs/runbooks/agents/architect.md`
 
 ---
 
@@ -222,7 +233,7 @@ If the user answers **Y**:
 
 - Ask for a slug if one hasn't been established (derive from the PR title: lowercase, spaces to underscores, strip special chars).
 
-- Check whether `review-software/reviews/<slug>/decisions.md` already exists. If it does, load it. If the file contains entries from prior PR reviews for the same slug, note that — new questions from this PR will be merged in (deduplicating by question title).
+- Check whether `reviews/<slug>/decisions.md` already exists. If it does, load it. If the file contains entries from prior PR reviews for the same slug, note that — new questions from this PR will be merged in (deduplicating by question title).
 
 - For each question in the `## Follow-Up Questions` section of the review, present:
 
@@ -272,7 +283,7 @@ Options:
 
 - Show the full `decisions.md` content and ask for confirmation before writing:
 
-> "Ready to write `review-software/reviews/<slug>/decisions.md`. Confirm? (Y/N)"
+> "Ready to write `reviews/<slug>/decisions.md`. Confirm? (Y/N)"
 
 - On confirmation, write the file. Report the path to the user.
 
@@ -304,6 +315,6 @@ title and body — the reviewer uses both as input.
   part of the SDD design review log.
 - If the PR is already merged or closed, the review can still be run retroactively —
   the diff remains accessible via the GitHub API.
-- For setup details, refer to `review-software/automation/pr-review.md`.
+- For setup details, refer to `docs/runbooks/agents/architect.md`.
 - If the PR involves deploying or hosting an internal tool, delegate to the `common` agent
   to route it correctly.

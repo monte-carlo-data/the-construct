@@ -8,6 +8,27 @@ description: >
   close the ticket, or draft a fix. Use when: "triage this vuln", "is SEC-XXXX a false
   positive?", "look at this Aikido finding", "look at this Wiz finding", "should we fix or
   suppress this?". Accepts a Linear ticket ID, Aikido finding URL, or Wiz issue URL.
+user-invocable: true
+context: fork
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - WebFetch
+  - mcp__linear__get_issue
+  - mcp__linear__list_issues
+  - mcp__linear__save_issue
+  - mcp__linear__save_comment
+  - mcp__linear__list_issue_labels
+  - mcp__wiz__authenticate
+  - mcp__wiz__wizcli_setup
+  - mcp__wiz__wizcli_security_scanner
+  - mcp__wiz__get_issue
+  - mcp__wiz__list_issues
+  - mcp__wiz__list_vulnerability_findings
+  - mcp__wiz__get_vulnerability_finding
+  - mcp__aikido__aikido_full_scan
+  - mcp__slack__slack_send_message_draft
 ---
 
 # Tank — Vulnerability Investigation & Disposition
@@ -164,7 +185,7 @@ Wiz** (mark as resolved or accepted risk) or **keep open and route to owner**.
 - **Accepted risk / false positive:** Use Wiz MCP to mark the issue as accepted risk with a
   rationale. Comment on the Linear ticket and close it (Done or Canceled as appropriate).
 
-- **Real finding:** Check system ownership in `mc-knowledge/System_Ownership.md`, comment on
+- **Real finding:** Check system ownership in `mc-knowledge/System_Ownership.md (see template in repo)`, comment on
   the Linear ticket with CVE list, fix path, and recommended owner, and move ticket to Todo.
 
 ---
@@ -549,7 +570,7 @@ Report: `⏸ Snoozed in Aikido (group {group_id}) until {snooze_date} — EOL is
 
 Do **not** suppress. Instead:
 
-1. **Check system ownership** — look up the affected system in `mc-knowledge/System_Ownership.md`.
+1. **Check system ownership** — look up the affected system in `mc-knowledge/System_Ownership.md (see template in repo)`.
 
    **If owner is SCP or ENG** (notification channel populated):
    - Comment with attack vector, blast radius, suggested fix, and recommended owner/team
