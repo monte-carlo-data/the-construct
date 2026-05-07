@@ -54,7 +54,7 @@ Named after Tank from The Matrix: born free, no implants. "I'm the operator. I l
 3. Leave ticket open
 
 ### Real vulnerability
-1. Look up system owner in `mc-knowledge/System_Ownership.md`
+1. Look up system owner in `knowledge/System_Ownership.md`
 2. Comment with attack vector, blast radius, fix path, and recommended owner
 3. Update ticket priority if severity differs from Aikido's rating
 4. Route: SCP/ENG team → assign; GTM/Finance/People/Legal → leave unassigned, GRC must act

@@ -185,7 +185,7 @@ Wiz** (mark as resolved or accepted risk) or **keep open and route to owner**.
 - **Accepted risk / false positive:** Use Wiz MCP to mark the issue as accepted risk with a
   rationale. Comment on the Linear ticket and close it (Done or Canceled as appropriate).
 
-- **Real finding:** Check system ownership in `mc-knowledge/System_Ownership.md (see template in repo)`, comment on
+- **Real finding:** Check system ownership in `knowledge/System_Ownership.md (see template in repo)`, comment on
   the Linear ticket with CVE list, fix path, and recommended owner, and move ticket to Todo.
 
 ---
@@ -570,7 +570,7 @@ Report: `⏸ Snoozed in Aikido (group {group_id}) until {snooze_date} — EOL is
 
 Do **not** suppress. Instead:
 
-1. **Check system ownership** — look up the affected system in `mc-knowledge/System_Ownership.md (see template in repo)`.
+1. **Check system ownership** — look up the affected system in `knowledge/System_Ownership.md (see template in repo)`.
 
    **If owner is SCP or ENG** (notification channel populated):
    - Comment with attack vector, blast radius, suggested fix, and recommended owner/team
