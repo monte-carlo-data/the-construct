@@ -1,0 +1,11 @@
+# Secret scan output
+secret-scan-*.json
+*.trufflehog.json
+
+# Local state files (PentAGI stack)
+.local-state
+*.env
+.env.*
+
+# macOS
+.DS_Store
