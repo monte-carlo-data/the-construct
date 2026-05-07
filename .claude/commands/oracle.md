@@ -116,7 +116,7 @@ For each subdomain returned:
 3. Flag any FQDN that returns HTTP 200 with no apparent authentication prompt
 
 Cross-reference each live subdomain against the approved inventory in
-[Centralized Internal Applications](knowledge/Centralized_Internal_Applications.md (see template in repo)).
+[Centralized Internal Applications](knowledge/Centralized_Internal_Applications.md).
 Flag any that are **not** in the approved list.
 
 If `SECURITYTRAILS_API_KEY` is not available, note the gap and fall back to Step 2b.
