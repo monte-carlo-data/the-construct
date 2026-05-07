@@ -104,7 +104,7 @@ The Merovingian produces a structured Markdown report covering all sources, seve
 | Compliance implications (SOC 2, GDPR, CCPA) | Carlton |
 | Secrets found in code → rotate immediately | Repo owner + Platform team |
 | IAM / access control issues | Trinity |
-| Vendor handling sensitive data | `/vendor-review` |
+| Vendor handling sensitive data | `/vendor-review` (add your own vendor review skill) |
 
 ---
 
@@ -113,7 +113,7 @@ The Merovingian produces a structured Markdown report covering all sources, seve
 - **AWS CLI**: `SecurityAuditAccess` IAM policy; currently personal — needs dedicated read-only role
 - **GitHub `gh` auth**: `read:org`, `repo` scopes; currently personal — needs service account PAT
 - **Wiz MCP**: shared integration; currently session auth
-- **Aikido MCP**: "Agent: Aikido" in your-credentials-vault — already shared
+- **Aikido MCP**: "<your-aikido-item>" in your-credentials-vault — already shared
 - **Notion MCP**: needs integration token; currently personal
 
 ---

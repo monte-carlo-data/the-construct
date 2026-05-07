@@ -113,7 +113,7 @@ When incident involves a hosting platform (Vercel, Netlify, Render, Fly.io), Joh
 - **GitHub `gh` auth**: needs org audit log access (`admin:org`); currently personal
 - **AWS CloudTrail**: needs read-only role with CloudTrail access; currently personal
 - **Wiz MCP**: shared integration; currently session auth
-- **Aikido MCP**: "Agent: Aikido" in your-credentials-vault — already shared
+- **Aikido MCP**: "<your-aikido-item>" in your-credentials-vault — already shared
 
 ---
 

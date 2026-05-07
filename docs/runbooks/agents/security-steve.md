@@ -33,7 +33,7 @@ He does not perform his own review logic. He classifies and dispatches.
 |---|---|---|
 | Notion MCP | Fetch SDD content | MCP server auth |
 | GitHub API (`gh`) | Fetch PR diff and metadata | `gh` CLI auth |
-| Slack MCP | Post review notification to `#team-security` | MCP server auth |
+| Slack MCP | Post review notification to `<your-security-channel>` | MCP server auth |
 | Linear MCP | Create triage ticket for Required reviews | MCP server auth |
 
 ---
@@ -63,10 +63,10 @@ He does not perform his own review logic. He classifies and dispatches.
 1. Fetches PR diff via `gh api`
 2. Optionally fetches SDD for design context
 3. Scores involvement; produces security questions with exploit scenarios and confidence scores
-4. Offers to route to `#team-security` and/or create Linear triage ticket
+4. Offers to route to `<your-security-channel>` and/or create Linear triage ticket
 
 ### Path C — Vendor Review (vendor name/domain)
-Redirects to `/vendor-review` — does not run inline.
+Redirects to `/vendor-review` (add your own vendor review skill) — does not run inline.
 
 ### Path D — Quick Check (freeform description)
 1. Scores involvement on the description
@@ -87,7 +87,7 @@ Redirects to `/vendor-review` — does not run inline.
 ## Post-review routing
 
 For Required or Recommended reviews, Security Steve offers:
-- Post to `#team-security` (channel `<your-slack-channel-id>`)
+- Post to `<your-security-channel>` (channel `<your-slack-channel-id>`)
 - Create Linear triage ticket (Required only)
 
 ---

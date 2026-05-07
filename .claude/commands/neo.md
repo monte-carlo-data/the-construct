@@ -353,7 +353,7 @@ When evaluating Strix, PentestGPT, Shannon, CAI, or others from the SEC-1425 lis
 5. Output the evaluation summary format from your own tool evaluation criteria
 
 For any SaaS tool: use a synthetic dummy target only — never real source code,
-real credentials, or production details until a `/vendor-review` is complete.
+real credentials, or production details until a a vendor security review is complete.
 
 ---
 
@@ -382,7 +382,7 @@ Do nothing without confirmation.
 
 - **Confirmed vuln in production** → John Wick (incident response)
 - **Exposed internal tool or shadow deployment found** → Oracle
-- **SaaS tool selected for adoption** → `/vendor-review`
+- **SaaS tool selected for adoption** → `/vendor-review` (add your own vendor review skill)
 - **Compliance implications from findings** → Carlton
 
 ---
@@ -406,6 +406,6 @@ All files live in `vuln-mgmt-attacker/`:
 - PentAGI REST API: `https://localhost:8443/api/v1`
 
 **Secrets:**
-- `ANTHROPIC_API_KEY` → 1Password: "Agent: Anthropic" / your-credentials-vault
-- `PENTAGI_API_TOKEN` → 1Password: "Agent: Pentagi" / your-credentials-vault (set via `./secrets.sh set-token <token>`)
+- `ANTHROPIC_API_KEY` → 1Password: "<your-anthropic-key-item>" / your-credentials-vault
+- `PENTAGI_API_TOKEN` → 1Password: "<your-pentagi-token-item>" / your-credentials-vault (set via `./secrets.sh set-token <token>`)
 - Internal passwords → `.local-state` (auto-generated, gitignored)

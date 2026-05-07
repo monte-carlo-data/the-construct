@@ -110,8 +110,8 @@ Fetch from 1Password — search for an item tagged or named "Aikido" with `clien
 fields in the your-credentials-vault:
 
 ```bash
-AIKIDO_CLIENT_ID=$(op item get --vault "your-credentials-vault" "Agent: Aikido" --fields username)
-AIKIDO_CLIENT_SECRET=$(op item get --vault "your-credentials-vault" "Agent: Aikido" --fields credential --reveal)
+AIKIDO_CLIENT_ID=$(op item get --vault "your-credentials-vault" "<your-aikido-item>" --fields username)
+AIKIDO_CLIENT_SECRET=$(op item get --vault "your-credentials-vault" "<your-aikido-item>" --fields credential --reveal)
 ```
 
 If the item name has changed, run `op item list --vault "your-credentials-vault" | grep -i aikido` to find
@@ -166,7 +166,7 @@ Extract:
 - Status (open, in progress, resolved)
 - Any linked projects or subscriptions
 
-For **container image findings** (e.g. `docker.io/montecarlodata/pre-release-agent`):
+For **container image findings** (e.g. `docker.io/<your-org>/your-image`):
 
 - List all CVEs or packages flagged by Wiz and note whether a fixed version is available for each
 - **Cross-check Aikido** for the same container image — fetch open Aikido findings filtered to
@@ -287,16 +287,16 @@ The container image is built from a GitHub repo. Identify it by:
 
 - The `code_repo_name` field from Aikido (e.g. `apollo-agent`)
 - The image name (e.g. `pre-release-agent` → repo `apollo-agent`)
-- If unclear, search: `gh repo list monte-carlo-data --json name | grep -i agent`
+- If unclear, search: `gh repo list <your-github-org> --json name | grep -i agent` (adjust repo name pattern for your org)
 
 ### 2. Read requirements files to classify direct vs transitive
 
 ```bash
 # Read the pinned lockfile
-gh api repos/monte-carlo-data/{repo}/contents/requirements.txt --jq '.content' | base64 -d
+gh api repos/<your-github-org>/{repo}/contents/requirements.txt --jq '.content' | base64 -d
 
 # Read the direct deps list
-gh api repos/monte-carlo-data/{repo}/contents/requirements.in --jq '.content' | base64 -d 2>/dev/null
+gh api repos/<your-github-org>/{repo}/contents/requirements.in --jq '.content' | base64 -d 2>/dev/null
 ```
 
 For each vulnerable package, note:
@@ -325,7 +325,7 @@ For each package that is a **direct dep**, find where it's imported in the repo:
 
 ```bash
 # Get all Python files
-gh api "repos/monte-carlo-data/{repo}/git/trees/main?recursive=1" \
+gh api "repos/<your-github-org>/{repo}/git/trees/main?recursive=1" \
   --jq '[.tree[] | select(.path | test("\\.py$")) | .path]' > /tmp/py_files.json
 
 # For each file, check for imports of the vulnerable package
@@ -335,7 +335,7 @@ gh api "repos/monte-carlo-data/{repo}/git/trees/main?recursive=1" \
 For each file that imports the package, read it:
 
 ```bash
-gh api repos/monte-carlo-data/{repo}/contents/{file_path} --jq '.content' | base64 -d
+gh api repos/<your-github-org>/{repo}/contents/{file_path} --jq '.content' | base64 -d
 ```
 
 Focus on: what functions/methods are called, what data flows into them, whether
@@ -401,7 +401,7 @@ to Step 2.
 For SAST/SCA findings with source code, use the GitHub API or `gh` CLI:
 
 ```bash
-gh api repos/monte-carlo-data/{repo_name}/contents/{affected_file} --jq '.content' | base64 -d
+gh api repos/<your-github-org>/{repo_name}/contents/{affected_file} --jq '.content' | base64 -d
 ```
 
 Focus on the lines around `start_line`–`end_line` (±20 lines for context).
@@ -443,7 +443,7 @@ renames, and reformatting commits silently reset blame to the wrong person.
    appears as an addition (`+`) in that commit's diff:
 
 ```bash
-gh api repos/monte-carlo-data/{repo}/commits/{sha} \
+gh api repos/<your-github-org>/{repo}/commits/{sha} \
   --jq '.files[] | select(.filename | test("{affected_file}")) | .patch' \
   | grep -n "^+" | grep "{flagged_pattern}"
 ```
@@ -455,17 +455,17 @@ gh api repos/monte-carlo-data/{repo}/commits/{sha} \
 ```bash
 # Collect ALL commits that introduced the flagged pattern across all pages (do NOT break on first match)
 for page in 1 2 3 4 5; do
-  shas=$(gh api "repos/monte-carlo-data/{repo}/commits?path={affected_file}&per_page=50&page=$page" \
+  shas=$(gh api "repos/<your-github-org>/{repo}/commits?path={affected_file}&per_page=50&page=$page" \
     --jq '.[].sha' 2>/dev/null)
   [ -z "$shas" ] && break
   while IFS= read -r sha; do
-    patch=$(gh api "repos/monte-carlo-data/{repo}/commits/$sha" \
+    patch=$(gh api "repos/<your-github-org>/{repo}/commits/$sha" \
       --jq '.files[]? | select(.filename | test("{affected_file}")) | .patch // ""' 2>/dev/null)
     if echo "$patch" | grep -q "^+.*{flagged_pattern}"; then
-      gh api "repos/monte-carlo-data/{repo}/commits/$sha" \
+      gh api "repos/<your-github-org>/{repo}/commits/$sha" \
         --jq '{sha: .sha[0:8], author: .commit.author.name, email: .commit.author.email, date: .commit.author.date, message: .commit.message | split("\n")[0]}'
-      gh api "repos/monte-carlo-data/{repo}/commits/$sha/pulls" \
-        --jq '.[0] | "PR #\(.number): \(.title) — https://github.com/monte-carlo-data/{repo}/pull/\(.number)"' 2>/dev/null
+      gh api "repos/<your-github-org>/{repo}/commits/$sha/pulls" \
+        --jq '.[0] | "PR #\(.number): \(.title) — https://github.com/<your-github-org>/{repo}/pull/\(.number)"' 2>/dev/null
       echo "---"
     fi
   done <<< "$shas"

@@ -51,9 +51,9 @@ Oracle feeds the rest of the agent roster:
 Oracle runs in two modes:
 
 **Scheduled (background):** Daily minimum, triggered automatically by the MC Security Bot.
-Runs all scan modules silently and posts a digest to `#team-security`.
+Runs all scan modules silently and posts a digest to `<your-security-channel>`.
 
-**On-demand:** Triggered by the user or via `@mc-security oracle scan`.
+**On-demand:** Triggered by the user or via `invoking the oracle skill directly`.
 Runs the full workflow interactively, pausing for user confirmation before creating tickets.
 
 Check the invocation context:
@@ -106,7 +106,7 @@ GET https://api.securitytrails.com/v1/domain/{domain}/subdomains
 APIKEY: <SECURITYTRAILS_API_KEY>
 ```
 
-Domains to enumerate: `getmontecarlo.com`, `mcdinternal.io`, `mcbridge.io`.
+Domains to enumerate: `<your-domain>`, `<your-secondary-domain>`, `<your-other-domain>`.
 
 For each subdomain returned:
 
@@ -131,8 +131,8 @@ and domains. Requires `SHODAN_API_KEY` and/or `CENSYS_API_ID` + `CENSYS_API_SECR
 #### Shodan — search by org/domain
 
 ```http
-GET https://api.shodan.io/shodan/host/search?query=hostname:getmontecarlo.com&key=<SHODAN_API_KEY>
-GET https://api.shodan.io/shodan/host/search?query=org:"Monte Carlo Data"&key=<SHODAN_API_KEY>
+GET https://api.shodan.io/shodan/host/search?query=hostname:<your-domain>&key=<SHODAN_API_KEY>
+GET https://api.shodan.io/shodan/host/search?query=org:"<YOUR_ORG_NAME>"&key=<SHODAN_API_KEY>
 ```
 
 #### Censys — search by domain
@@ -142,7 +142,7 @@ POST https://search.censys.io/api/v2/hosts/search
 Authorization: Basic <CENSYS_API_ID>:<CENSYS_API_SECRET>
 Content-Type: application/json
 
-{ "q": "dns.reverse_dns.reverse_dns:getmontecarlo.com", "per_page": 100 }
+{ "q": "dns.reverse_dns.reverse_dns:<your-domain>", "per_page": 100 }
 ```
 
 For each result, record:
@@ -191,12 +191,12 @@ if a flagged resource is an approved app, note it as approved rather than a new 
 
 ### 3a — GitHub Org API Scan
 
-Scope: `monte-carlo-data` GitHub org. Requires `GITHUB_TOKEN` with `read:org` and `repo` scopes.
+Scope: `<your-github-org>` GitHub org. Requires `GITHUB_TOKEN` with `read:org` and `repo` scopes.
 
 #### List recently pushed repos
 
 ```http
-GET https://api.github.com/orgs/monte-carlo-data/repos?type=all&sort=pushed&per_page=100
+GET https://api.github.com/orgs/<your-github-org>/repos?type=all&sort=pushed&per_page=100
 Authorization: Bearer <GITHUB_TOKEN>
 ```
 
@@ -208,20 +208,20 @@ use the last 24 hours.
 Run these GitHub code search queries in parallel via WebFetch:
 
 ```http
-GET https://api.github.com/search/code?q=openai+org:monte-carlo-data&per_page=30
-GET https://api.github.com/search/code?q=anthropic+org:monte-carlo-data&per_page=30
-GET https://api.github.com/search/code?q=langchain+org:monte-carlo-data&per_page=30
-GET https://api.github.com/search/code?q=llama_index+org:monte-carlo-data&per_page=30
-GET https://api.github.com/search/code?q=huggingface+org:monte-carlo-data&per_page=30
-GET https://api.github.com/search/code?q=google-generativeai+org:monte-carlo-data&per_page=30
+GET https://api.github.com/search/code?q=openai+org:<your-github-org>&per_page=30
+GET https://api.github.com/search/code?q=anthropic+org:<your-github-org>&per_page=30
+GET https://api.github.com/search/code?q=langchain+org:<your-github-org>&per_page=30
+GET https://api.github.com/search/code?q=llama_index+org:<your-github-org>&per_page=30
+GET https://api.github.com/search/code?q=huggingface+org:<your-github-org>&per_page=30
+GET https://api.github.com/search/code?q=google-generativeai+org:<your-github-org>&per_page=30
 Authorization: Bearer <GITHUB_TOKEN>
 ```
 
 #### For each repo with hits, fetch metadata
 
 ```http
-GET https://api.github.com/repos/monte-carlo-data/{repo}
-GET https://api.github.com/repos/monte-carlo-data/{repo}/commits?per_page=1
+GET https://api.github.com/repos/<your-github-org>/{repo}
+GET https://api.github.com/repos/<your-github-org>/{repo}/commits?per_page=1
 Authorization: Bearer <GITHUB_TOKEN>
 ```
 
@@ -238,8 +238,8 @@ For repos that contain AI signals, also check their GitHub Actions workflows for
 recently changed automation that may be deploying AI tools without a security gate:
 
 ```http
-GET https://api.github.com/repos/monte-carlo-data/{repo}/actions/workflows
-GET https://api.github.com/repos/monte-carlo-data/{repo}/actions/runs?per_page=5
+GET https://api.github.com/repos/<your-github-org>/{repo}/actions/workflows
+GET https://api.github.com/repos/<your-github-org>/{repo}/actions/runs?per_page=5
 Authorization: Bearer <GITHUB_TOKEN>
 ```
 
@@ -254,7 +254,7 @@ Flag workflows that:
 For flagged workflows, fetch the raw YAML to understand what the pipeline does:
 
 ```http
-GET https://api.github.com/repos/monte-carlo-data/{repo}/contents/.github/workflows/{file}
+GET https://api.github.com/repos/<your-github-org>/{repo}/contents/.github/workflows/{file}
 Authorization: Bearer <GITHUB_TOKEN>
 ```
 
@@ -277,7 +277,7 @@ For each flagged repo, map the last committer to a Slack user so outreach can be
 1. Extract the committer's GitHub username and email from the commit metadata:
 
 ```http
-GET https://api.github.com/repos/monte-carlo-data/{repo}/commits?per_page=1
+GET https://api.github.com/repos/<your-github-org>/{repo}/commits?per_page=1
 Authorization: Bearer <GITHUB_TOKEN>
 ```
 
@@ -296,7 +296,7 @@ query: <committer_name>
 ```
 
 4. Record the Slack user ID, full name, and email for use in Step 6 ticket descriptions and
-   any Medium-severity outreach drafted via `shadow-it-triage`.
+   any Medium-severity outreach drafted manually via Morpheus (`/morpheus`).
 
 If the committer cannot be resolved to a Slack user, note it in the finding and flag for
 manual owner lookup before outreach is sent.
@@ -338,7 +338,7 @@ Use the Notion MCP to fetch the page and extract the application directory table
 
 ```text
 mcp__notion__notion-fetch
-url: https://www.notion.so/montecarlodata/Centralized-Internal-Applications-319334399e6580bdad18df5e63143fd6
+url: knowledge/Centralized_Internal_Applications.md
 ```
 
 If an asset's URL or subdomain matches an entry in this table, mark it **approved / known**.
@@ -348,7 +348,7 @@ and vendors. Use the Notion MCP to fetch and parse the database:
 
 ```text
 mcp__notion__notion-fetch
-url: https://www.notion.so/montecarlodata/24e334399e6580cf9d76fe12dfcaf2c4
+url: <your-approved-ai-vendors-notion-url>
 ```
 
 If a detected AI tool or vendor matches an entry in this list, mark it **approved / known**.
@@ -359,7 +359,7 @@ fall back to `mcp__notion__notion-search` with the page title as the query, then
 entries from the returned blocks.
 
 **3. Aikido** — known vulnerabilities in detected AI-related packages. Cross-reference any
-AI library versions found in repos against Aikido's findings for the `monte-carlo-data` org.
+AI library versions found in repos against Aikido's findings for the `<your-github-org>` org.
 Flag any package with a High or Critical CVE as an additional risk factor.
 
 **4. Linear** — existing tracked issues. Use the Linear MCP to search for open issues under
@@ -389,7 +389,7 @@ Routing:
 
 - **Critical** → John Wick (incident response activation)
 - **High** → Linear ticket + Security Steve (architectural review)
-- **Medium** → Linear ticket + shadow-it-triage workflow for outreach
+- **Medium** → Linear ticket + shadow-it outreach workflow workflow for outreach
 - **Low** → Log in digest only
 
 In on-demand mode: show the user a prioritized findings list and confirm before proceeding.
@@ -449,7 +449,7 @@ Oracle runs on a daily schedule via the `/loop` skill or the MC Security Bot cro
 ### Schedule
 
 - **Frequency**: Daily at 9:00 AM PT (minimum)
-- **Trigger**: `@mc-security oracle scan` or `/loop 24h /oracle`
+- **Trigger**: `invoking the oracle skill directly` or `/loop 24h /oracle`
 - **Scope**: Full scan, scheduled mode (silent, auto-proceed)
 
 ### What runs automatically vs. what waits for human review
@@ -466,9 +466,9 @@ Oracle runs on a daily schedule via the `/loop` skill or the MC Security Bot cro
 | Severity classification | Yes | Yes |
 | Create Linear tickets (Critical) | Yes — auto | Confirm first |
 | Create Linear tickets (High) | Queue only | Confirm first |
-| Post daily digest to #team-security | Yes — auto | Ask user |
+| Post daily digest to <your-security-channel> | Yes — auto | Ask user |
 | Post weekly summary (Mondays) | Yes — auto | Ask user |
-| Draft Slack outreach (Medium) | No — deferred | Via shadow-it-triage |
+| Draft Slack outreach (Medium) | No — deferred | Via shadow-it outreach workflow |
 
 ### Cron setup (MC Security Bot)
 
@@ -535,7 +535,7 @@ Inventory: artifacts/oracle-inventory.csv
 
 In on-demand mode, ask the user before posting:
 
-> "Should I post this digest to #team-security?"
+> "Should I post this digest to <your-security-channel>?"
 
 ### Weekly exposure summary
 
@@ -607,7 +607,7 @@ Show the user a preview before writing. Confirm the file path written.
 
 ## Notes & Conventions
 
-- `*.dev.getmontecarlo.com` is higher priority than third-party hosting (Vercel, Netlify, GitHub
+- `*.dev.<your-domain>` is higher priority than third-party hosting (Vercel, Netlify, GitHub
   Pages) — MC-owned infrastructure = higher blast radius
 - Passwords or API keys posted in public Slack channels must be treated as **compromised** —
   flag as Critical regardless of other factors
@@ -616,7 +616,7 @@ Show the user a preview before writing. Confirm the file path written.
   recommended action
 - The Centralized Internal Applications Notion page is the canonical reference for where
   internal apps should live:
-  [Centralized Internal Applications](https://www.notion.so/montecarlodata/Centralized-Internal-Applications-319334399e6580bdad18df5e63143fd6)
+  [Centralized Internal Applications](knowledge/Centralized_Internal_Applications.md)
 - When a finding is already tracked in Linear, link to the existing ticket rather than creating
   a duplicate. Update the existing ticket's description if new information is available
 - Trend tracking: note whether the exposed surface is growing or shrinking compared to the

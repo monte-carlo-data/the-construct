@@ -267,7 +267,7 @@ Skip this step if `okta` or `iam` was the only argument.
 ### 3a — Outside collaborators
 
 ```bash
-gh api /orgs/monte-carlo-data/outside_collaborators --paginate \
+gh api /orgs/<your-github-org>/outside_collaborators --paginate \
   --jq '.[] | {login, html_url}'
 ```
 
@@ -275,11 +275,11 @@ For each outside collaborator, find which repos they have access to:
 
 ```bash
 # Get all org repos, then check if the collaborator appears in each repo's collaborator list
-gh api /orgs/monte-carlo-data/outside_collaborators --jq '.[].login' | while read login; do
+gh api /orgs/<your-github-org>/outside_collaborators --jq '.[].login' | while read login; do
   echo "=== $login ==="
-  gh api "/orgs/monte-carlo-data/repos?type=all&per_page=100" --paginate \
+  gh api "/orgs/<your-github-org>/repos?type=all&per_page=100" --paginate \
     --jq '.[].name' | while read repo; do
-    perm=$(gh api "/repos/monte-carlo-data/$repo/collaborators/$login/permission" \
+    perm=$(gh api "/repos/<your-github-org>/$repo/collaborators/$login/permission" \
       --jq '.permission' 2>/dev/null)
     if [[ -n "$perm" && "$perm" != "none" ]]; then
       echo "  $repo: $perm"
@@ -293,7 +293,7 @@ Flag any outside collaborator with `write` or `admin` permission on any repo.
 ### 3b — Stale org members
 
 ```bash
-gh api /orgs/monte-carlo-data/members --paginate \
+gh api /orgs/<your-github-org>/members --paginate \
   --jq '.[] | {login, html_url}'
 ```
 
@@ -303,13 +303,13 @@ For each member, check recent activity:
 gh api /users/<login>/events --jq '.[0].created_at' 2>/dev/null
 ```
 
-Flag members with no GitHub activity in the `monte-carlo-data` org within the stale threshold.
+Flag members with no GitHub activity in the `<your-github-org>` org within the stale threshold.
 
 ### 3c — Organization-level OAuth apps and PATs with elevated access
 
 ```bash
 # List org OAuth app authorizations
-gh api /orgs/monte-carlo-data/oauth_authorizations 2>/dev/null \
+gh api /orgs/<your-github-org>/oauth_authorizations 2>/dev/null \
   --jq '.[] | {app: .app.name, scopes, created_at}'
 ```
 
@@ -318,7 +318,7 @@ Flag any app or token with `admin:org`, `repo` (full), or `delete_repo` scope.
 ### 3d — Public repos
 
 ```bash
-gh api /orgs/monte-carlo-data/repos --paginate \
+gh api /orgs/<your-github-org>/repos --paginate \
   --jq '.[] | select(.private == false) | {name, html_url, pushed_at, description}'
 ```
 
@@ -334,7 +334,7 @@ Note: do not read file contents of public repos — just flag for manual review.
 For all repos (public and private), check whether a CODEOWNERS file exists:
 
 ```bash
-gh api "repos/monte-carlo-data/{repo}/contents/.github/CODEOWNERS" --jq '.name' 2>/dev/null \
+gh api "repos/<your-github-org>/{repo}/contents/.github/CODEOWNERS" --jq '.name' 2>/dev/null \
   || echo "MISSING"
 ```
 
@@ -587,7 +587,7 @@ If provided, use `mcp__linear__create_attachment` to attach the report as a link
 ### 7b — Post to Slack (optional)
 
 ```
-Post a summary to Slack? Enter a channel name (e.g. #team-security) or press Enter to skip:
+Post a summary to Slack? Enter a channel name (e.g. <your-security-channel>) or press Enter to skip:
 ```
 
 If provided, draft via `mcp__slack__slack_send_message_draft` — show to engineer before sending.

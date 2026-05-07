@@ -94,7 +94,7 @@ After scanning, Cypher can draft remediation guidance per finding type. All draf
 
 ## Service account requirements
 
-- **Aikido MCP**: "Agent: Aikido" in your-credentials-vault — already shared
+- **Aikido MCP**: "<your-aikido-item>" in your-credentials-vault — already shared
 - **GitHub `gh` auth**: `read:org`, `repo` scopes; currently personal — needs service account PAT
 - **Wiz MCP**: shared integration; currently session auth
 - **Linear MCP**: read access for dedup; currently personal

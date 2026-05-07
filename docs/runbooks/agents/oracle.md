@@ -58,7 +58,7 @@ All API keys must be available in the environment. Missing keys degrade scan cov
 
 | Module | What it does |
 |---|---|
-| 2a — SecurityTrails | Enumerates subdomains for `getmontecarlo.com`, `mcdinternal.io`, `mcbridge.io` |
+| 2a — SecurityTrails | Enumerates subdomains for `<your-domain>`, `<your-secondary-domain>`, `<your-other-domain>` |
 | 2b — Shodan/Censys | Passive exposure scanning of MC IP ranges and domains |
 | 2c — Aikido | Cloud misconfigs, public S3 buckets, exposed secrets |
 | 3a — GitHub org | AI library signals in repos and Actions workflows |
@@ -74,8 +74,8 @@ All API keys must be available in the environment. Missing keys degrade scan cov
 | All scan modules | Auto | Auto |
 | Create Critical Linear tickets | Auto | Confirm first |
 | Queue High tickets | Queue only | Confirm first |
-| Post daily digest to `#team-security` | Auto | Ask user |
-| Draft Slack outreach (Medium) | No — via shadow-it-triage | Via shadow-it-triage |
+| Post daily digest to `<your-security-channel>` | Auto | Ask user |
+| Draft Slack outreach (Medium) | No — via shadow-it outreach workflow | Via shadow-it outreach workflow |
 
 ---
 
@@ -93,7 +93,7 @@ CSV columns: `scan_date, source, asset_type, asset_url_or_id, owner_name, owner_
 |---|---|
 | Critical | John Wick (incident response) |
 | High | Linear ticket + Security Steve (architectural review) |
-| Medium | Linear ticket + shadow-it-triage for outreach |
+| Medium | Linear ticket + shadow-it outreach workflow for outreach |
 | Low | Log in digest only |
 
 ---
@@ -118,4 +118,4 @@ schedules:
 - **SecurityTrails/Shodan/Censys**: API keys stored in your-credentials-vault; not personal accounts
 - **Slack MCP**: needs bot token with search scope (currently personal OAuth)
 - **Notion MCP**: needs integration token (currently personal)
-- **Aikido MCP**: needs API key (shared "Agent: Aikido" in your-credentials-vault)
+- **Aikido MCP**: needs API key (shared "<your-aikido-item>" in your-credentials-vault)

@@ -30,7 +30,7 @@ Named after Tank from The Matrix: born free, no implants. "I'm the operator. I l
 
 | System | Purpose | Auth |
 |---|---|---|
-| Aikido API | Fetch finding metadata, suppress false positives | `AIKIDO_CLIENT_ID` + `AIKIDO_CLIENT_SECRET` (1Password: "Agent: Aikido" in your-credentials-vault) |
+| Aikido API | Fetch finding metadata, suppress false positives | `AIKIDO_CLIENT_ID` + `AIKIDO_CLIENT_SECRET` (1Password: "<your-aikido-item>" in your-credentials-vault) |
 | Wiz MCP | Fetch Wiz issue details, container findings | MCP server auth |
 | GitHub API / `gh` | Read source code for SAST/SCA findings | `gh` CLI auth |
 | AWS CLI | Check EC2 instance state (cloud_instance findings) | AWS profile |
@@ -71,8 +71,8 @@ Named after Tank from The Matrix: born free, no implants. "I'm the operator. I l
 
 **Aikido credentials** (1Password, your-credentials-vault):
 ```bash
-AIKIDO_CLIENT_ID=$(op item get --vault "your-credentials-vault" "Agent: Aikido" --fields username)
-AIKIDO_CLIENT_SECRET=$(op item get --vault "your-credentials-vault" "Agent: Aikido" --fields credential --reveal)
+AIKIDO_CLIENT_ID=$(op item get --vault "your-credentials-vault" "<your-aikido-item>" --fields username)
+AIKIDO_CLIENT_SECRET=$(op item get --vault "your-credentials-vault" "<your-aikido-item>" --fields credential --reveal)
 ```
 
 **Container image findings**: Tank uses a 3-step verification process:
@@ -95,7 +95,7 @@ AIKIDO_CLIENT_SECRET=$(op item get --vault "your-credentials-vault" "Agent: Aiki
 
 ## Service account requirements
 
-- **Aikido API key**: "Agent: Aikido" in your-credentials-vault
+- **Aikido API key**: "<your-aikido-item>" in your-credentials-vault
 - **GitHub `gh` auth**: currently personal; needs service account token with `repo` read scope
 - **AWS CLI**: currently personal; needs dedicated read-only role
 - **wizcli**: authenticated via Wiz MCP; ensure service account has container scan permissions

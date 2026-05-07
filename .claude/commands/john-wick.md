@@ -180,8 +180,8 @@ Slack to determine MC affiliation.
 **D. Web/Google search**
 
 ```
-site:<domain_suffix> "monte carlo" OR "montecarlodata" OR "getmontecarlo.com"
-site:github.com "monte-carlo-data" <config_file>
+site:<domain_suffix> "<your-org-name>" OR "<your-domain>"
+site:github.com "<your-github-org>" <config_file>
 ```
 
 Note: MC internal apps are rarely indexed (auth-gated or noindex). Absence of results
@@ -221,7 +221,7 @@ For each URL found, determine:
 A DNS hit is NOT an MC app if ALL of the following are true:
 1. Zero Slack mentions of the URL
 2. Page title / content has no MC branding or employee names
-3. No GitHub repo in `monte-carlo-data` org links to it
+3. No GitHub repo in `<your-github-org>` org links to it
 
 ---
 

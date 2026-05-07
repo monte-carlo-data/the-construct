@@ -85,7 +85,7 @@ Every Morpheus message follows this 5-part structure:
 
 | Resource | URL |
 |---|---|
-| Approved AI Vendor List | https://www.notion.so/montecarlodata/24e334399e6580cf9d76fe12dfcaf2c4 |
+| Approved AI Vendor List | <your-approved-ai-vendors-notion-url> |
 | Security Review Process | (confirm URL — stored in Notion) |
 | Data Classification Policy | (confirm URL — open question) |
 | Phishing Response Guide | (confirm URL — open question) |

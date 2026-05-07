@@ -248,7 +248,7 @@ Flag:
 ⏳ Print: "Scanning GitHub repos for .env files and plaintext config patterns..."
 
 ```bash
-gh api /orgs/monte-carlo-data/repos --paginate \
+gh api /orgs/<your-github-org>/repos --paginate \
   --jq '.[] | {name, private, pushed_at}' \
   > /tmp/niobe-repos.json
 ```
@@ -272,7 +272,7 @@ for r in repos:
     found = []
     for pattern in ENV_PATTERNS:
         resp = subprocess.run(
-            ['gh', 'api', f'repos/monte-carlo-data/{name}/contents/{pattern}'],
+            ['gh', 'api', f'repos/<your-github-org>/{name}/contents/{pattern}'],
             capture_output=True, text=True, timeout=10
         )
         if resp.returncode == 0:
@@ -591,7 +591,7 @@ for the full report link.
 ### 7b — Post to Slack (optional)
 
 ```text
-Post a summary to Slack? Enter a channel name (e.g. #team-security) or press Enter to skip:
+Post a summary to Slack? Enter a channel name (e.g. <your-security-channel>) or press Enter to skip:
 ```
 
 Draft via `mcp__slack__slack_send_message_draft`. Post Executive Summary + severity table only.

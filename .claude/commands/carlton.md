@@ -145,7 +145,7 @@ REGISTER MATCH
     Treatment:      Mitigate / Transfer / Accept
     Status:         Done / In Progress
     Residual Score: 15
-    Owner:          name@montecarlodata.com
+    Owner:          name@yourcompany.com
     Approved At:    2025-04-24
 
   <If not found:>

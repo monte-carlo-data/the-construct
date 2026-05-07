@@ -76,7 +76,7 @@ Ask the user:
 Then ask:
 
 > "Are there any related repos the reviewer should pull context from? Paste
-> comma-separated org/repo slugs (e.g. `monte-carlo-data/agent-hub`) or press
+> comma-separated org/repo slugs (e.g. `<your-github-org>/your-repo`) or press
 > Enter to skip. Max 3 repos — code and markdown files will be fetched."
 
 Then ask:
@@ -127,10 +127,10 @@ Show the config to add to `.github/pr-review-config.yml` in their branch:
 pr_review_url: "<pr_url>"
 
 # Optional — adds design context from Notion (requires NOTION_TOKEN secret)
-# notion_sdd_url: "https://www.notion.so/montecarlodata/..."
+# notion_sdd_url: "https://www.notion.so/<your-workspace>/..."
 
 # Optional — fetch code and markdown from related repos for additional context (max 3)
-# context_repos: "monte-carlo-data/agent-hub,monte-carlo-data/sdk"
+# context_repos: "<your-github-org>/your-repo,<your-github-org>/your-other-repo"
 
 # Optional — suppress Slack/Linear notifications for this run
 skip_notifications: false
@@ -150,7 +150,7 @@ jobs:
     with:
       pr-review-url: "<pr_url>"
       # notion-sdd-url: "https://www.notion.so/..."   # optional
-      # context-repos: "monte-carlo-data/agent-hub"   # optional, comma-separated, max 3
+      # context-repos: "<your-github-org>/your-repo"   # optional, comma-separated, max 3
       skip-notifications: false
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -196,8 +196,8 @@ Explain what the recommendation means and what action is expected:
 
 | Recommendation | Meaning | Next step |
 |---|---|---|
-| **Required** | Security team must be consulted before this PR merges | Post in [#team-security](#your-security-channel) before merging |
-| **Recommended** | Security team should review but is not blocking | Consider posting in [#team-security](#your-security-channel) for async review |
+| **Required** | Security team must be consulted before this PR merges | Post in [<your-security-channel>](#your-security-channel) before merging |
+| **Recommended** | Security team should review but is not blocking | Consider posting in [<your-security-channel>](#your-security-channel) for async review |
 | **Not Required** | No Security team involvement needed | Proceed — the security questions are still worth addressing in review |
 
 ### Security questions
@@ -214,7 +214,7 @@ Note that questions below 70% confidence are suppressed from the PR comment enti
 ### Notifications
 
 If notifications fired (Slack message or Linear ticket), confirm the user knows:
-- The Slack message went to **#team-security**
+- The Slack message went to **<your-security-channel>**
 - A Linear ticket was created in the Security team's Triage queue (Required only)
 - They should respond to or monitor those channels for follow-up
 

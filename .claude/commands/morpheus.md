@@ -153,7 +153,7 @@ Every Morpheus message follows this 5-part structure:
 - Never use: "you failed", "you violated", "this is a warning", "you should have known"
 - Use: "we noticed", "we wanted to flag", "we wanted to make sure you had the info"
 - Treat the employee as an intelligent adult who didn't have the right information
-- Always end with an offer to help: "Happy to answer any questions in #team-security"
+- Always end with an offer to help: "Happy to answer any questions in <your-security-channel>"
 
 **Check for disqualifying content before drafting:**
 
@@ -201,7 +201,7 @@ Here's what to do:
 <Security Review Process link>
 
 If we don't hear back within 3 business days, we'll follow up directly. Happy to answer
-questions in #team-security — no judgment, ever.
+questions in <your-security-channel> — no judgment, ever.
 
 — Security Team
 ```
@@ -225,13 +225,13 @@ What to watch for next time:
 → When in doubt, go directly to the service (don't click the link)
 → Anything that creates urgency ("your account will be closed") is a red flag
 
-If you ever get something that feels off, forward it to #team-security before clicking.
+If you ever get something that feels off, forward it to <your-security-channel> before clicking.
 We'd rather get 100 false alarms than miss one real phish.
 
 <Phishing Response Guide link>
 
 If we don't hear back within 3 business days, we'll follow up directly. Questions?
-#team-security — always.
+<your-security-channel> — always.
 
 — Security Team
 ```
@@ -254,7 +254,7 @@ Why this matters:
 What to do:
 → <step 1 — e.g., move or delete the file>
 → <step 2 — e.g., check if it was shared externally>
-→ If you're unsure what to do, ping #team-security and we'll help
+→ If you're unsure what to do, ping <your-security-channel> and we'll help
 
 <Data Classification Policy link>
 
@@ -288,7 +288,7 @@ How to kick it off:
 <Approved AI Vendor List link> (in case you want to swap to a pre-approved model)
 
 If we don't hear back within 3 business days, we'll follow up directly. Happy to pair
-on the review if it'd help — just ping #team-security.
+on the review if it'd help — just ping <your-security-channel>.
 
 — Security Team
 ```
@@ -307,7 +307,7 @@ We're not assuming anything went wrong — sometimes these things happen automat
 or as part of a workflow. We just want to make sure it's expected.
 
 If yes: no action needed, just let us know and we'll close the loop.
-If no: let us know in #team-security right away and we'll help you sort it out.
+If no: let us know in <your-security-channel> right away and we'll help you sort it out.
 
 If we don't hear back within 3 business days, we'll follow up directly.
 
@@ -353,7 +353,7 @@ We're not trying to create pressure — we just want to make sure you have what 
 need to close this out. If you already took care of it, let us know and we'll mark
 it resolved.
 
-If you have questions or need help, #team-security is always open.
+If you have questions or need help, <your-security-channel> is always open.
 
 <original Notion links>
 
@@ -425,8 +425,8 @@ These are the canonical links to include in outreach. Verify before use — Noti
 
 | Resource | URL |
 |---|---|
-| Approved AI Vendor List | https://www.notion.so/montecarlodata/24e334399e6580cf9d76fe12dfcaf2c4 |
-| Security Review Process | https://www.notion.so/montecarlodata/Security-Design-Reviews-SDD-0e0d9a1b3a3e4b0f8e1234abcd5678ef |
+| Approved AI Vendor List | <your-approved-ai-vendors-notion-url> |
+| Security Review Process | <your-security-review-process-notion-url> |
 | Data Classification Policy | *(confirm URL — open question)* |
 | Phishing Response Guide | *(confirm URL — open question)* |
 

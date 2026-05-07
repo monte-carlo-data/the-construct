@@ -509,7 +509,7 @@ for the full report link.
 ### 7b — Post to Slack (optional)
 
 ```text
-Post a summary to Slack? Enter a channel name (e.g. #team-security) or press Enter to skip:
+Post a summary to Slack? Enter a channel name (e.g. <your-security-channel>) or press Enter to skip:
 ```
 
 Draft via `mcp__slack__slack_send_message_draft`. Post Executive Summary + severity table only.

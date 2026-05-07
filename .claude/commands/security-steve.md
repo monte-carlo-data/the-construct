@@ -31,10 +31,10 @@ review path:
 
 - **SDD review** — for Notion design documents
 - **PR review** — for GitHub pull requests
-- **Vendor review** — for third-party tools, vendors, or MCP servers (redirects to `/vendor-review`)
+- **Vendor review** — for third-party tools, vendors, or MCP servers (redirects to `/vendor-review` (add your own vendor review skill))
 - **Quick check** — for freeform descriptions with no structured doc
 
-After running the review, you offer to route to `#team-security` if the result warrants it.
+After running the review, you offer to route to `<your-security-channel>` if the result warrants it.
 The user never needs to read a doc or invoke another skill.
 
 ---
@@ -129,7 +129,7 @@ If you cannot confidently route, ask one clarifying question before dispatching.
 
 **John Wick** (active incident, active threat):
 > "If something is actively wrong, don't wait. Run `/john-wick` and he'll start the
-> investigation. Also ping **#team-security** and tag **@security-oncall** immediately."
+> investigation. Also ping **<your-security-channel>** and tag **@security-oncall** immediately."
 
 **Morpheus** (security education, phishing, "did I do something wrong?"):
 > "No judgment here — Morpheus is the right guide for this kind of situation.
@@ -201,7 +201,7 @@ Apply these routing rules:
 | Notion URL only | SDD review |
 | GitHub PR URL only | PR review |
 | GitHub PR URL + Notion URL | PR review with SDD as design context |
-| Vendor name / domain / RFP | Vendor review (redirect to `/vendor-review`) |
+| Vendor name / domain / RFP | Vendor review (redirect to `/vendor-review` (add your own vendor review skill)) |
 | Freeform description only | Quick check |
 | Notion URL that isn't an SDD | Fetch page → determine type from content, then re-classify |
 
@@ -490,11 +490,11 @@ Use `/security-steve` when you're not sure which review type applies.
 
 Tell the user:
 
-> "This looks like a vendor review. The full vendor review workflow (`/vendor-review`) is the
+> "This looks like a vendor review. The full vendor review workflow (`/vendor-review` (add your own vendor review skill)) is the
 > right tool for this — it researches the vendor's security posture, evaluates compliance docs,
 > checks integration permissions, and produces a complete assessment with a Notion database entry.
 >
-> Run `/vendor-review` and provide:
+> Run `/vendor-review` (add your own vendor review skill) and provide:
 >
 > - Vendor name: [vendor]
 > - Ticket URL: [if provided]
@@ -502,9 +502,9 @@ Tell the user:
 
 Do not attempt to run the vendor review inline. The vendor review requires loading multiple
 reference files, performing web research, and writing to Notion — redirect the user to
-`/vendor-review` which owns that full workflow.
+`/vendor-review` (add your own vendor review skill) which owns that full workflow.
 
-**Skill recommendation:** For vendor evaluations, `/vendor-review` is the right starting point
+**Skill recommendation:** For vendor evaluations, `/vendor-review` (add your own vendor review skill) is the right starting point
 next time — you can invoke it directly without going through `/security-steve` first.
 
 ---
@@ -554,7 +554,7 @@ If Not Required:
 
 - Have a Notion SDD? → `/sdd-review <notion_url>`
 - Have a GitHub PR? → `/pr-review <pr_url>`
-- Evaluating a vendor or tool? → `/vendor-review`
+- Evaluating a vendor or tool? → `/vendor-review` (add your own vendor review skill)
 - Making a repo public? → `/repo-public <org/repo>`
 - Need to record decisions on a completed review? → `/decision <slug>`
 
@@ -569,18 +569,18 @@ After any review that returns **Required** or **Recommended**, offer:
 > "This review came back as **[Required / Recommended]**. Would you like me to route it to the
 > Security team?
 >
-> - [S] Post to Slack #team-security
+> - [S] Post to Slack <your-security-channel>
 > - [L] Create a Linear triage ticket (Required only)
 > - [B] Both
 > - [N] Skip"
 
 ### Slack notification
 
-Post to **#team-security** (channel `<your-slack-channel-id>`) using the `mcp__slack__slack_send_message_draft`
+Post to **<your-security-channel>** (channel `<your-slack-channel-id>`) using the `mcp__slack__slack_send_message_draft`
 tool (or equivalent send tool available in the Slack MCP).
 
 If the Slack MCP is not authenticated (tool returns an auth error), tell the user and provide
-the message text to copy-paste manually into #team-security:
+the message text to copy-paste manually into <your-security-channel>:
 
 ```text
 [Required / Recommended] Security Review: <title>
@@ -685,6 +685,6 @@ Session summary:
 - Quick check is for triage only — it is not a substitute for a full review.
 - Security Steve does not own TRACKING.md. For full SDD queue management, use `/sdd-review`.
 - PR fetching uses `gh api` — the user must be authenticated via `gh auth login`.
-- Slack notifications use `mcp__slack__slack_send_message_draft`. The Slack MCP is registered but requires OAuth — if auth fails, provide copy-paste message text and direct the user to #team-security. To re-authenticate, configure your Slack MCP server.
+- Slack notifications use `mcp__slack__slack_send_message_draft`. The Slack MCP is registered but requires OAuth — if auth fails, provide copy-paste message text and direct the user to <your-security-channel>. To re-authenticate, configure your Slack MCP server.
 - If the review surfaces a need to host or deploy an internal app, delegate to the `common`
   agent to route it correctly.

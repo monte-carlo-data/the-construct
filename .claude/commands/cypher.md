@@ -33,7 +33,7 @@ allowed-tools:
 
 Cypher knows where the vulnerabilities are — because he was there when they were
 introduced. He scans the development pipeline for secrets in code, vulnerable
-dependencies, SDLC gaps, and SAST risk across the entire `monte-carlo-data` org.
+dependencies, SDLC gaps, and SAST risk across the entire `<your-github-org>` org.
 
 Named after Cypher from *The Matrix*: the insider who understood the code better
 than anyone, for better and for worse.
@@ -213,7 +213,7 @@ For each finding, record:
 - Affected package name and version
 - Fixed version (if available)
 - Repository
-- CODEOWNERS team (check via `gh api repos/monte-carlo-data/{repo}/contents/.github/CODEOWNERS`)
+- CODEOWNERS team (check via `gh api repos/<your-github-org>/{repo}/contents/.github/CODEOWNERS`)
 - Severity
 
 ### 3b — Dedup against Linear vuln tickets
@@ -263,7 +263,7 @@ Skip this step if `secrets`, `deps`, or `sast` was the only argument.
 
 ```bash
 # Default: repos pushed within 90 days (use --recent-only flag to enforce)
-gh api /orgs/monte-carlo-data/repos --paginate \
+gh api /orgs/<your-github-org>/repos --paginate \
   --jq '.[] | {name, default_branch, pushed_at, private}' \
   > /tmp/cypher-repos.json
 ```
@@ -303,7 +303,7 @@ for r in repos:
     name = r['name']
     branch = r.get('default_branch', 'main')
     resp = subprocess.run(
-        ['gh', 'api', f'repos/monte-carlo-data/{name}/branches/{branch}/protection'],
+        ['gh', 'api', f'repos/<your-github-org>/{name}/branches/{branch}/protection'],
         capture_output=True, text=True, timeout=10
     )
     if resp.returncode != 0:
@@ -349,7 +349,7 @@ SECURITY_KEYWORDS = ['aikido', 'snyk', 'codeql', 'semgrep', 'trivy', 'gitleaks',
 for r in repos:
     name = r['name']
     resp = subprocess.run(
-        ['gh', 'api', f'repos/monte-carlo-data/{name}/contents/.github/workflows',
+        ['gh', 'api', f'repos/<your-github-org>/{name}/contents/.github/workflows',
          '--jq', '.[].name'],
         capture_output=True, text=True, timeout=10
     )
@@ -379,11 +379,11 @@ for r in repos:
     name = r['name']
 
     sec = subprocess.run(
-        ['gh', 'api', f'repos/monte-carlo-data/{name}/contents/SECURITY.md'],
+        ['gh', 'api', f'repos/<your-github-org>/{name}/contents/SECURITY.md'],
         capture_output=True, text=True, timeout=10
     )
     co = subprocess.run(
-        ['gh', 'api', f'repos/monte-carlo-data/{name}/contents/.github/CODEOWNERS'],
+        ['gh', 'api', f'repos/<your-github-org>/{name}/contents/.github/CODEOWNERS'],
         capture_output=True, text=True, timeout=10
     )
     results.append({
@@ -630,7 +630,7 @@ for the full report link.
 ### 8b — Post to Slack (optional)
 
 ```text
-Post a summary to Slack? Enter a channel name (e.g. #team-security) or press Enter to skip:
+Post a summary to Slack? Enter a channel name (e.g. <your-security-channel>) or press Enter to skip:
 ```
 
 Draft via `mcp__slack__slack_send_message_draft`. Post Executive Summary + severity table only.

@@ -395,7 +395,7 @@ Skip this step if `wiz`, `aikido`, `s3`, or `notion` was the only argument.
 ### 5a — List public repos
 
 ```bash
-gh api /orgs/monte-carlo-data/repos --paginate \
+gh api /orgs/<your-github-org>/repos --paginate \
   --jq '.[] | select(.private == false) | {name, html_url, pushed_at, description, has_issues}' \
   > /tmp/merovingian-gh-public.json
 ```
@@ -418,14 +418,14 @@ for r in repos:
 
     # Check SECURITY.md
     sec = subprocess.run(
-        ['gh', 'api', f'repos/monte-carlo-data/{name}/contents/SECURITY.md'],
+        ['gh', 'api', f'repos/<your-github-org>/{name}/contents/SECURITY.md'],
         capture_output=True, text=True, timeout=10
     )
     has_security = sec.returncode == 0
 
     # Check CODEOWNERS
     co = subprocess.run(
-        ['gh', 'api', f'repos/monte-carlo-data/{name}/contents/.github/CODEOWNERS'],
+        ['gh', 'api', f'repos/<your-github-org>/{name}/contents/.github/CODEOWNERS'],
         capture_output=True, text=True, timeout=10
     )
     has_codeowners = co.returncode == 0
@@ -467,7 +467,7 @@ for r in repos:
         continue
     name = r['name']
     result = subprocess.run(
-        ['gh', 'api', f'repos/monte-carlo-data/{name}/commits?per_page=20',
+        ['gh', 'api', f'repos/<your-github-org>/{name}/commits?per_page=20',
          '--jq', '.[].commit.message'],
         capture_output=True, text=True, timeout=10
     )
@@ -763,7 +763,7 @@ and `mcp__linear__create_attachment` to link the full report if saved to a file.
 ### 9b — Post to Slack (optional)
 
 ```text
-Post a summary to Slack? Enter a channel name (e.g. #team-security) or press Enter to skip:
+Post a summary to Slack? Enter a channel name (e.g. <your-security-channel>) or press Enter to skip:
 ```
 
 If provided, draft via `mcp__slack__slack_send_message_draft` — show the engineer before

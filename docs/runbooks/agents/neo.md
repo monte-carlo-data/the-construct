@@ -32,7 +32,7 @@ Neo is not a coordinator — he is the hacker.
 
 | System | Purpose | Auth |
 |---|---|---|
-| PentAGI | Autonomous pentesting engine | API token (1Password: "Agent: Pentagi") |
+| PentAGI | Autonomous pentesting engine | API token (1Password: "<your-pentagi-token-item>") |
 | Wiz MCP | Cross-check infrastructure findings | MCP server auth |
 | Linear MCP | Read ticket scope / file findings | MCP server auth |
 | Docker | Run the PentAGI stack locally | Local Docker daemon |
@@ -44,7 +44,7 @@ Neo is not a coordinator — he is the hacker.
 1. Docker Desktop running
 2. `vuln-mgmt-attacker/` directory present in the repo
 3. 1Password CLI (`op`) authenticated
-4. `ANTHROPIC_API_KEY` in 1Password your-credentials-vault ("Agent: Anthropic")
+4. `ANTHROPIC_API_KEY` in 1Password your-credentials-vault ("<your-anthropic-key-item>")
 5. PentAGI API token stored via `./secrets.sh set-token <token>`
 
 **First-time setup:**
@@ -93,8 +93,8 @@ cd vuln-mgmt-attacker
 
 | Secret | 1Password Item |
 |---|---|
-| `ANTHROPIC_API_KEY` | "Agent: Anthropic" |
-| `PENTAGI_API_TOKEN` | "Agent: Pentagi" |
+| `ANTHROPIC_API_KEY` | "<your-anthropic-key-item>" |
+| `PENTAGI_API_TOKEN` | "<your-pentagi-token-item>" |
 
 ---
 
@@ -104,7 +104,7 @@ cd vuln-mgmt-attacker
 |---|---|
 | Confirmed vuln in production | John Wick (incident response) |
 | Exposed internal tool found | Oracle |
-| SaaS tool selected for adoption | `/vendor-review` |
+| SaaS tool selected for adoption | `/vendor-review` (add your own vendor review skill) |
 | Compliance implications | Carlton |
 
 ---
@@ -112,7 +112,7 @@ cd vuln-mgmt-attacker
 ## Service account requirements
 
 - **PentAGI API token**: stored in 1Password, not personal — must survive engineer turnover
-- **`ANTHROPIC_API_KEY`**: "Agent: Anthropic" in your-credentials-vault, not tied to personal account
+- **`ANTHROPIC_API_KEY`**: "<your-anthropic-key-item>" in your-credentials-vault, not tied to personal account
 - Docker must run locally (no remote runner yet)
 
 ---

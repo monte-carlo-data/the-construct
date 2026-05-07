@@ -33,7 +33,7 @@ The Architect reviews new PRs and code changes. Niobe audits what's already runn
 | GitHub Actions | Run `pr-review.yml` workflow | `github.token` or `SOURCE_REPO_TOKEN` |
 | GitHub API | Fetch PR diff and metadata | `gh` CLI auth |
 | Notion MCP | Optional SDD context for the review | `NOTION_TOKEN` secret |
-| Slack webhook | Optional notifications to `#team-security` | `SDD_SLACK_WEBHOOK_URL` secret |
+| Slack webhook | Optional notifications to `<your-security-channel>` | `SDD_SLACK_WEBHOOK_URL` secret |
 | Linear MCP | Create triage ticket for Required reviews | `LINEAR_API_KEY` secret |
 
 ---
@@ -83,8 +83,8 @@ Configure at: **Settings > Secrets and variables > Actions**
 
 | Recommendation | Meaning | Action |
 |---|---|---|
-| **Required** | Security team must be consulted before merge | Post in `#team-security` before merging |
-| **Recommended** | Security team should review but not blocking | Consider async review in `#team-security` |
+| **Required** | Security team must be consulted before merge | Post in `<your-security-channel>` before merging |
+| **Recommended** | Security team should review but not blocking | Consider async review in `<your-security-channel>` |
 | **Not Required** | No security team involvement needed | Proceed — address questions in code review |
 
 Questions with <70% confidence are suppressed from the PR comment. Full list is in `pr_review_output.json`.
@@ -112,7 +112,7 @@ Valid decisions: `Resolved`, `Accepted Risk` (requires feedback), `Deferred` (re
 
 ## Service account requirements
 
-- **`ANTHROPIC_API_KEY`**: "Agent: Anthropic" in your-credentials-vault — already a service credential
+- **`ANTHROPIC_API_KEY`**: "<your-anthropic-key-item>" in your-credentials-vault — already a service credential
 - **`LINEAR_API_KEY`**: needs a Linear API key tied to a service account, not personal
 - **`NOTION_TOKEN`**: needs an integration token tied to a workspace integration, not personal
 - **`SOURCE_REPO_TOKEN`**: optional GitHub PAT; if used, should be a machine user token
