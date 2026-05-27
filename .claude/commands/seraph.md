@@ -67,21 +67,22 @@ If nothing is provided, ask the engineer for a scenario.
 
 ## STEP 1 — Verify environment
 
-Check that pyfair is available:
+Check that pyfair, numpy, and matplotlib are available (matplotlib is required for the
+Loss Exceedance Curve, which is now the headline output):
 
 ```bash
-python3 -c "import pyfair; print(pyfair.__version__)" 2>&1
+python3 -c "import pyfair, numpy, matplotlib; print(pyfair.__version__)" 2>&1
 ```
 
-If it fails:
+If any of them are missing:
 
 ```bash
-python3 -m pip install --user pyfair
+python3 -m pip install --user pyfair numpy matplotlib
 ```
 
 If install fails (sandboxed environment, no network), tell the engineer:
-> "pyfair is not installed and I cannot install it from this environment. Install with
-> `pip install pyfair` and re-run."
+> "pyfair / numpy / matplotlib are not all installed and I cannot install from this
+> environment. Install with `pip install pyfair numpy matplotlib` and re-run."
 
 Then create the working directory if it doesn't exist:
 
@@ -173,9 +174,16 @@ proposed model and re-confirm.
 
 ## STEP 4 — Run the simulation
 
-Generate a pyfair script in `.seraph/reports/<slug>/model.py`. Use this template:
+Generate a pyfair script in `.seraph/reports/<slug>/model.py`. The script must produce
+both the raw distribution **and** a Loss Exceedance Curve — ALE alone hides the long tail
+that makes CRQ useful, so the LEC is the headline output, not optional.
 
 ```python
+import json, pathlib
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")  # headless render
+import matplotlib.pyplot as plt
 from pyfair import FairModel, FairSimpleReport
 
 model = FairModel(name="<scenario_title>", n_simulations=10_000)
@@ -190,16 +198,58 @@ model.input_data("Secondary Loss", low=<min>, mode=<mode>, high=<max>)
 
 model.calculate_all()
 
-# Persist results
-import json, pathlib
 out = pathlib.Path(__file__).parent
+results = model.export_results()
+annual_loss = results["Risk"].to_numpy()  # one annualized loss per simulation
+
+# --- Loss Exceedance Curve ---------------------------------------------------
+# For each loss threshold L, P(loss >= L) across the 10k simulations.
+# Sample the curve at log-spaced thresholds so both the body and the tail show.
+thresholds = np.unique(np.concatenate([
+    np.linspace(annual_loss.min(), annual_loss.max(), 200),
+    np.quantile(annual_loss, np.linspace(0.50, 0.999, 50)),
+]))
+exceedance_prob = np.array([(annual_loss >= t).mean() for t in thresholds])
+
+# Save the LEC data so the exec brief and downstream tooling can re-plot it.
+(out / "lec_data.json").write_text(json.dumps({
+    "thresholds": thresholds.tolist(),
+    "exceedance_probability": exceedance_prob.tolist(),
+}, indent=2))
+
+# Render the LEC chart. Log-scale the x-axis — long-tailed losses span orders of magnitude.
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(thresholds, exceedance_prob, linewidth=2)
+ax.set_xscale("log")
+ax.set_xlabel("Annualized Loss ($)")
+ax.set_ylabel("Probability of exceeding")
+ax.set_title("Loss Exceedance Curve — <scenario_title>")
+ax.grid(True, which="both", alpha=0.3)
+# Annotate the common decision points
+for q, label in [(0.50, "P50"), (0.10, "P90"), (0.05, "P95"), (0.01, "P99")]:
+    loss_at_q = np.quantile(annual_loss, 1 - q)
+    ax.axhline(q, color="gray", linewidth=0.5, linestyle="--")
+    ax.annotate(f"{label} ≈ ${loss_at_q:,.0f}", xy=(loss_at_q, q),
+                xytext=(5, 5), textcoords="offset points", fontsize=9)
+fig.tight_layout()
+fig.savefig(out / "lec.png", dpi=150)
+plt.close(fig)
+
+# --- Persist summary results ------------------------------------------------
 (out / "results.json").write_text(json.dumps({
     "scenario": "<title>",
     "iterations": 10_000,
-    "risk_distribution": model.export_results().describe().to_dict(),
+    "risk_distribution": results.describe().to_dict(),
+    "percentiles": {
+        "P50": float(np.quantile(annual_loss, 0.50)),
+        "P90": float(np.quantile(annual_loss, 0.90)),
+        "P95": float(np.quantile(annual_loss, 0.95)),
+        "P99": float(np.quantile(annual_loss, 0.99)),
+        "mean_ALE": float(annual_loss.mean()),
+    },
 }, indent=2, default=str))
 
-# Generate HTML report
+# Generate the full pyfair HTML report (kept as supporting detail)
 report = FairSimpleReport([model])
 report.to_html(str(out / "report.html"))
 ```
@@ -210,15 +260,27 @@ Run it:
 cd .seraph/reports/<slug> && python3 model.py
 ```
 
-If it fails, capture the error verbatim and surface it — do not silently retry with different
-inputs.
+If `matplotlib` isn't installed, `pip install --user matplotlib` and retry. If it fails for
+any other reason, capture the error verbatim and surface it — do not silently retry with
+different inputs.
+
+**Why the LEC matters more than the ALE.** Annualized loss is a mean, and breach losses are
+long-tailed (lognormal). The mean understates how bad a bad year looks. The LEC plots
+"probability of losing at least $X in a given year" across the full range of outcomes —
+that's the curve executives actually use to size insurance, set reserves, and make
+mitigation tradeoffs. Lead the exec brief with the LEC; the percentile table is supporting
+detail.
 
 ---
 
 ## STEP 5 — Render the executive summary
 
-Read `results.json` and produce a short markdown brief in
-`.seraph/reports/<slug>/EXEC_BRIEF.md`. Template:
+Read `results.json` and `lec_data.json` and produce a short markdown brief in
+`.seraph/reports/<slug>/EXEC_BRIEF.md`. **The Loss Exceedance Curve is the headline
+exhibit.** The percentile table sits below it as supporting detail; the single-number ALE
+is mentioned only for context with an explicit caveat that it understates tail risk.
+
+Template:
 
 ```markdown
 # Cost of Inaction: <Scenario Title>
@@ -226,27 +288,40 @@ Read `results.json` and produce a short markdown brief in
 **Prepared by Seraph (FAIR / Monte Carlo, 10,000 iterations)**
 **Date:** YYYY-MM-DD
 
-## Annualized Loss Exposure
-
-| Percentile | Annualized Loss |
-|---|---|
-| Median (P50)  | $X |
-| P90           | $X |
-| P95           | $X |
-| P99 (worst)   | $X |
-
-> **In plain English:** In a typical year, this risk is expected to cost roughly **$<P50>**.
-> In a bad year (1 in 20), it could cost **$<P95>** or more.
-
 ## Loss Exceedance Curve
-![Loss Exceedance](report.html — see attached)
+
+![Loss Exceedance Curve](lec.png)
+
+> **How to read this:** the y-axis is the probability that the annual loss equals or
+> exceeds the dollar amount on the x-axis. For example, a point at ($5M, 0.10) means
+> there is a **10% chance of losing $5M or more** in a given year. Decisions about
+> insurance, reserves, and mitigation should be sized against the tail (P90/P95/P99),
+> not the average.
+
+## Key thresholds
+
+| Threshold | Probability of exceeding in a year | Annualized loss |
+|---|---|---|
+| P50 (typical year)     | 50% | $<P50> |
+| P90 (1-in-10 bad year) | 10% | $<P90> |
+| P95 (1-in-20 bad year) |  5% | $<P95> |
+| P99 (1-in-100 bad year)|  1% | $<P99> |
+
+> **Plain English:** in a typical year this risk costs roughly **$<P50>**. In a bad year
+> (1-in-20) it could cost **$<P95> or more**. The mean ALE of $<mean_ALE> sits between
+> these and **understates the tail** — long-tailed loss distributions are why the curve,
+> not the average, is what executives should anchor decisions to.
 
 ## Cost of Inaction vs. Cost of Mitigation
 
-| Option | One-time cost | Recurring cost | Residual P50 loss | 3-year NPV |
-|---|---|---|---|---|
-| Do nothing | $0 | $0 | $<current P50> | $<3 × P50> |
-| Mitigate (<proposed control>) | $<X> | $<Y/yr> | $<residual P50> | $<calc> |
+| Option | One-time cost | Recurring cost | Residual P50 loss | Residual P95 loss | 3-year NPV (P95-weighted) |
+|---|---|---|---|---|---|
+| Do nothing | $0 | $0 | $<current P50> | $<current P95> | $<3 × current P95> |
+| Mitigate (<proposed control>) | $<X> | $<Y/yr> | $<residual P50> | $<residual P95> | $<calc> |
+
+> Use **P95** (not P50) as the NPV anchor when the tail matters — insurance, reserves, or
+> material breach exposure. Use **P50** only when the question is purely about expected
+> spend in an average year.
 
 ## Recommended Action
 <One paragraph: what to fund, why the math justifies it, what assumptions to challenge.>
@@ -285,10 +360,12 @@ P95 annualized:   $X
 Recommended:      Mitigate / Accept / Transfer / More data needed
 
 Outputs:
-  Exec brief:     .seraph/reports/<slug>/EXEC_BRIEF.md
-  Full report:    .seraph/reports/<slug>/report.html
-  Raw results:    .seraph/reports/<slug>/results.json
-  Model:          .seraph/reports/<slug>/model.py
+  Exec brief:        .seraph/reports/<slug>/EXEC_BRIEF.md
+  Loss Exceedance:   .seraph/reports/<slug>/lec.png   ← headline chart for execs
+  LEC data:          .seraph/reports/<slug>/lec_data.json
+  Full report:       .seraph/reports/<slug>/report.html
+  Raw results:       .seraph/reports/<slug>/results.json
+  Model:             .seraph/reports/<slug>/model.py
 
 Next steps:
   • Attach EXEC_BRIEF.md to <GRC-XXX> or share with the relevant exec.
