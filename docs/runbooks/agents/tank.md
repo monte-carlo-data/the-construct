@@ -43,7 +43,11 @@ Named after Tank from The Matrix: born free, no implants. "I'm the operator. I l
 ## Disposition paths
 
 ### False positive
-1. Suppress in Aikido via `PUT /api/public/v1/issues/groups/{group_id}/ignore`
+
+1. Suppress in Aikido. Default to **per-issue** (`PUT /api/public/v1/issues/{id}/ignore`)
+   because a `group_id` often spans multiple unrelated resources. Use the group endpoint
+   (`PUT /api/public/v1/issues/groups/{group_id}/ignore`) only when every finding in
+   the group should be ignored. Always inspect the group's membership first.
 2. Comment on Linear ticket with analysis
 3. Close Linear ticket (state: Done)
 4. Check for duplicate open tickets with same finding

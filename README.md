@@ -16,6 +16,7 @@ They're named after characters from *The Matrix*.
 | **Trinity** | Identity & access — audits Okta, GitHub, and AWS IAM for over-privileged accounts and stale access | CISSP Domain 5: Identity & Access Management | `/trinity` |
 | **Oracle** | Shadow IT & exposure — monitors for unapproved AI tools, exposed endpoints, and cloud misconfiguration | CISSP Domain 7 / Domain 4 (partial) | `/oracle` |
 | **Morpheus** | Security awareness — drafts just-in-time Slack outreach when risky behavior is detected | CISSP Domain 1: Security & Risk Management | `/morpheus` |
+| **Seraph** | Cyber risk quantification — translates a risk, ticket, or finding into dollar-denominated loss exposure (FAIR + Monte Carlo) | CISSP Domain 1: Security & Risk Management | `/seraph` |
 | **Tank** | Vulnerability triage & management — investigates Aikido and Wiz findings, routes to remediation | CISSP Domain 6: Security Assessment & Testing | `/tank` |
 | **The Architect** | Security code review — PR security reviews | CISSP Domain 3: Security Architecture & Engineering | `/architect` |
 | **The Merovingian** | Asset security & data classification — data inventory, classification, privacy exposure | CISSP Domain 2: Asset Security | `/merovingian` |

@@ -514,21 +514,41 @@ State your conclusion clearly:
 
 ### If FALSE POSITIVE
 
-1. **Suppress in Aikido** — call the ignore endpoint using the `group_id`:
+1. **Suppress in Aikido** — choose the endpoint based on what you're disposing of.
 
-```text
-PUT https://app.aikido.dev/api/public/v1/issues/groups/{group_id}/ignore
-Authorization: Bearer {token}
-Content-Type: application/json
+   An Aikido `group_id` can span **multiple unrelated resources** — e.g. one Node.js
+   EOL group routinely covers a single EC2 finding plus container findings on several
+   unrelated repos. Suppressing the group ignores all of them. Always look at the
+   group's full membership first (`filter_status=open` + `select(.group_id == ...)`)
+   before picking an endpoint.
 
-{
-  "reason": "<concise explanation, e.g. '_SecretTagLoader extends yaml.SafeLoader — no RCE risk'>"
-}
-```
+   - **Single-resource disposition** (one EC2, one image, or one repo finding) — use
+     the per-issue endpoint with the issue `id` (NOT `group_id`):
+
+     ```text
+     PUT https://app.aikido.dev/api/public/v1/issues/{id}/ignore
+     Authorization: Bearer {token}
+     Content-Type: application/json
+
+     {
+       "reason": "<concise explanation, e.g. '_SecretTagLoader extends yaml.SafeLoader — no RCE risk'>"
+     }
+     ```
+
+   - **Whole-group disposition** (every finding in the group is genuinely the same
+     false positive across every resource) — only then use the group endpoint:
+
+     ```text
+     PUT https://app.aikido.dev/api/public/v1/issues/groups/{group_id}/ignore
+     ```
+
+   If you accidentally suppress the wrong scope, `PUT /api/public/v1/issues/groups/{group_id}/unignore`
+   reverses it.
 
 2. **Comment on the Linear ticket** — use `mcp__linear__save_comment` with:
    - Your false positive analysis (2-3 sentences)
-   - The Aikido suppression confirmation
+   - The Aikido suppression confirmation (note explicitly whether you used per-issue
+     or per-group)
    - Reference to the specific code lines
 
 3. **Close the Linear ticket** — use `mcp__linear__save_issue` to set state to `Done`.
@@ -536,7 +556,7 @@ Content-Type: application/json
 4. **Check for duplicates** — search for other open SEC tickets with the same finding
    (same file + rule). Close those too with a reference comment pointing to this ticket.
 
-Report: `✓ Suppressed in Aikido (group {group_id}) + closed {ticket_id}`
+Report: `✓ Suppressed in Aikido (issue {id} | group {group_id}) + closed {ticket_id}`
 
 ---
 
