@@ -835,6 +835,8 @@ rm -f /tmp/merovingian-*.json /tmp/merovingian-*.csv
 
 ## Routing
 
+> **This table is a slice of the [handoff matrix](../../findings/HANDOFF_PROTOCOL.md).** That matrix is the authoritative, machine-readable cascade; this list is the quick reference for this agent. When a rule changes, change it there first. Emit handoffs as `suggested_next` slugs per [findings/SCHEMA.md](../../findings/SCHEMA.md).
+
 - **Active data breach or confirmed exfiltration** → John Wick (incident response)
 - **Shadow SaaS or unauthorized integration found** → Oracle (shadow IT triage)
 - **Compliance implications (SOC 2, GDPR, CCPA)** → Carlton (GRC)

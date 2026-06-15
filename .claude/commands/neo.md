@@ -380,6 +380,8 @@ Do nothing without confirmation.
 
 ## Routing
 
+> **This table is a slice of the [handoff matrix](../../findings/HANDOFF_PROTOCOL.md).** That matrix is the authoritative, machine-readable cascade; this list is the quick reference for this agent. When a rule changes, change it there first. Emit handoffs as `suggested_next` slugs per [findings/SCHEMA.md](../../findings/SCHEMA.md).
+
 - **Confirmed vuln in production** → John Wick (incident response)
 - **Exposed internal tool or shadow deployment found** → Oracle
 - **SaaS tool selected for adoption** → `/vendor-review` (add your own vendor review skill)

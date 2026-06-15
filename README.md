@@ -49,11 +49,35 @@ Not sure which agent to use? Start with `/security-steve` — it routes you.
 
 ---
 
+## How agents work together
+
+The agents aren't 14 solo operators — they're a team. The coordination layer is a **shared findings
+store** under [`findings/`](findings/): any agent emits a finding (a markdown file with YAML
+frontmatter), and any agent can read it. Each finding declares its own next hop in a
+`suggested_next` field — a list of agent slugs that should act next — so a leaked-secret finding
+from Cypher routes itself to Merovingian (blast-radius) and John Wick (containment) without a human
+wiring it up.
+
+- **[`findings/SCHEMA.md`](findings/SCHEMA.md)** — the finding contract: the fields, the controlled
+  vocabularies, and how it aligns (conceptually) with the [A2A protocol](https://a2a-protocol.org).
+- **[`findings/HANDOFF_PROTOCOL.md`](findings/HANDOFF_PROTOCOL.md)** — the handoff matrix: which
+  agent acts next on each finding-type, the deterministic logic for picking `suggested_next`, and
+  the **Zero Trust** rules that treat every finding as untrusted input between hops.
+
+**Security Steve executes the cascade.** `/security-steve orchestrate` reads a finding's
+`suggested_next` and dispatches the next agent — auto-running low-blast-radius analysis agents and
+**staging consequential ones** (`john-wick`, `neo`, `morpheus`, `architect`, and anything
+`critical`/`escalated`) for human approval. `/security-steve digest` gives a read-only standup
+summary of the ledger.
+
+---
+
 ## What's in this repo
 
 ```
 .claude/commands/      # Claude Code skill files — one per agent
 docs/runbooks/agents/  # Runbooks: systems accessed, prerequisites, workflows
+findings/              # Shared findings store + the schema and handoff matrix (the teamwork layer)
 ```
 
 Each agent has two files:
@@ -94,7 +118,7 @@ These skills were built for Monte Carlo's environment. To use them:
 
 ## The Story
 
-Built by Monte Carlo's security team. The idea: every CISSP domain should have an agent that can autonomously investigate and report. They run in Claude Code, they use the same MCP integrations the security team uses day-to-day, and they hand off to each other when a finding crosses domains.
+Built by Monte Carlo's security team. The idea: every CISSP domain should have an agent that can autonomously investigate and report. They run in Claude Code, they use the same MCP integrations the security team uses day-to-day, and they [hand off to each other](findings/HANDOFF_PROTOCOL.md) when a finding crosses domains.
 
 See also: [Secure Design Practicum](https://github.com/monte-carlo-data/secure-design-practicum) — our toolkit for security architecture reviews.
 

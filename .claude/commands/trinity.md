@@ -649,6 +649,8 @@ rm -f /tmp/trinity-*.csv /tmp/trinity-*.json
 
 ## Routing
 
+> **This table is a slice of the [handoff matrix](../../findings/HANDOFF_PROTOCOL.md).** That matrix is the authoritative, machine-readable cascade; this list is the quick reference for this agent. When a rule changes, change it there first. Emit handoffs as `suggested_next` slugs per [findings/SCHEMA.md](../../findings/SCHEMA.md).
+
 - **Active breach or compromised credential found** → John Wick (incident response)
 - **Shadow SaaS OAuth app with customer data access** → Oracle
 - **Compliance implications (SOC 2, ISO 27001)** → Carlton

@@ -437,6 +437,8 @@ These are the canonical links to include in outreach. Verify before use — Noti
 
 ## Routing
 
+> **This table is a slice of the [handoff matrix](../../findings/HANDOFF_PROTOCOL.md).** That matrix is the authoritative, machine-readable cascade; this list is the quick reference for this agent. When a rule changes, change it there first. Emit handoffs as `suggested_next` slugs per [findings/SCHEMA.md](../../findings/SCHEMA.md).
+
 - **Confirmed active compromise (credential, device, account)** → John Wick immediately;
   do not send awareness outreach, activate IR
 - **Compliance policy questions in employee response** → Carlton
