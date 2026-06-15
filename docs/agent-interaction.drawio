@@ -1,0 +1,168 @@
+<mxfile host="app.diagrams.net" agent="the-construct" version="24.0.0">
+  <diagram id="agent-interaction-cbi" name="Agent Interaction — CBI">
+    <mxGraphModel dx="1600" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0" background="#0F172A">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== Title ===== -->
+        <mxCell id="title" value="The Construct — Agents in 3D" style="text;html=1;align=left;verticalAlign=middle;fontColor=#FFFFFF;fontSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="48" y="24" width="700" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="How findings flow agent → agent across Context · Behavior · Intent" style="text;html=1;align=left;verticalAlign=middle;fontColor=#94A3B8;fontSize=16;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="48" y="64" width="800" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Dimension lane headers ===== -->
+        <mxCell id="ctxBar" value="" style="rounded=0;fillColor=#2DD4BF;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="48" y="120" width="480" height="6" as="geometry" />
+        </mxCell>
+        <mxCell id="ctxHdr" value="1 — CONTEXT" style="text;html=1;align=left;verticalAlign=middle;fontColor=#2DD4BF;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="48" y="132" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ctxQ" value="Where does it run? Who can reach it? What's the blast radius?" style="text;html=1;align=left;verticalAlign=middle;fontColor=#94A3B8;fontSize=12;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="48" y="156" width="480" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="behBar" value="" style="rounded=0;fillColor=#A78BFA;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="560" y="120" width="480" height="6" as="geometry" />
+        </mxCell>
+        <mxCell id="behHdr" value="2 — BEHAVIOR" style="text;html=1;align=left;verticalAlign=middle;fontColor=#A78BFA;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="132" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="behQ" value="What is it actually doing at runtime?" style="text;html=1;align=left;verticalAlign=middle;fontColor=#94A3B8;fontSize=12;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="156" width="480" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="intBar" value="" style="rounded=0;fillColor=#FBBF24;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1072" y="120" width="480" height="6" as="geometry" />
+        </mxCell>
+        <mxCell id="intHdr" value="3 — INTENT" style="text;html=1;align=left;verticalAlign=middle;fontColor=#FBBF24;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1072" y="132" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="intQ" value="Why is this happening — legitimate use or abuse?" style="text;html=1;align=left;verticalAlign=middle;fontColor=#94A3B8;fontSize=12;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="1072" y="156" width="480" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- lane separators -->
+        <mxCell id="sep1" value="" style="endArrow=none;html=1;strokeColor=#1E293B;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="544" y="120" as="source" /><mxPoint x="544" y="760" as="target" /></mxGeometry>
+        </mxCell>
+        <mxCell id="sep2" value="" style="endArrow=none;html=1;strokeColor=#1E293B;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="1056" y="120" as="source" /><mxPoint x="1056" y="760" as="target" /></mxGeometry>
+        </mxCell>
+
+        <!-- ===== CONTEXT agents ===== -->
+        <mxCell id="trinity" value="&lt;b&gt;Trinity&lt;/b&gt;  /trinity&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Identity &amp; access — Okta, GitHub, IAM&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="48" y="196" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="merovingian" value="&lt;b&gt;The Merovingian&lt;/b&gt;  /merovingian&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Asset security &amp; data classification&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="296" y="196" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="niobe" value="&lt;b&gt;Niobe&lt;/b&gt;  /niobe&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Architecture — crypto, Zero Trust, boundaries&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="48" y="268" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="switch" value="&lt;b&gt;Switch&lt;/b&gt;  /switch&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Network — TLS, certs, VPC, firewall&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="296" y="268" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="cypher" value="&lt;b&gt;Cypher&lt;/b&gt;  /cypher&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Secrets, deps, SAST density (SDLC)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="172" y="340" width="232" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- ===== BEHAVIOR agents ===== -->
+        <mxCell id="oracle" value="&lt;b&gt;Oracle&lt;/b&gt;  /oracle&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Shadow IT &amp; exposure at runtime&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="560" y="196" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="tank" value="&lt;b&gt;Tank&lt;/b&gt;  /tank&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Vuln triage — Aikido / Wiz findings&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="808" y="196" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="neo" value="&lt;b&gt;Neo&lt;/b&gt;  /neo&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Red team — proves real exploitability&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="560" y="268" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="architect" value="&lt;b&gt;The Architect&lt;/b&gt;  /architect&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Reviews what a change actually does&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="808" y="268" width="232" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- ===== INTENT agents ===== -->
+        <mxCell id="johnwick" value="&lt;b&gt;John Wick&lt;/b&gt;  /john-wick&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Incident response — was this abuse?&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1072" y="196" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="morpheus" value="&lt;b&gt;Morpheus&lt;/b&gt;  /morpheus&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Awareness — coaches human intent&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1320" y="196" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="seraph" value="&lt;b&gt;Seraph&lt;/b&gt;  /seraph&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Risk quantification — $ impact of the why&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1072" y="268" width="232" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="carlton" value="&lt;b&gt;Carlton&lt;/b&gt;  /carlton&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Compliance — policy &amp; risk register&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1320" y="268" width="232" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Emit note ===== -->
+        <mxCell id="emitNote" value="Any agent that finds something &lt;b&gt;emits a finding&lt;/b&gt; — a markdown file with YAML frontmatter — into the shared findings/ ledger, declaring its own next hop in &lt;b&gt;suggested_next&lt;/b&gt;." style="text;html=1;align=center;verticalAlign=middle;fontColor=#CBD5E1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="360" y="416" width="880" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- emit arrows from each lane down to the ledger -->
+        <mxCell id="eCtx" style="endArrow=block;html=1;strokeColor=#2DD4BF;strokeWidth=2;rounded=1;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="cypher" target="ledger">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eBeh" style="endArrow=block;html=1;strokeColor=#A78BFA;strokeWidth=2;rounded=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="neo" target="ledger">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eInt" style="endArrow=block;html=1;strokeColor=#FBBF24;strokeWidth=2;rounded=1;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="seraph" target="ledger">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Findings ledger ===== -->
+        <mxCell id="ledger" value="&lt;b&gt;findings/  — shared findings store&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#94A3B8&#39; size=&#39;1&#39;&gt;one markdown file per finding · id · agent · severity · status · suggested_next&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B1220;strokeColor=#475569;fontColor=#E2E8F0;fontSize=13;dashed=1;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="520" y="472" width="560" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="toSteve" value="orchestrate reads suggested_next" style="endArrow=block;html=1;strokeColor=#E2E8F0;strokeWidth=2;rounded=1;fontColor=#94A3B8;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="ledger" target="steve">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Security Steve orchestrator ===== -->
+        <mxCell id="steve" value="&lt;b&gt;Security Steve — /security-steve orchestrate&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#94A3B8&#39; size=&#39;1&#39;&gt;cross-domain orchestrator · spans Context · Behavior · Intent&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#134E4A;strokeColor=#2DD4BF;fontColor=#FFFFFF;fontSize=14;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="560" y="556" width="480" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- Zero Trust gate -->
+        <mxCell id="gate" value="&lt;b&gt;Zero Trust gate&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#94A3B8&#39; size=&#39;1&#39;&gt;findings are untrusted between hops&lt;/font&gt;&lt;br&gt;&lt;font color=&#39;#CBD5E1&#39; size=&#39;1&#39;&gt;• act on structured fields, never the body&lt;br&gt;• validate suggested_next vs. matrix allow-set&lt;br&gt;• attribute provenance (emitting agent)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#F87171;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="548" width="320" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gateEdge" value="" style="endArrow=block;html=1;strokeColor=#F87171;strokeWidth=2;rounded=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="steve" target="gate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Dispatch buckets ===== -->
+        <mxCell id="auto" value="&lt;b&gt;Auto-run&lt;/b&gt; — low-blast-radius analysis&lt;br&gt;&lt;font color=&#39;#94A3B8&#39; size=&#39;1&#39;&gt;trinity · merovingian · niobe · switch · oracle · seraph · carlton&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B3B36;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="360" y="668" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="staged" value="&lt;b&gt;Staged — human approval required&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#94A3B8&#39; size=&#39;1&#39;&gt;john-wick · neo · morpheus · architect&lt;br&gt;+ ANY critical / escalated finding&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3B2A0B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="860" y="668" width="380" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="toAuto" value="" style="endArrow=block;html=1;strokeColor=#2DD4BF;strokeWidth=2;rounded=1;exitX=0.25;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="steve" target="auto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="toStaged" value="" style="endArrow=block;html=1;strokeColor=#FBBF24;strokeWidth=2;rounded=1;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="steve" target="staged">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- loop back: dispatched agent runs and may emit a NEW finding -->
+        <mxCell id="loopback" value="dispatched /&lt;slug&gt; runs → may emit a NEW finding (new id) → loop" style="endArrow=block;html=1;strokeColor=#64748B;strokeWidth=2;rounded=1;dashed=1;fontColor=#94A3B8;fontSize=11;exitX=1;exitY=0.5;entryX=1;entryY=1;" edge="1" parent="1" source="staged" target="ledger">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1300" y="698" /><mxPoint x="1300" y="500" /></Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== Footnote ===== -->
+        <mxCell id="foot" value="A handoff is agent→agent only; human-team remediation is named in the finding body. The cascade matrix (which finding-type routes to which agent) lives in findings/HANDOFF_PROTOCOL.md." style="text;html=1;align=left;verticalAlign=middle;fontColor=#64748B;fontSize=11;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="48" y="760" width="1100" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
