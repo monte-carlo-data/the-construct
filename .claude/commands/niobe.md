@@ -658,6 +658,8 @@ rm -f /tmp/niobe-*.json
 
 ## Routing
 
+> **This table is a slice of the [handoff matrix](../../findings/HANDOFF_PROTOCOL.md).** That matrix is the authoritative, machine-readable cascade; this list is the quick reference for this agent. When a rule changes, change it there first. Emit handoffs as `suggested_next` slugs per [findings/SCHEMA.md](../../findings/SCHEMA.md).
+
 - **Active credential leak or breach in progress** → John Wick (incident response)
 - **Secret found in source code (not infrastructure)** → Cypher (software dev security)
 - **Network-level exposure (open ports, firewall rules)** → Switch (network security)

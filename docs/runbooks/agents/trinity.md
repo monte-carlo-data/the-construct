@@ -87,6 +87,8 @@ Findings about individuals go to **terminal + Linear only** — never auto-poste
 
 ## Routing
 
+> **This table is a slice of the [handoff matrix](../../../findings/HANDOFF_PROTOCOL.md).** That matrix is the authoritative, machine-readable cascade; this list is the quick reference for this agent. When a rule changes, change it there first. Emit handoffs as `suggested_next` slugs per [findings/SCHEMA.md](../../../findings/SCHEMA.md).
+
 | Situation | Route to |
 |---|---|
 | Active breach or compromised credential | John Wick |
