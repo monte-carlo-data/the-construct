@@ -9,7 +9,7 @@
 
 ## What it does
 
-Seraph turns a security risk into a dollar-denominated loss exposure. It uses the [FAIR framework](https://www.fairinstitute.org/) and Monte Carlo simulation (via [pyfair](https://github.com/theonaunheim/pyfair)) to produce a **Loss Exceedance Curve (LEC)** — the probability of losing at least $X in a given year — plus supporting percentile bands and a "cost of inaction vs. cost of mitigation" comparison that executives and ELT can act on.
+Seraph turns a security risk into a dollar-denominated loss exposure. It uses the [FAIR framework](https://www.fairinstitute.org/) and Monte Carlo simulation (via [pyfair](https://github.com/theonaunheim/pyfair)) to produce a **Loss Exceedance Curve (LEC)** — the probability of losing at least $X in a given year — plus supporting percentile bands and a "cost of inaction vs. cost of mitigation" comparison that executives and leadership can act on.
 
 The LEC is the headline output. Breach losses are long-tailed (lognormal), so the average annualized loss (ALE) understates how bad a bad year looks — the curve, not the mean, is what executives should anchor decisions to.
 
@@ -69,7 +69,7 @@ Under `.seraph/reports/<slug>/`:
 | `lec.png` | **Loss Exceedance Curve** — the headline chart; both treatments overlaid, materiality vertical line marked in red |
 | `lec_data.json` | LEC thresholds and exceedance probabilities per treatment (for re-plotting downstream) |
 | `report_*.html` | pyfair's `FairSimpleReport` HTML, one per treatment (best-effort — see Known limitations below) |
-| `EXEC_BRIEF.md` | Markdown executive summary for board / ELT consumption — leads with `lec.png`, sub-risk breakdown below |
+| `EXEC_BRIEF.md` | Markdown executive summary for board / executive consumption — leads with `lec.png`, sub-risk breakdown below |
 
 `.seraph/` is gitignored — output is local-only by design. Share by attaching `EXEC_BRIEF.md` to the relevant Linear ticket or Notion page.
 

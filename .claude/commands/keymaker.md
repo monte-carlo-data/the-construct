@@ -237,10 +237,10 @@ This ticket already has treatment: Mitigate (Done). Overwrite? [y/N]
 **Acceptance authority (Risk Management Policy v3.1 — MUST enforce):**
 - Residual Risk Score 1–4 (Low): CISO may accept. Record normally.
 - Residual Risk Score 5–14 (Medium): CISO may accept with documented rationale. Prompt for rationale before recording.
-- Residual Risk Score ≥ 15 (High): **ELT sign-off required (CEO or CTO).** Keymaker MUST warn:
-  > "⚠ High risk (score ≥ 15) — Accept requires ELT sign-off per Risk Management Policy v3.1.
-  > Record as pending ELT approval? [y/N]"
-  If yes, set Treatment Status to "Pending ELT approval" rather than "Done".
+- Residual Risk Score ≥ 15 (High): **executive sign-off required (CEO or CTO).** Keymaker MUST warn:
+  > "⚠ High risk (score ≥ 15) — Accept requires executive sign-off per Risk Management Policy v3.1.
+  > Record as pending executive approval? [y/N]"
+  If yes, set Treatment Status to "Pending executive approval" rather than "Done".
 
 ---
 

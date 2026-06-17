@@ -9,7 +9,7 @@
 
 ## What it does
 
-John Wick is Monte Carlo's incident response research agent. When something is actively wrong — a breach, a suspicious login, a credential leak, a vendor security incident — John Wick activates and doesn't stop until the threat is understood and the team has a clear picture.
+John Wick is your organization's incident response research agent. When something is actively wrong — a breach, a suspicious login, a credential leak, a vendor security incident — John Wick activates and doesn't stop until the threat is understood and the team has a clear picture.
 
 He is a **research and synthesis agent** — he surfaces intelligence, humans make the calls.
 
@@ -65,7 +65,7 @@ Appends findings to `mc-investigation/<incident-slug>.md` as they arrive — not
 Prints in-progress summary after each pass, asks to continue or stop. Does not stop unless explicitly told to.
 
 ### Step 5 — Finalize (when on-call says done)
-- Completes investigation doc with timeline, confirmed facts, IOCs, audit log findings, MC exposure assessment
+- Completes investigation doc with timeline, confirmed facts, IOCs, audit log findings, org exposure assessment
 - Creates Linear ticket: team=Security, state=Triage, title=`[John Wick] <incident> — <date>`
 - **Never posts to Slack** — on-call communicates findings themselves
 
@@ -83,7 +83,7 @@ Prints in-progress summary after each pass, asks to continue or stop. Does not s
 ## Platform app discovery
 
 When incident involves a hosting platform (Vercel, Netlify, Render, Fly.io), John Wick runs a parallel discovery thread:
-- DNS fuzzing from MC employee names, GitHub handles, Slack channel names, Linear team names
+- DNS fuzzing from org employee names, GitHub handles, Slack channel names, Linear team names
 - Slack link search for `*.vercel.app` etc.
 - GitHub repo scan for platform config files (`vercel.json`, `netlify.toml`)
 - Live HTTP probe of every URL found

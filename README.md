@@ -2,7 +2,7 @@
 
 > *"The Construct is our loading program. We can load anything."*
 
-The Construct is Monte Carlo's AI-powered security agent roster — a team of Claude-powered specialists, each one owning a specific security domain. Every agent is a Claude Code skill: drop it in your repo, configure your MCP servers, and it runs.
+The Construct is your organization's AI-powered security agent roster — a team of Claude-powered specialists, each one owning a specific security domain. Every agent is a Claude Code skill: drop it in your repo, configure your MCP servers, and it runs.
 
 They're named after characters from *The Matrix*.
 
@@ -107,7 +107,7 @@ See each agent's runbook for its specific requirements.
 
 ## Adapting for Your Organization
 
-These skills were built for Monte Carlo's environment. To use them:
+These skills were built for your organization's environment. To use them:
 
 1. Replace MCP tool references with your own MCP server configurations
 2. Update credential references (1Password vault names, AWS profile names) to match your setup
@@ -118,7 +118,7 @@ These skills were built for Monte Carlo's environment. To use them:
 
 ## The Story
 
-Built by Monte Carlo's security team. The idea: every CISSP domain should have an agent that can autonomously investigate and report. They run in Claude Code, they use the same MCP integrations the security team uses day-to-day, and they [hand off to each other](findings/HANDOFF_PROTOCOL.md) when a finding crosses domains.
+Built by your organization's security team. The idea: every CISSP domain should have an agent that can autonomously investigate and report. They run in Claude Code, they use the same MCP integrations the security team uses day-to-day, and they [hand off to each other](findings/HANDOFF_PROTOCOL.md) when a finding crosses domains.
 
 See also: [Secure Design Practicum](https://github.com/monte-carlo-data/secure-design-practicum) — our toolkit for security architecture reviews.
 

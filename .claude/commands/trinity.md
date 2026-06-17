@@ -1,7 +1,7 @@
 ---
 name: trinity
 description: >
-  Trinity — Identity & Access Security Agent for Monte Carlo. Audits who has access to what
+  Trinity — Identity & Access Security Agent for your organization. Audits who has access to what
   across Okta, GitHub org, and AWS IAM. Surfaces privilege creep, MFA gaps, overprivileged
   accounts, stale access, and cross-system access accumulation. Use when: "run trinity",
   "audit identity", "check who has access", "review okta", "iam audit", "/trinity".

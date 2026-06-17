@@ -9,7 +9,7 @@
 
 ## What it does
 
-Security Steve is the security concierge for Monte Carlo. He accepts any security-related context — an SDD, a PR, a vendor name, a freeform description, or a general question — and routes it to the correct review path or agent without requiring the user to know which workflow to use.
+Security Steve is the security concierge for your organization. He accepts any security-related context — an SDD, a PR, a vendor name, a freeform description, or a general question — and routes it to the correct review path or agent without requiring the user to know which workflow to use.
 
 He does not perform his own review logic. He classifies and dispatches.
 
@@ -109,4 +109,4 @@ Security questions from any review can be dispositioned using `/decision <slug>`
 
 ## Key context file
 
-Security Steve loads `review-software/guides/platform_context.md` silently before every SDD or PR review — this describes MC's architecture (AccountContext, IGW, JWT patterns, Kinesis, etc.) and is required for contextually accurate review output.
+Security Steve loads `review-software/guides/platform_context.md` silently before every SDD or PR review — this describes your organization's architecture (AccountContext, IGW, JWT patterns, Kinesis, etc.) and is required for contextually accurate review output.
