@@ -107,7 +107,7 @@ cd vuln-mgmt-attacker
 | Confirmed vuln in production | John Wick (incident response) |
 | Exposed internal tool found | Oracle |
 | SaaS tool selected for adoption | `/vendor-review` (add your own vendor review skill) |
-| Compliance implications | Carlton |
+| Compliance implications | Keymaker |
 
 ---
 

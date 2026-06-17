@@ -103,7 +103,7 @@ The Merovingian produces a structured Markdown report covering all sources, seve
 |---|---|
 | Active data breach or confirmed exfiltration | John Wick |
 | Shadow SaaS or unauthorized integration | Oracle |
-| Compliance implications (SOC 2, GDPR, CCPA) | Carlton |
+| Compliance implications (SOC 2, GDPR, CCPA) | Keymaker |
 | Secrets found in code → rotate immediately | Repo owner + Platform team |
 | IAM / access control issues | Trinity |
 | Vendor handling sensitive data | `/vendor-review` (add your own vendor review skill) |

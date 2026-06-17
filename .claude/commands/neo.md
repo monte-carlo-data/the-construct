@@ -385,7 +385,7 @@ Do nothing without confirmation.
 - **Confirmed vuln in production** → John Wick (incident response)
 - **Exposed internal tool or shadow deployment found** → Oracle
 - **SaaS tool selected for adoption** → `/vendor-review` (add your own vendor review skill)
-- **Compliance implications from findings** → Carlton
+- **Compliance implications from findings** → Keymaker
 
 ---
 

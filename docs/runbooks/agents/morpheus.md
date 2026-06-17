@@ -99,7 +99,7 @@ Every Morpheus message follows this 5-part structure:
 | Situation | Route to |
 |---|---|
 | Confirmed active compromise | John Wick immediately — do not send awareness outreach |
-| Compliance policy questions from employee | Carlton |
+| Compliance policy questions from employee | Keymaker |
 | IT/access/device issues | Platform team |
 | Disciplinary or HR-scope request | Refuse; route to manager or People team |
 | No response after 3 business days | `/morpheus escalate @employee` |

@@ -85,7 +85,7 @@
                 <mxCell id="seraph" value="&lt;b&gt;Seraph&lt;/b&gt;  /seraph&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Risk quantification — $ impact of the why&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" parent="1" vertex="1">
                     <mxGeometry x="1140" y="274" width="248" height="58" as="geometry"/>
                 </mxCell>
-                <mxCell id="carlton" value="&lt;b&gt;Carlton&lt;/b&gt;  /carlton&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Compliance — policy &amp; risk register&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" parent="1" vertex="1">
+                <mxCell id="keymaker" value="&lt;b&gt;Keymaker&lt;/b&gt;  /keymaker&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Compliance — policy &amp; risk register&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" parent="1" vertex="1">
                     <mxGeometry x="1396" y="274" width="248" height="58" as="geometry"/>
                 </mxCell>
                 <mxCell id="emitNote" value="Any agent that finds something &lt;b&gt;emits a finding&lt;/b&gt; into the shared findings/ ledger,&lt;br&gt;declaring its own next hop in &lt;b&gt;suggested_next&lt;/b&gt;." style="text;html=1;align=center;verticalAlign=middle;fontColor=#CBD5E1;fontSize=13;" parent="1" vertex="1">
@@ -134,7 +134,7 @@
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="auto" value="&lt;b&gt;Auto-run&lt;/b&gt; — low-blast-radius analysis&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;trinity · merovingian · niobe&lt;br&gt;switch · oracle · seraph · carlton&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B3B36;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;verticalAlign=middle;" parent="1" vertex="1">
+                <mxCell id="auto" value="&lt;b&gt;Auto-run&lt;/b&gt; — low-blast-radius analysis&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;trinity · merovingian · niobe&lt;br&gt;switch · oracle · seraph · keymaker&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B3B36;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;verticalAlign=middle;" parent="1" vertex="1">
                     <mxGeometry x="430" y="800" width="380" height="72" as="geometry"/>
                 </mxCell>
                 <mxCell id="staged" value="&lt;b&gt;Staged — human approval required&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;john-wick · neo · morpheus · architect&lt;br&gt;+ ANY critical / escalated finding&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3B2A0B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;verticalAlign=middle;" parent="1" vertex="1">

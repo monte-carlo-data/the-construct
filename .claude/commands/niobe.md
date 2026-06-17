@@ -665,6 +665,6 @@ rm -f /tmp/niobe-*.json
 - **Network-level exposure (open ports, firewall rules)** → Switch (network security)
 - **IAM / overprivileged identities** → Trinity (identity & access)
 - **New PR or SDD needs security architecture review** → The Architect
-- **Compliance implications (SOC 2, cryptography controls)** → Carlton (GRC)
+- **Compliance implications (SOC 2, cryptography controls)** → Keymaker (GRC)
 - **Pentest to confirm exploitability of trust boundary gap** → Neo (red team)
 - **Developer outreach about crypto or secrets hygiene** → Morpheus (security awareness)

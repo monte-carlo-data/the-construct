@@ -41,7 +41,7 @@ Oracle feeds the rest of the agent roster:
 
 - **Security Steve** — receives findings for architectural review
 - **John Wick** — activated on Critical findings (active threat / incident signals)
-- **Carlton** — receives findings on PII / regulatory exposure
+- **Keymaker** — receives findings on PII / regulatory exposure
 - **Morpheus** — notified on shadow IT findings affecting employees
 
 ---
@@ -508,7 +508,7 @@ After ticket creation:
 
 - **Critical findings** → summarize and flag for John Wick activation
 - **High findings with architectural concern** → note for Security Steve review
-- **Compliance-relevant findings (PII, regulated data)** → note for Carlton
+- **Compliance-relevant findings (PII, regulated data)** → note for Keymaker
 
 Oracle does not directly activate other agents — she surfaces findings with a clear routing tag
 so the security engineer can trigger the right workflow.

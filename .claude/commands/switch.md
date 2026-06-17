@@ -574,6 +574,6 @@ Next steps?
 - **Exposed secrets or credentials in cloud resources** → Cypher (software dev security)
 - **IAM / overprivileged roles with network access** → Trinity (identity & access)
 - **Data exposure through network path** → The Merovingian (data classification)
-- **Compliance implications (PCI, SOC 2, HIPAA)** → Carlton (GRC)
+- **Compliance implications (PCI, SOC 2, HIPAA)** → Keymaker (GRC)
 - **Pentest to confirm exploitability of open port or exposed service** → Neo (red team)
 - **Security architecture review of VPC design or Zero Trust posture** → Niobe

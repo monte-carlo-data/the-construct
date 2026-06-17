@@ -23,13 +23,13 @@ They're named after characters from *The Matrix*.
 | **Cypher** | Software development security — secrets detection, dependency risk, SAST findings | CISSP Domain 8: Software Development Security | `/cypher` |
 | **Switch** | Network security — TLS/certificate health, firewall rules, VPC review | CISSP Domain 4: Communication & Network Security | `/switch` |
 | **Niobe** | Security architecture — cryptography controls, Zero Trust posture, secrets management | CISSP Domain 3: Security Architecture & Engineering | `/niobe` |
+| **The Keymaker** | Compliance & risk register — keeper of the register; reviews open GRC risk tickets and records declined blockers / accepted risks handed off by the roster | CISSP Domain 1: Security & Risk Management | `/keymaker` |
 
 ### Supporting Characters
 
 | Agent | What it does | Invoke |
 |---|---|---|
 | **John Wick** | Incident response — investigates active breaches, suspicious logins, credential leaks | `/john-wick` |
-| **Carlton** | Compliance — reviews open GRC risk tickets and updates the risk register | `/carlton` |
 | **Security Steve** | Concierge — routes any security question or request to the right agent | `/security-steve` |
 
 ---
@@ -77,6 +77,7 @@ summary of the ledger.
 ```
 .claude/commands/      # Claude Code skill files — one per agent
 docs/runbooks/agents/  # Runbooks: systems accessed, prerequisites, workflows
+docs/LEARNINGS.md      # Patterns that emerged building the roster (keeper-of-the-register, handoffs, naming)
 findings/              # Shared findings store + the schema and handoff matrix (the teamwork layer)
 ```
 
@@ -95,10 +96,10 @@ Agents are built on Claude Code and use MCP servers to connect to security tools
 | [Wiz MCP](https://docs.wiz.io) | Trinity, Oracle, Tank, Merovingian, Cypher, Switch, Niobe, John Wick |
 | [Okta MCP](https://developer.okta.com/docs/api/) | Trinity, John Wick |
 | [Aikido MCP](https://aikido.dev) | Oracle, Tank, Cypher, John Wick |
-| [Linear MCP](https://linear.app/developers) | Neo, Trinity, Tank, Architect, Morpheus, Carlton |
+| [Linear MCP](https://linear.app/developers) | Neo, Trinity, Tank, Architect, Morpheus, Keymaker |
 | [Slack MCP](https://api.slack.com/mcp) | Oracle, Morpheus, John Wick, Security Steve |
 | [Notion MCP](https://developers.notion.com) | Oracle, Merovingian, Architect, Security Steve |
-| GitHub CLI (`gh`) | Architect, Cypher, Carlton |
+| GitHub CLI (`gh`) | Architect, Cypher, Keymaker |
 | Docker (local) | Neo (PentAGI stack) |
 
 See each agent's runbook for its specific requirements.

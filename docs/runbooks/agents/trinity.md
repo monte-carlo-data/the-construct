@@ -93,7 +93,7 @@ Findings about individuals go to **terminal + Linear only** — never auto-poste
 |---|---|
 | Active breach or compromised credential | John Wick |
 | Shadow SaaS OAuth app with customer data | Oracle |
-| Compliance implications (SOC 2, ISO 27001) | Carlton |
+| Compliance implications (SOC 2, ISO 27001) | Keymaker |
 | Employee offboarding gaps | Platform team + `runbooks/okta-offboarding-access-removal.md` |
 
 ---
