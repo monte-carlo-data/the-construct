@@ -839,7 +839,7 @@ rm -f /tmp/merovingian-*.json /tmp/merovingian-*.csv
 
 - **Active data breach or confirmed exfiltration** → John Wick (incident response)
 - **Shadow SaaS or unauthorized integration found** → Oracle (shadow IT triage)
-- **Compliance implications (SOC 2, GDPR, CCPA)** → Carlton (GRC)
+- **Compliance implications (SOC 2, GDPR, CCPA)** → Keymaker (GRC)
 - **Secrets found in code → immediate credential rotation** → notify repo owner + Platform team
 - **IAM / access control issues discovered** → Trinity (identity & access agent)
 - **Vendor handling sensitive data** → Vendor Review skill

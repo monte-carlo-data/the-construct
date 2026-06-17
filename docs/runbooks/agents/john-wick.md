@@ -96,7 +96,7 @@ When incident involves a hosting platform (Vercel, Netlify, Render, Fly.io), Joh
 
 | Situation | Route to |
 |---|---|
-| Compliance fallout (data residency, regulatory notification) | Carlton |
+| Compliance fallout (data residency, regulatory notification) | Keymaker |
 | Shadow AI or new exposure found during research | Oracle |
 | Employee security education needed | Morpheus |
 

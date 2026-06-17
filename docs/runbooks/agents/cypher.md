@@ -81,7 +81,7 @@ Secret finding output is limited to: repo, file path, line number, secret type, 
 | Active credential leak or confirmed exfiltration | John Wick |
 | Secret found in cloud infra (not code) | The Merovingian or Oracle |
 | IAM / overprivileged roles discovered | Trinity |
-| Compliance implications | Carlton |
+| Compliance implications | Keymaker |
 | Developer outreach needed | Morpheus |
 | Pentest to confirm SAST finding exploitability | Neo |
 | PR security review needed | The Architect |

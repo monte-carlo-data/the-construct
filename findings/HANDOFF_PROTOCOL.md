@@ -35,7 +35,7 @@ A reader maps any slug straight to `/<slug>`.
 | # | Finding-type | `suggested_next` | Rationale | Typically emitted by |
 |---|---|---|---|---|
 | 1 | **Active breach / confirmed credential exfiltration / live intrusion** | `[john-wick]` | Drop-everything incident response. Almost always `severity: critical`. | trinity, cypher, merovingian, niobe, switch, neo, oracle |
-| 2 | **John Wick confirms an incident** | `[seraph, carlton]` | Quantify the $-exposure (Seraph) and log the realized risk in the register (Carlton). | john-wick |
+| 2 | **John Wick confirms an incident** | `[seraph, keymaker]` | Quantify the $-exposure (Seraph) and log the realized risk in the register (Keymaker). | john-wick |
 | 3 | **Stale / over-privileged admin account** | `[john-wick, morpheus]` | Is it being abused? (John Wick checks logs.) Coach the holder / enforce least-privilege (Morpheus). | trinity |
 | 4 | **Leaked secret in source code** | `[merovingian, john-wick]` | Blast radius — what data does the secret reach? (Merovingian.) Contain if it looks used (John Wick). Rotation is named for the repo owner / platform team in the body. | cypher, niobe |
 | 5 | **Secret found in cloud infrastructure (not code)** | `[merovingian, oracle]` | Data-classification blast radius (Merovingian); shadow/unreviewed asset angle (Oracle). | cypher, switch |
@@ -47,13 +47,13 @@ A reader maps any slug straight to `/<slug>`.
 | 10 | **IAM / overprivileged identity or role** | `[trinity]` | Identity & access owns privilege review across Okta / GitHub / IAM. | cypher, niobe, switch, merovingian |
 | 11 | **Network-level exposure (open ports, firewall / SG rules)** | `[switch]` | Network security owns TLS, firewall/SG, VPC, DNS. | niobe |
 | 12 | **Data exposure through a network path** | `[merovingian]` | Classify what data is reachable over the exposed path. | switch |
-| 13 | **Compliance implication (SOC 2, ISO 27001, GDPR, CCPA, PCI, HIPAA)** | `[carlton]` — add `seraph` when a $-figure helps the decision | GRC logs/treats it (Carlton); quantify cost-of-inaction when it sharpens the call (Seraph). | all agents |
-| 14 | **Confirmed risk needing $-quantification / business case** | `[seraph]` | FAIR / dollar-exposure to justify spend or acceptance. | john-wick, carlton, tank |
+| 13 | **Compliance implication (SOC 2, ISO 27001, GDPR, CCPA, PCI, HIPAA)** | `[keymaker]` — add `seraph` when a $-figure helps the decision | GRC logs/treats it (Keymaker); quantify cost-of-inaction when it sharpens the call (Seraph). | all agents |
+| 14 | **Confirmed risk needing $-quantification / business case** | `[seraph]` | FAIR / dollar-exposure to justify spend or acceptance. | john-wick, keymaker, tank |
 | 15 | **Exploitability unproven — needs a pentest to confirm** | `[neo]` | Red team confirms whether a SAST / trust-boundary / open-port finding is actually exploitable before it's prioritized. | cypher, niobe, switch, tank |
 | 15b | **Pentest confirms a vuln in production** | `[john-wick]` | A confirmed live vuln is an incident. | neo |
 | 16 | **PR or SDD needs security-architecture review** | `[architect]` | Code-level / design review of a change. | niobe, cypher |
 | 17 | **Developer / employee awareness or coaching needed** | `[morpheus]` | Just-in-time security-awareness outreach (never disciplinary — see Morpheus runbook). | all agents |
-| 18 | **Risk needs to land in the register** | `[carlton]` | Record the treatment decision in the risk register. | seraph, tank |
+| 18 | **Risk needs to land in the register** | `[keymaker]` | Record the treatment decision in the risk register. | seraph, tank |
 | 19 | **Catch-all — genuinely cross-domain or unclassifiable** | `[security-steve]` | The cross-domain concierge / orchestrator is the backstop so **no finding dead-ends**. | any agent |
 
 > **Note on `architect`.** The Architect runs against a PR or SDD URL; route a finding to
@@ -223,7 +223,7 @@ never sanctions is **off-matrix**: flagged as a possible poisoned finding and **
 **The matrix-target allow-set** (the union of every row's `suggested_next` column above):
 
 ```text
-architect, carlton, john-wick, merovingian, morpheus, neo,
+architect, keymaker, john-wick, merovingian, morpheus, neo,
 niobe, oracle, security-steve, seraph, switch, trinity        (12 slugs)
 ```
 
@@ -278,5 +278,5 @@ a handoff rule, change it **here first**, then reconcile the affected agent tabl
 | `tank` | 14, 15, 18 |
 | `architect` | 13, 17 (and consumes row 16) |
 | `morpheus` | 1 (escalates active compromise), 13 (and consumes rows 3, 6, 17) |
-| `carlton` | 14 (and consumes rows 2, 13, 18) |
+| `keymaker` | 14 (and consumes rows 2, 13, 18) |
 | `security-steve` | catch-all (row 19); cross-domain |

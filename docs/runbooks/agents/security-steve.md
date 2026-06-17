@@ -42,7 +42,7 @@ He does not perform his own review logic. He classifies and dispatches.
 
 | If employee needs… | Route to… |
 |---|---|
-| Compliance question, SOC 2, audit, policy | Carlton 🕺 → `/carlton` |
+| Compliance question, SOC 2, audit, policy | Keymaker 🕺 → `/keymaker` |
 | Active incident, threat, something actively wrong | John Wick 🎯 → `/john-wick` |
 | Shadow AI, exposed endpoint, unknown deployment | Oracle 🔮 → `/oracle` |
 | Security education, phishing, "did I do something wrong?" | Morpheus 💊 → `/morpheus` |

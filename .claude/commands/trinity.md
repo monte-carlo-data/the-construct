@@ -653,5 +653,5 @@ rm -f /tmp/trinity-*.csv /tmp/trinity-*.json
 
 - **Active breach or compromised credential found** → John Wick (incident response)
 - **Shadow SaaS OAuth app with customer data access** → Oracle
-- **Compliance implications (SOC 2, ISO 27001)** → Carlton
+- **Compliance implications (SOC 2, ISO 27001)** → Keymaker
 - **Employee offboarding gaps discovered** → Platform team (Okta admin) + `runbooks/okta-offboarding-access-removal.md`

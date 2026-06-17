@@ -95,7 +95,7 @@ Zero Trust findings are **network and IAM layer only**. Application-layer auth (
 | Network-level exposure (open ports, firewall) | Switch |
 | IAM / overprivileged identities | Trinity |
 | New PR or SDD needs review | The Architect |
-| Compliance implications (SOC 2, crypto controls) | Carlton |
+| Compliance implications (SOC 2, crypto controls) | Keymaker |
 | Pentest to confirm trust boundary exploitability | Neo |
 | Developer outreach about crypto/secrets hygiene | Morpheus |
 

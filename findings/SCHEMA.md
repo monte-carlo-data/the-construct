@@ -68,7 +68,7 @@ obvious. Use the **owning agent** column to sanity-check that `agent` and `domai
 
 | `domain` value | Owning agent(s) |
 |---|---|
-| `1 — Security & Risk Management` | carlton (GRC, compliance, risk register), seraph (risk quantification) |
+| `1 — Security & Risk Management` | keymaker (GRC, compliance, risk register), seraph (risk quantification) |
 | `2 — Asset Security` | merovingian (data classification, sensitive data inventory) |
 | `3 — Security Architecture & Engineering` | niobe (crypto, secrets-mgmt quality, Zero Trust, trust boundaries) |
 | `4 — Communication & Network Security` | switch (TLS/certs, firewall/SG, VPC, DNS) |
@@ -105,7 +105,7 @@ roster prevents dead handoffs to misspelled or non-existent agents.
 
 | Slug | Persona / function |
 |---|---|
-| `carlton` | Compliance Risk Review (GRC) |
+| `keymaker` | Compliance Risk Review (GRC) |
 | `seraph` | Cyber Risk Quantification (FAIR / $-exposure) |
 | `merovingian` | Asset Security & Data Classification |
 | `niobe` | Security Architecture (crypto, secrets-mgmt, Zero Trust) |

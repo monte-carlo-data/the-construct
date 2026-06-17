@@ -83,7 +83,7 @@ Structured Markdown report with severity ratings and recommended actions. Goes t
 | Exposed secrets or credentials in cloud resources | Cypher |
 | IAM / overprivileged roles with network access | Trinity |
 | Data exposure through network path | The Merovingian |
-| Compliance implications (PCI, SOC 2, HIPAA) | Carlton |
+| Compliance implications (PCI, SOC 2, HIPAA) | Keymaker |
 | Pentest to confirm open port exploitability | Neo |
 | Security architecture review of VPC design | Niobe |
 

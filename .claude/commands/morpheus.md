@@ -441,7 +441,7 @@ These are the canonical links to include in outreach. Verify before use — Noti
 
 - **Confirmed active compromise (credential, device, account)** → John Wick immediately;
   do not send awareness outreach, activate IR
-- **Compliance policy questions in employee response** → Carlton
+- **Compliance policy questions in employee response** → Keymaker
 - **IT / access / device issues** → Platform team
 - **Disciplinary or HR-scope request** → Refuse; route to manager or People team
 - **No response after 3 business days** → `/morpheus escalate @employee`

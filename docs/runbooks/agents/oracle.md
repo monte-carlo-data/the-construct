@@ -11,7 +11,7 @@
 
 Oracle monitors Monte Carlo's external attack surface and internal AI deployment activity. She scans for exposed subdomains, shadow AI tools in GitHub and Slack, cloud misconfigurations, and unauthorized integrations. She runs daily in scheduled mode and on-demand.
 
-Oracle feeds the rest of the agent roster — surfacing Critical findings for John Wick, compliance findings for Carlton, and shadow IT findings for Morpheus.
+Oracle feeds the rest of the agent roster — surfacing Critical findings for John Wick, compliance findings for Keymaker, and shadow IT findings for Morpheus.
 
 ---
 

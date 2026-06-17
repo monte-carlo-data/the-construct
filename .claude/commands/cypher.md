@@ -702,7 +702,7 @@ rm -f /tmp/cypher-*.json /tmp/cypher-*.csv
 - **Active credential leak or confirmed exfiltration** → John Wick (incident response)
 - **Secret found in cloud infrastructure (not code)** → The Merovingian (data classification) or Oracle
 - **IAM / overprivileged roles discovered** → Trinity (identity & access)
-- **Compliance implications (SOC 2, GDPR)** → Carlton (GRC)
+- **Compliance implications (SOC 2, GDPR)** → Keymaker (GRC)
 - **Developer outreach needed** → Morpheus (security awareness)
 - **Pentest to confirm exploitability of SAST finding** → Neo (red team)
 - **PR security review needed** → The Architect

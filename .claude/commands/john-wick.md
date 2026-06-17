@@ -424,7 +424,7 @@ If the on-call explicitly asks John Wick to draft a Slack message, use
 
 After the session, note:
 
-- **Compliance fallout** (data residency, regulatory notification, customer impact) → **Carlton**
+- **Compliance fallout** (data residency, regulatory notification, customer impact) → **Keymaker**
 - **Shadow AI or new exposure found during research** → **Oracle**
 - **Employee security education needed** → **Morpheus** (when available)
 
