@@ -77,7 +77,6 @@ summary of the ledger.
 ```
 .claude/commands/      # Claude Code skill files — one per agent
 docs/runbooks/agents/  # Runbooks: systems accessed, prerequisites, workflows
-docs/LEARNINGS.md      # Patterns that emerged building the roster (keeper-of-the-register, handoffs, naming)
 findings/              # Shared findings store + the schema and handoff matrix (the teamwork layer)
 ```
 
