@@ -1,7 +1,7 @@
 ---
 name: oracle
 description: >
-  Oracle — AI Exposure & Shadow IT Monitor for Monte Carlo. Use for exposed endpoints, shadow
+  Oracle — AI Exposure & Shadow IT Monitor for your organization. Use for exposed endpoints, shadow
   AI, misconfigured cloud assets, or unauthorized integrations. Triggers on: "run oracle",
   "scan for shadow AI", "check for exposed endpoints", "oracle scan".
 user-invocable: true
@@ -28,7 +28,7 @@ allowed-tools:
 
 # Oracle — AI Exposure & Shadow IT Monitor
 
-Oracle is a continuously running Claude-powered intelligence agent that monitors Monte Carlo's
+Oracle is a continuously running Claude-powered intelligence agent that monitors your organization's
 external attack surface and internal AI deployment activity. She doesn't announce herself — she
 just knows.
 
@@ -50,7 +50,7 @@ Oracle feeds the rest of the agent roster:
 
 Oracle runs in two modes:
 
-**Scheduled (background):** Daily minimum, triggered automatically by the MC Security Bot.
+**Scheduled (background):** Daily minimum, triggered automatically by the your security bot.
 Runs all scan modules silently and posts a digest to `<your-security-channel>`.
 
 **On-demand:** Triggered by the user or via `invoking the oracle skill directly`.
@@ -95,7 +95,7 @@ Default to **full scan** if no preference is given.
 
 ### 2a — Subdomain Enumeration via SecurityTrails
 
-Use `WebFetch` to query the SecurityTrails API for all known subdomains of Monte Carlo's
+Use `WebFetch` to query the SecurityTrails API for all known subdomains of your organization's
 primary domains. Requires `SECURITYTRAILS_API_KEY` in the environment.
 
 **Run all three domain queries in parallel** (use the Agent tool with three concurrent calls,
@@ -123,7 +123,7 @@ If `SECURITYTRAILS_API_KEY` is not available, note the gap and fall back to Step
 
 ### 2b — Passive Exposure Scanning via Shodan & Censys
 
-Use `WebFetch` to query Shodan and Censys for exposed services on Monte Carlo's IP ranges
+Use `WebFetch` to query Shodan and Censys for exposed services on your organization's IP ranges
 and domains. Requires `SHODAN_API_KEY` and/or `CENSYS_API_ID` + `CENSYS_API_SECRET`.
 
 **Run Shodan and Censys queries in parallel:**
@@ -333,7 +333,7 @@ For each signal, record:
 
 Run all four checks in parallel using the Agent tool before proceeding to classification.
 
-**1. Centralized Internal Applications** — approved internal apps hosted on MC infrastructure.
+**1. Centralized Internal Applications** — approved internal apps hosted on your infrastructure.
 Use the Notion MCP to fetch the page and extract the application directory table:
 
 ```text
@@ -444,7 +444,7 @@ on-demand review session.
 
 ## Step 7 — Scheduled Runner
 
-Oracle runs on a daily schedule via the `/loop` skill or the MC Security Bot cron.
+Oracle runs on a daily schedule via the `/loop` skill or the your security bot cron.
 
 ### Schedule
 
@@ -470,9 +470,9 @@ Oracle runs on a daily schedule via the `/loop` skill or the MC Security Bot cro
 | Post weekly summary (Mondays) | Yes — auto | Ask user |
 | Draft Slack outreach (Medium) | No — deferred | Via shadow-it outreach workflow |
 
-### Cron setup (MC Security Bot)
+### Cron setup (your security bot)
 
-To configure the daily schedule, add to the MC Security Bot cron config:
+To configure the daily schedule, add to the your security bot cron config:
 
 ```yaml
 schedules:
@@ -608,7 +608,7 @@ Show the user a preview before writing. Confirm the file path written.
 ## Notes & Conventions
 
 - `*.dev.<your-domain>` is higher priority than third-party hosting (Vercel, Netlify, GitHub
-  Pages) — MC-owned infrastructure = higher blast radius
+  Pages) — your-org-owned infrastructure = higher blast radius
 - Passwords or API keys posted in public Slack channels must be treated as **compromised** —
   flag as Critical regardless of other factors
 - Oracle runs silently in scheduled mode — no Slack noise unless there are findings

@@ -9,7 +9,7 @@
 
 ## What it does
 
-Oracle monitors Monte Carlo's external attack surface and internal AI deployment activity. She scans for exposed subdomains, shadow AI tools in GitHub and Slack, cloud misconfigurations, and unauthorized integrations. She runs daily in scheduled mode and on-demand.
+Oracle monitors your organization's external attack surface and internal AI deployment activity. She scans for exposed subdomains, shadow AI tools in GitHub and Slack, cloud misconfigurations, and unauthorized integrations. She runs daily in scheduled mode and on-demand.
 
 Oracle feeds the rest of the agent roster — surfacing Critical findings for John Wick, compliance findings for Keymaker, and shadow IT findings for Morpheus.
 
@@ -22,7 +22,7 @@ Oracle feeds the rest of the agent roster — surfacing Critical findings for Jo
 /oracle               # in scheduled mode: runs silently, auto-proceeds
 ```
 
-Scheduled mode is triggered via the MC Security Bot cron or `/loop 24h /oracle`.
+Scheduled mode is triggered via the your security bot cron or `/loop 24h /oracle`.
 
 ---
 
@@ -59,7 +59,7 @@ All API keys must be available in the environment. Missing keys degrade scan cov
 | Module | What it does |
 |---|---|
 | 2a — SecurityTrails | Enumerates subdomains for `<your-domain>`, `<your-secondary-domain>`, `<your-other-domain>` |
-| 2b — Shodan/Censys | Passive exposure scanning of MC IP ranges and domains |
+| 2b — Shodan/Censys | Passive exposure scanning of your-org IP ranges and domains |
 | 2c — Aikido | Cloud misconfigs, public S3 buckets, exposed secrets |
 | 3a — GitHub org | AI library signals in repos and Actions workflows |
 | 3b — Slack | AI adoption signals in channels like `#all-in-on-ai`, `#eng-all` |
@@ -103,7 +103,7 @@ CSV columns: `scan_date, source, asset_type, asset_url_or_id, owner_name, owner_
 ## Scheduling
 
 ```yaml
-# MC Security Bot cron config
+# your security bot cron config
 schedules:
   - name: oracle-daily
     cron: "0 17 * * 1-5"   # 9 AM PT, Mon–Fri

@@ -1,7 +1,7 @@
 ---
 name: switch
 description: >
-  Switch — Network Security Agent for Monte Carlo. Audits TLS/certificate health,
+  Switch — Network Security Agent for your organization. Audits TLS/certificate health,
   firewall and security group rules, VPC configurations, and DNS misconfiguration
   risk. Queries Wiz network exposure, attack surface, and cloud configuration
   findings. Closes the CISSP Domain 4 (Communication & Network Security) gap.
@@ -453,7 +453,7 @@ forensics. Required by most compliance frameworks.
 
 ### [CRITICAL] Dangling CNAME Records (Subdomain Takeover Risk) — <N> findings
 **Risk**: CNAMEs pointing to unclaimed resources (deleted S3 buckets, decommissioned
-services) can be claimed by attackers to serve malicious content under MC's domain.
+services) can be claimed by attackers to serve malicious content under your organization's domain.
 **Affected records**:
 - `<subdomain>` → `<cname target>` (unclaimed)
 **Recommended action**: Remove the CNAME record or reclaim the target resource immediately.

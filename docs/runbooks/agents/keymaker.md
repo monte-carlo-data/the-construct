@@ -70,7 +70,7 @@ Skip: doc gaps, vendor approvals, CCPA workstreams, keymaker roadmap tickets, an
 **Acceptance authority (Risk Management Policy v3.1):**
 - Score 1–4 (Low): CISO may accept
 - Score 5–14 (Medium): CISO may accept with documented rationale
-- Score ≥15 (High): ELT sign-off required (CEO or CTO) → status = "Pending ELT approval"
+- Score ≥15 (High): executive sign-off required (CEO or CTO) → status = "Pending executive approval"
 
 ---
 

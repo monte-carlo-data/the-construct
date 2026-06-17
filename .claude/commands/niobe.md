@@ -1,7 +1,7 @@
 ---
 name: niobe
 description: >
-  Niobe — Security Architecture Agent for Monte Carlo. Reviews cryptographic
+  Niobe — Security Architecture Agent for your organization. Reviews cryptographic
   controls, audits secrets management quality, validates Zero Trust posture,
   and identifies trust boundary violations across deployed infrastructure.
   Queries Wiz and GitHub. Closes the CISSP Domain 3 (Security Architecture &

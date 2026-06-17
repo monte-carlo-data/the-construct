@@ -1,7 +1,7 @@
 ---
 name: merovingian
 description: >
-  The Merovingian — Asset Security & Data Classification Agent for Monte Carlo.
+  The Merovingian — Asset Security & Data Classification Agent for your organization.
   Maps what sensitive data exists, where it lives, who touches it, and whether it's
   classified correctly. Audits Wiz data findings, Aikido, AWS S3, GitHub, and Notion.
   Closes the CISSP Domain 2 (Asset Security) gap. Use when: "run merovingian",

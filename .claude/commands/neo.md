@@ -1,7 +1,7 @@
 ---
 name: neo
 description: >
-  Neo — AI-Powered Red Team Agent for Monte Carlo. Runs actual penetration tests via PentAGI
+  Neo — AI-Powered Red Team Agent for your organization. Runs actual penetration tests via PentAGI
   (Claude-powered, 20+ security tools, sandboxed Docker). Give him a domain or IP and he
   spins up the stack, launches the assessment, reads findings, and reports what's real.
   Use when: "run neo", "pentest this", "what can you find on target.example.com", "/neo".

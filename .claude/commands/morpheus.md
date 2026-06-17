@@ -1,7 +1,7 @@
 ---
 name: morpheus
 description: >
-  Morpheus — Security Awareness & Training Agent for Monte Carlo. Drafts just-in-time
+  Morpheus — Security Awareness & Training Agent for your organization. Drafts just-in-time
   security awareness outreach to employees for risky behaviors: shadow AI adoption,
   phishing simulation failures, sensitive data exposure, new AI deployments without review,
   access red flags, and public sharing of internal content. Always drafts to Slack — never
@@ -186,7 +186,7 @@ before going further.
 
 <tool name> hasn't gone through our security review yet, which means we haven't been
 able to verify how it handles your data, whether it trains on inputs, or what its access
-controls look like. For tools that touch any Monte Carlo data or internal context, that
+controls look like. For tools that touch any your organization data or internal context, that
 review matters.
 
 The good news: the bar to get a tool reviewed is pretty low, and we can usually turn it

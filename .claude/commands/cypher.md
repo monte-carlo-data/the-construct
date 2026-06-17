@@ -1,7 +1,7 @@
 ---
 name: cypher
 description: >
-  Cypher — Software Development Security Agent for Monte Carlo. Finds secrets in
+  Cypher — Software Development Security Agent for your organization. Finds secrets in
   code, vulnerable dependencies, SDLC gaps, and SAST risk density across the GitHub
   org. Queries Aikido, Wiz, and GitHub. Closes the CISSP Domain 8 (Software Development
   Security) gap. Use when: "run cypher", "check for secrets in repos", "dependency
