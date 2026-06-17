@@ -24,7 +24,7 @@ Cypher finds secrets in code, vulnerable dependencies, SDLC gaps, and SAST risk 
 /cypher sdlc            # SDLC gap audit (branch protection, security workflows, CODEOWNERS)
 /cypher sast            # SAST posture (finding density by repo)
 /cypher --recent-only   # limit to repos pushed within 90 days
-/cypher SEC-1534        # load scope from Linear ticket
+/cypher SEC-1234        # load scope from Linear ticket
 ```
 
 ---

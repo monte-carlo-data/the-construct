@@ -21,7 +21,7 @@ He is a **research and synthesis agent** — he surfaces intelligence, humans ma
 
 ```text
 /john-wick                                          # prompts for incident description
-/john-wick https://linear.app/.../SEC-XXXX          # load from Linear ticket
+/john-wick <your-issue-tracker-url>          # load from Linear ticket
 /john-wick "Vercel breach, ShinyHunters, Linear and GitHub integrations impacted"
 /john-wick "8.8.8.8, malicious-domain.com"          # IOC list
 ```
@@ -117,8 +117,3 @@ When incident involves a hosting platform (Vercel, Netlify, Render, Fly.io), Joh
 - **Wiz MCP**: shared integration; currently session auth
 - **Aikido MCP**: "<your-aikido-item>" in your-credentials-vault — already shared
 
----
-
-## ⚠️ Panther audit logging
-
-Note in `john-wick.md` skill file: Panther audit logging is wired into `john_wick.py` (SEC-1558). Do not use in production until `PANTHER_HTTP_SOURCE_URL` is set to a live Panther HTTP log source URL.

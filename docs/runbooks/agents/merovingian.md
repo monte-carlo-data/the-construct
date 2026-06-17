@@ -27,7 +27,7 @@ Read-only — he surfaces, humans act.
 /merovingian github     # GitHub public repo scan only
 /merovingian notion     # Notion sensitive doc scan only
 /merovingian --stale-days=90    # override 180-day stale threshold
-/merovingian SEC-1533   # load scope from Linear ticket
+/merovingian SEC-1234   # load scope from Linear ticket
 ```
 
 ---

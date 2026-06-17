@@ -19,7 +19,7 @@ Named after The Keymaker from *The Matrix Reloaded*: he makes the keys to every 
 
 ```text
 /keymaker                    # all Triage-state risk tickets
-/keymaker GRC-134            # single ticket
+/keymaker GRC-100            # single ticket
 /keymaker urgent             # urgent priority tickets only
 /keymaker high               # high priority tickets only
 /keymaker in progress        # In Progress state instead of Triage

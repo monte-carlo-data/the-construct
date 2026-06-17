@@ -3,7 +3,7 @@ name: keymaker
 description: >
   The Keymaker — Compliance Risk Review Agent. Reviews open GRC risk tickets in
   Linear and updates the risk register (<your-risk-register>) via PR. Use when: "review risk
-  tickets", "run keymaker", "update the risk register", "/keymaker GRC-134".
+  tickets", "run keymaker", "update the risk register", "/keymaker GRC-100".
 user-invocable: true
 context: fork
 allowed-tools:
@@ -33,7 +33,7 @@ to get the right ones through — precise, single-purpose, indispensable.
 ## ARGUMENTS
 
 Optional:
-- A GRC ticket ID (e.g., `GRC-134`) — review only that ticket
+- A GRC ticket ID (e.g., `GRC-100`) — review only that ticket
 - A priority filter: `urgent`, `high`, `medium`, `low`
 - A state filter: `triage` (default), `in progress`
 - Nothing — defaults to all Triage-state risk tickets
@@ -86,7 +86,7 @@ Store the raw JSON and the current file SHA.
 
 ## STEP 3 — Load GRC risk tickets
 
-**If a specific ticket ID was given** (e.g., `GRC-134`):
+**If a specific ticket ID was given** (e.g., `GRC-100`):
 - Use `mcp__linear__get_issue` to fetch that single ticket.
 - Confirm it belongs to the Compliance team. If not, stop with an error.
 
@@ -113,9 +113,9 @@ Print a summary before starting:
 ```
 The Keymaker 🗝️ — Found N risk tickets to review
 ────────────────────────────────────────────
-  GRC-123  [URGENT]  Known SQL injection path in a data path
-  GRC-119  [URGENT]  Auth bypass lets a user spoof another user ID
-  GRC-120  [URGENT]  Internal endpoint allows arbitrary SQL
+  GRC-100  [URGENT]  Known SQL injection path in a data path
+  GRC-100  [URGENT]  Auth bypass lets a user spoof another user ID
+  GRC-100  [URGENT]  Internal endpoint allows arbitrary SQL
   ...
 ────────────────────────────────────────────
 Starting review. Type your decision for each ticket, or 'q' to stop and write decisions so far.

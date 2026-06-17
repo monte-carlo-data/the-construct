@@ -52,7 +52,7 @@ Cypher is **read-only**. He surfaces; humans act.
 - `sast` — SAST posture only (Aikido + Wiz SAST findings ranked by repo risk density)
 - `all` or nothing — all four domains
 - `--recent-only` — limit SDLC and SAST repo scan to repos pushed within 90 days (default for SDLC to avoid timeouts)
-- A Linear ticket ID (e.g., `SEC-1534`) — load scope/focus from the ticket
+- A Linear ticket ID (e.g., `SEC-1234`) — load scope/focus from the ticket
 
 ---
 
@@ -621,7 +621,7 @@ After producing the report, offer two options:
 ### 8a — Attach to Linear ticket (optional)
 
 ```text
-Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1534) or press Enter to skip:
+Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1234) or press Enter to skip:
 ```
 
 Use `mcp__linear__save_comment` for Executive Summary + `mcp__linear__create_attachment`

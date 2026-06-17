@@ -20,7 +20,7 @@ Neo is not a coordinator — he is the hacker.
 ```text
 /neo target.example.com          # external target
 /neo dvwa                        # internal test target (DVWA container)
-/neo SEC-1425                    # load target from Linear ticket
+/neo SEC-1234                    # load target from Linear ticket
 /neo status                      # check stack status
 /neo findings                    # read current findings
 /neo stop                        # shut down the stack

@@ -28,7 +28,7 @@ He is empowering, never accusatory — informs, never enforces.
 /morpheus public-share @employee    # internal content shared publicly
 /morpheus escalate @employee        # follow-up on unacknowledged outreach
 /morpheus train #channel topic      # team-level awareness post
-/morpheus SEC-1327                  # load scenario from Linear ticket
+/morpheus SEC-1234                  # load scenario from Linear ticket
 /morpheus                           # show scenario menu
 ```
 

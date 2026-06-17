@@ -23,8 +23,8 @@ Seraph produces a report. It never records decisions to the risk register or clo
 
 ```text
 /seraph                                # asks for a scenario
-/seraph GRC-134                        # quantify a Linear risk ticket
-/seraph SEC-1773                       # quantify a Linear security ticket
+/seraph GRC-100                        # quantify a Linear risk ticket
+/seraph SEC-1234                       # quantify a Linear security ticket
 /seraph <wiz-issue-url>                # quantify a Wiz finding
 /seraph <aikido-finding-url>           # quantify an Aikido finding
 /seraph "Acme Corp"                    # quantify vendor risk exposure

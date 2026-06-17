@@ -21,7 +21,7 @@ Trinity audits who has access to what across Okta, GitHub org, and AWS IAM. She 
 /trinity github       # GitHub org only
 /trinity iam          # AWS IAM only
 /trinity --stale-days=60   # override 90-day stale threshold
-/trinity SEC-1504     # load scope from Linear ticket
+/trinity SEC-1234     # load scope from Linear ticket
 ```
 
 ---

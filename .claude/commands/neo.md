@@ -48,7 +48,7 @@ AWS Secrets Manager (CI/AWS) via `secrets.sh` — no `.env` file required.
 ## ARGUMENTS
 
 - **A domain or URL** — `neo target.example.com` or `neo https://staging.example.com`
-- **A Linear ticket** — `neo SEC-1425` → loads target and scope from the ticket
+- **A Linear ticket** — `neo SEC-1234` → loads target and scope from the ticket
 - **A task keyword** — `neo status` | `neo findings` | `neo triage` | `neo stop`
 - **Nothing** — Neo checks stack status and asks what to hit
 
@@ -343,7 +343,7 @@ make clean-all   # asks for confirmation before deleting volumes
 
 ## WORKFLOW E — Evaluate a new tool (not PentAGI)
 
-When evaluating Strix, PentestGPT, Shannon, CAI, or others from the SEC-1425 list:
+When evaluating Strix, PentestGPT, Shannon, CAI, or others from the SEC-1234 list:
 
 1. Fetch the repo README and docs via WebFetch
 2. Score against the 7 criteria: deployment model, scope controls, PoC validation,

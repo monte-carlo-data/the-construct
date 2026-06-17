@@ -18,7 +18,7 @@ Named after Tank from The Matrix: born free, no implants. "I'm the operator. I l
 ## How to invoke
 
 ```text
-/tank SEC-1395                          # Linear ticket ID
+/tank SEC-1234                          # Linear ticket ID
 /tank https://app.aikido.dev/...        # Aikido finding URL
 /tank https://app.wiz.io/issues#...     # Wiz issue URL
 /tank "yaml.load finding in common"     # freeform description

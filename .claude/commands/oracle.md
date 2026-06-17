@@ -363,7 +363,7 @@ AI library versions found in repos against Aikido's findings for the `<your-gith
 Flag any package with a High or Critical CVE as an additional risk factor.
 
 **4. Linear** — existing tracked issues. Use the Linear MCP to search for open issues under
-SEC-1326 or with the `[Oracle]` title prefix. Avoid duplicating tickets already in flight.
+SEC-1234 or with the `[Oracle]` title prefix. Avoid duplicating tickets already in flight.
 
 For each finding, determine:
 
@@ -405,7 +405,7 @@ For each High or Critical finding not already tracked in Linear:
 - **State**: Triage
 - **Assignee**: the security engineer running the workflow (confirm with user)
 - **Project**: FY27 Q1 - Quarterly interrupt work
-- **Parent**: SEC-1326 (Oracle)
+- **Parent**: SEC-1234 (Oracle)
 - **Title**: `[Oracle] <one-line risk summary> — <domain or repo>`
 
 Description template:
@@ -433,7 +433,7 @@ Source: <GitHub / Slack / Aikido / Shodan / Censys>
 <Specific remediation step>
 
 ---
-*Detected by Oracle on <date>. Auto-triaged per SEC-1326.*
+*Detected by Oracle on <date>. Auto-triaged per SEC-1234.*
 ```
 
 In on-demand mode: show all drafted tickets to the user before creating them.
