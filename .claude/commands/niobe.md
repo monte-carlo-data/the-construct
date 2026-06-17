@@ -57,7 +57,7 @@ Niobe is **read-only**. She surfaces; humans act.
 - `zerotrust` — Zero Trust posture only (implicit trust zones, lateral movement risk, missing mTLS)
 - `trust` — trust boundary review only (unexpected exposure, missing auth between tiers)
 - `all` or nothing — all four domains
-- A Linear ticket ID (e.g., `SEC-1536`) — load scope/focus from the ticket
+- A Linear ticket ID (e.g., `SEC-1234`) — load scope/focus from the ticket
 
 ---
 
@@ -582,7 +582,7 @@ After producing the report, offer two options:
 ### 7a — Attach to Linear ticket (optional)
 
 ```text
-Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1536) or press Enter to skip:
+Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1234) or press Enter to skip:
 ```
 
 Use `mcp__linear__save_comment` for the Executive Summary and `mcp__linear__create_attachment`

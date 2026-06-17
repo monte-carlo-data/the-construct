@@ -58,7 +58,7 @@ The Merovingian is **read-only**. He surfaces; humans act.
 - `notion` — Notion sensitive doc scan only
 - `all` or nothing — all five sources + lifecycle analysis
 - `--stale-days=N` — override the 180-day stale threshold (default: 180)
-- A Linear ticket ID (e.g., `SEC-1533`) — load scope/focus from the ticket
+- A Linear ticket ID (e.g., `SEC-1234`) — load scope/focus from the ticket
 
 ---
 
@@ -754,7 +754,7 @@ After producing the report, offer the engineer two options:
 ### 9a — Attach to Linear ticket (optional)
 
 ```text
-Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1533) or press Enter to skip:
+Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1234) or press Enter to skip:
 ```
 
 If provided, use `mcp__linear__save_comment` to post the Executive Summary as a comment,

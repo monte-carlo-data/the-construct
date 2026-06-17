@@ -5,7 +5,7 @@ description: >
   Wiz finding, vendor, or freeform scenario into dollar-denominated annualized loss exposure
   using the FAIR framework and Monte Carlo simulation (via pyfair). Produces board-ready
   "cost of inaction vs. cost of mitigation" output. Use when: "quantify this risk", "what's
-  the dollar exposure on X", "make the business case for Y", "run seraph", "/seraph GRC-134".
+  the dollar exposure on X", "make the business case for Y", "run seraph", "/seraph GRC-100".
   Accepts a Linear ticket ID, Wiz issue URL, Aikido finding URL, vendor name, or a freeform
   scenario description.
 user-invocable: true
@@ -39,7 +39,7 @@ the open [FAIR framework](https://www.fairinstitute.org/) and
 ## ARGUMENTS
 
 One of:
-- A Linear ticket ID (e.g. `GRC-134`, `SEC-1763`) — pull the scenario from the ticket
+- A Linear ticket ID (e.g. `GRC-100`, `SEC-1234`) — pull the scenario from the ticket
 - A Wiz issue URL or Aikido finding URL — pull the scenario from the finding
 - A vendor name (e.g. `Acme Corp`) — quantify vendor risk exposure
 - A freeform scenario description (e.g. `"phishing-driven credential theft against engineering"`)
@@ -562,7 +562,7 @@ Do not auto-post to Slack, Linear, or the risk register. Seraph's job ends at th
 
 ## Worked examples
 
-### Example 1 — "What does it cost us not to fix the SQLi paths in GRC-123?"
+### Example 1 — "What does it cost us not to fix the SQLi paths in GRC-100?"
 
 Ranges below are p05 / p50 / p95. Materiality: $500K (1% of org ARR).
 

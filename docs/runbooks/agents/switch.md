@@ -23,7 +23,7 @@ Switch audits TLS/certificate health, firewall and security group rules, VPC con
 /switch sg          # security group and firewall review only
 /switch vpc         # VPC configuration audit only
 /switch dns         # DNS misconfiguration audit only
-/switch SEC-1535    # load scope from Linear ticket
+/switch SEC-1234    # load scope from Linear ticket
 ```
 
 ---

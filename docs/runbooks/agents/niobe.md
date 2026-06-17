@@ -23,7 +23,7 @@ Niobe audits deployed security architecture posture — cryptographic controls, 
 /niobe secrets          # secrets management only
 /niobe zerotrust        # Zero Trust posture only
 /niobe trust            # trust boundary review only
-/niobe SEC-1536         # load scope from Linear ticket
+/niobe SEC-1234         # load scope from Linear ticket
 ```
 
 ---

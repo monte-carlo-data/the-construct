@@ -53,7 +53,7 @@ Switch is **read-only**. She surfaces; humans act.
 - `vpc` — VPC configuration audit only (flow logs, NACLs, default VPCs, peering)
 - `dns` — DNS misconfiguration audit only (CAA records, dangling CNAMEs, exposed zones)
 - `all` or nothing — all four domains
-- A Linear ticket ID (e.g., `SEC-1535`) — load scope/focus from the ticket
+- A Linear ticket ID (e.g., `SEC-1234`) — load scope/focus from the ticket
 
 ---
 
@@ -500,7 +500,7 @@ After producing the report, offer two options:
 ### 7a — Attach to Linear ticket (optional)
 
 ```text
-Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1535) or press Enter to skip:
+Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1234) or press Enter to skip:
 ```
 
 Use `mcp__linear__save_comment` for the Executive Summary and `mcp__linear__create_attachment`

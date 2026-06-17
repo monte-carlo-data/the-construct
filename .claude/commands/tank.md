@@ -45,7 +45,7 @@ disposition decision:
 
 The user will provide one of:
 
-- A Linear ticket ID (e.g. `SEC-1395`)
+- A Linear ticket ID (e.g. `SEC-1234`)
 - An Aikido finding URL (e.g. `https://app.aikido.dev/repositories/419303?sidebarIssue=2216811`)
 - A Wiz issue URL (e.g. `https://app.wiz.io/issues#~(issue~'16ff94e9-5b21-44cc-9dde-d30dcd793ef5)`)
 - A freeform description ("the yaml.load finding in common")

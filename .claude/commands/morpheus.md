@@ -45,7 +45,7 @@ Enforcement is John Wick's job.
 - `public-share [@employee]` — internal content shared publicly
 - `escalate [@employee]` — follow-up when prior outreach was unacknowledged
 - `train [#channel] [topic]` — team-level awareness post to a channel
-- A Linear ticket ID (e.g., `SEC-1327`) — load scenario from ticket context
+- A Linear ticket ID (e.g., `SEC-1234`) — load scenario from ticket context
 - Free-form description — Morpheus classifies it into the nearest scenario
 - Nothing — shows the scenario menu
 

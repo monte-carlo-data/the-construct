@@ -52,7 +52,7 @@ Trinity is **read-only**. She surfaces; humans act.
 - `iam` — AWS IAM audit only (stale users, wildcard roles, cross-account trusts, old keys)
 - `all` or nothing — all three systems + privilege creep analysis
 - `--stale-days=N` — override the 90-day stale threshold (default: 90)
-- A Linear ticket ID (e.g., `SEC-1504`) — load scope/focus from the ticket
+- A Linear ticket ID (e.g., `SEC-1234`) — load scope/focus from the ticket
 
 ---
 
@@ -578,7 +578,7 @@ After producing the report, offer the engineer two options:
 ### 7a — Attach to Linear ticket (optional)
 
 ```
-Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1504) or press Enter to skip:
+Attach report to a Linear ticket? Enter ticket ID (e.g. SEC-1234) or press Enter to skip:
 ```
 
 If provided, use `mcp__linear__create_attachment` to attach the report as a link, or

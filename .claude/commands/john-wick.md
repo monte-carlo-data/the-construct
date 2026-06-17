@@ -31,9 +31,6 @@ allowed-tools:
   - mcp__slack__slack_send_message_draft
 ---
 
-<!-- NOTE: Panther audit logging is wired into john_wick.py (SEC-1558).
-     Do not use this skill in production until PANTHER_HTTP_SOURCE_URL is set
-
 # John Wick — Incident Response Agent
 
 John Wick is Monte Carlo's incident response research agent. When something is actively wrong —
@@ -73,7 +70,7 @@ user confirmation.
 
 Check what was provided as an argument:
 
-- **Linear ticket URL** (e.g. `https://linear.app/...`): fetch the ticket via `mcp__linear__get_issue`
+- **Linear ticket URL** (e.g. `<your-issue-tracker-url>`): fetch the ticket via `mcp__linear__get_issue`
   and extract: title, description, labels, comments. Use this as the incident context.
 - **Freeform description** (e.g. "Vercel breach, ShinyHunters, Linear and GitHub integrations impacted"):
   use as-is. Extract any CVE IDs, vendor names, product names, and IOC indicators mentioned.
