@@ -31,6 +31,7 @@ They're named after characters from *The Matrix*.
 |---|---|---|
 | **John Wick** | Incident response — investigates active breaches, suspicious logins, credential leaks | `/john-wick` |
 | **Security Steve** | Concierge — routes any security question or request to the right agent | `/security-steve` |
+| **The Trainman** | Cloud cost & FinOps — finds wasteful spend in security-owned infra, quantifies the saving, drafts the IaC fix (cost counterpart to Seraph) | `/trainman` |
 
 ---
 
@@ -92,13 +93,14 @@ Agents are built on Claude Code and use MCP servers to connect to security tools
 
 | Tool | Agents |
 |---|---|
-| [Wiz MCP](https://docs.wiz.io) | Trinity, Oracle, Tank, Merovingian, Cypher, Switch, Niobe, John Wick |
+| [Wiz MCP](https://docs.wiz.io) | Trinity, Oracle, Tank, Merovingian, Cypher, Switch, Niobe, John Wick, Trainman |
 | [Okta MCP](https://developer.okta.com/docs/api/) | Trinity, John Wick |
 | [Aikido MCP](https://aikido.dev) | Oracle, Tank, Cypher, John Wick |
-| [Linear MCP](https://linear.app/developers) | Neo, Trinity, Tank, Architect, Morpheus, Keymaker |
+| [Linear MCP](https://linear.app/developers) | Neo, Trinity, Tank, Architect, Morpheus, Keymaker, Trainman |
 | [Slack MCP](https://api.slack.com/mcp) | Oracle, Morpheus, John Wick, Security Steve |
 | [Notion MCP](https://developers.notion.com) | Oracle, Merovingian, Architect, Security Steve |
-| GitHub CLI (`gh`) | Architect, Cypher, Keymaker |
+| GitHub CLI (`gh`) | Architect, Cypher, Keymaker, Trainman |
+| AWS CLI (`aws`) | Trainman (Cost Explorer / CUR) |
 | Docker (local) | Neo (PentAGI stack) |
 
 See each agent's runbook for its specific requirements.
