@@ -88,6 +88,9 @@
                 <mxCell id="keymaker" value="&lt;b&gt;Keymaker&lt;/b&gt;  /keymaker&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Compliance — policy &amp; risk register&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" parent="1" vertex="1">
                     <mxGeometry x="1396" y="274" width="248" height="58" as="geometry"/>
                 </mxCell>
+                <mxCell id="trainman" value="&lt;b&gt;The Trainman&lt;/b&gt;  /trainman&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Cloud cost &amp; FinOps — $ impact of waste&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="1140" y="348" width="248" height="58" as="geometry"/>
+                </mxCell>
                 <mxCell id="emitNote" value="Any agent that finds something &lt;b&gt;emits a finding&lt;/b&gt; into the shared findings/ ledger,&lt;br&gt;declaring its own next hop in &lt;b&gt;suggested_next&lt;/b&gt;." style="text;html=1;align=center;verticalAlign=middle;fontColor=#CBD5E1;fontSize=13;" parent="1" vertex="1">
                     <mxGeometry x="472" y="401" width="760" height="40" as="geometry"/>
                 </mxCell>
@@ -115,6 +118,14 @@
                         </Array>
                         <mxPoint x="1392" y="358" as="sourcePoint"/>
                         <mxPoint x="1140" y="524" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="eInt2" style="endArrow=block;html=1;strokeColor=#FBBF24;strokeWidth=2.5;rounded=1;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;opacity=50;" parent="1" source="trainman" target="ledger" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1110" y="377"/>
+                            <mxPoint x="1110" y="541"/>
+                        </Array>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="ledger" value="&lt;b&gt;findings/  — shared findings store&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;one markdown file per finding · id · agent · severity · status · suggested_next&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B1220;strokeColor=#475569;fontColor=#E2E8F0;fontSize=13;dashed=1;verticalAlign=middle;spacingLeft=8;spacingRight=8;" parent="1" vertex="1">
