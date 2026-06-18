@@ -118,6 +118,7 @@ roster prevents dead handoffs to misspelled or non-existent agents.
 | `oracle` | AI Exposure & Shadow IT |
 | `morpheus` | Security Awareness & Training |
 | `cypher` | Software Development Security |
+| `trainman` | Cloud Cost & FinOps (emit-only — never a route target) |
 | `security-steve` | Cross-domain concierge / orchestrator |
 
 > When a domain's remediation belongs to a non-agent team (e.g. a platform/Okta admin for
