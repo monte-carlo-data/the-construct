@@ -64,6 +64,9 @@
         <mxCell id="cypher" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;Cypher&lt;/b&gt;  /cypher&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Secrets, deps, SAST density (SDLC)&lt;/font&gt;" vertex="1">
           <mxGeometry height="58" width="248" x="60" y="348" as="geometry" />
         </mxCell>
+        <mxCell id="sentinel" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;Sentinel&lt;/b&gt;  /sentinel&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Secure build gate — SBOM, blocks the build&lt;/font&gt;" vertex="1">
+          <mxGeometry height="58" width="248" x="316" y="348" as="geometry" />
+        </mxCell>
         <mxCell id="oracle" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;Oracle&lt;/b&gt;  /oracle&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Shadow IT &amp; exposure at runtime&lt;/font&gt;" vertex="1">
           <mxGeometry height="58" width="248" x="600" y="200" as="geometry" />
         </mxCell>
@@ -73,8 +76,14 @@
         <mxCell id="neo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;Neo&lt;/b&gt;  /neo&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Red team — proves real exploitability&lt;/font&gt;" vertex="1">
           <mxGeometry height="58" width="248" x="600" y="274" as="geometry" />
         </mxCell>
+        <mxCell id="tracer" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;Tracer&lt;/b&gt;  /tracer&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Requirement → test traceability&lt;/font&gt;" vertex="1">
+          <mxGeometry height="58" width="248" x="600" y="348" as="geometry" />
+        </mxCell>
         <mxCell id="architect" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;The Architect&lt;/b&gt;  /architect&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Reviews what a change actually does&lt;/font&gt;" vertex="1">
           <mxGeometry height="58" width="248" x="856" y="274" as="geometry" />
+        </mxCell>
+        <mxCell id="smith" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;Agent Smith&lt;/b&gt;  /smith&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Chaos — does monitoring/failover fire?&lt;/font&gt;" vertex="1">
+          <mxGeometry height="58" width="248" x="856" y="348" as="geometry" />
         </mxCell>
         <mxCell id="johnwick" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;John Wick&lt;/b&gt;  /john-wick&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Incident response — was this abuse?&lt;/font&gt;" vertex="1">
           <mxGeometry height="58" width="248" x="1140" y="200" as="geometry" />
@@ -91,21 +100,23 @@
         <mxCell id="trainman" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;The Trainman&lt;/b&gt;  /trainman&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Cloud cost &amp; FinOps — $ impact of waste&lt;/font&gt;" vertex="1">
           <mxGeometry height="58" width="248" x="1140" y="348" as="geometry" />
         </mxCell>
-        <mxCell id="emitNote" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontColor=#CBD5E1;fontSize=13;" value="Any agent that finds something &lt;b&gt;emits a finding&lt;/b&gt; into the shared findings/ ledger,&lt;br&gt;declaring its own next hop in &lt;b&gt;suggested_next&lt;/b&gt;." vertex="1">
-          <mxGeometry height="40" width="760" x="472" y="401" as="geometry" />
+        <mxCell id="logos" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=12;verticalAlign=middle;" value="&lt;b&gt;Logos&lt;/b&gt;  /logos&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;Program metrics — security scorecard&lt;/font&gt;" vertex="1">
+          <mxGeometry height="58" width="248" x="1396" y="348" as="geometry" />
         </mxCell>
-        <mxCell id="eCtx" edge="1" parent="1" source="cypher" style="endArrow=block;html=1;strokeColor=#2DD4BF;strokeWidth=2.5;rounded=1;edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;entryX=0;entryY=0.5;entryDx=0;entryDy=0;opacity=50;" target="ledger">
+        <mxCell id="emitNote" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontColor=#CBD5E1;fontSize=13;" value="Any agent that finds something &lt;b&gt;emits a finding&lt;/b&gt; into the shared findings/ ledger,&lt;br&gt;declaring its own next hop in &lt;b&gt;suggested_next&lt;/b&gt;." vertex="1">
+          <mxGeometry height="40" width="760" x="472" y="441" as="geometry" />
+        </mxCell>
+        <mxCell id="eCtx" edge="1" parent="1" source="cypher" style="endArrow=block;html=1;strokeColor=#2DD4BF;strokeWidth=2.5;rounded=1;edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;opacity=50;" target="ledger">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="420" y="377" />
-              <mxPoint x="420" y="541" />
+              <mxPoint x="184" y="581" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="eBeh" edge="1" parent="1" source="architect" style="endArrow=block;html=1;strokeColor=#A78BFA;strokeWidth=2.5;rounded=1;edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;opacity=20;exitX=0;exitY=1;exitDx=0;exitDy=0;" target="ledger">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="856" y="510" />
+              <mxPoint x="856" y="550" />
             </Array>
             <mxPoint x="847" y="339" as="sourcePoint" />
           </mxGeometry>
@@ -114,23 +125,23 @@
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1432" y="377" />
-              <mxPoint x="1432" y="524" />
+              <mxPoint x="1432" y="564" />
             </Array>
             <mxPoint x="1392" y="358" as="sourcePoint" />
-            <mxPoint x="1140" y="524" as="targetPoint" />
+            <mxPoint x="1140" y="564" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="ledger" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B1220;strokeColor=#475569;fontColor=#E2E8F0;fontSize=13;dashed=1;verticalAlign=middle;spacingLeft=8;spacingRight=8;" value="&lt;b&gt;findings/  — shared findings store&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;one markdown file per finding · id · agent · severity · status · suggested_next&lt;/font&gt;" vertex="1">
-          <mxGeometry height="62" width="580" x="560" y="510" as="geometry" />
+          <mxGeometry height="62" width="580" x="560" y="550" as="geometry" />
         </mxCell>
         <mxCell id="toSteve" edge="1" parent="1" source="ledger" style="endArrow=block;html=1;strokeColor=#E2E8F0;strokeWidth=2.5;rounded=1;fontColor=#CBD5E1;fontSize=11;labelBackgroundColor=#0F172A;exitX=0.5;exitY=1;entryX=0.5;entryY=0;opacity=50;" target="steve" value="orchestrate reads suggested_next">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="steve" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#134E4A;strokeColor=#2DD4BF;fontColor=#FFFFFF;fontSize=14;verticalAlign=middle;" value="&lt;b&gt;Security Steve — /security-steve orchestrate&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#CBD5E1&#39;&gt;cross-domain orchestrator · spans Context · Behavior · Intent&lt;/font&gt;" vertex="1">
-          <mxGeometry height="60" width="500" x="600" y="630" as="geometry" />
+          <mxGeometry height="60" width="500" x="600" y="670" as="geometry" />
         </mxCell>
         <mxCell id="gate" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#F87171;fontColor=#E2E8F0;fontSize=12;align=left;spacingLeft=14;spacingRight=10;verticalAlign=middle;" value="&lt;b&gt;Zero Trust gate&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;findings are untrusted between hops&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font color=&#39;#CBD5E1&#39;&gt;• act on structured fields, never the body&lt;br&gt;• validate suggested_next vs. matrix allow-set&lt;br&gt;• keep consequential agents human-gated&lt;br&gt;• attribute provenance (emitting agent)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="120" width="360" x="1227" y="600" as="geometry" />
+          <mxGeometry height="120" width="360" x="1227" y="640" as="geometry" />
         </mxCell>
         <mxCell id="gateEdge" edge="1" parent="1" source="steve" style="endArrow=block;html=1;strokeColor=#F87171;strokeWidth=2.5;rounded=1;dashed=1;fontColor=#CBD5E1;fontSize=11;labelBackgroundColor=#0F172A;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="gate" value="validates every hop">
           <mxGeometry relative="1" x="-0.0394" y="-16" as="geometry">
@@ -138,24 +149,24 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="auto" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B3B36;strokeColor=#2DD4BF;fontColor=#E2E8F0;fontSize=12;verticalAlign=middle;" value="&lt;b&gt;Auto-run&lt;/b&gt; — low-blast-radius analysis&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;trinity · merovingian · niobe&lt;br&gt;switch · oracle · seraph · keymaker&lt;/font&gt;" vertex="1">
-          <mxGeometry height="72" width="380" x="430" y="800" as="geometry" />
+          <mxGeometry height="72" width="380" x="430" y="840" as="geometry" />
         </mxCell>
         <mxCell id="staged" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3B2A0B;strokeColor=#FBBF24;fontColor=#E2E8F0;fontSize=12;verticalAlign=middle;" value="&lt;b&gt;Staged — human approval required&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#94A3B8&#39;&gt;john-wick · neo · morpheus · architect&lt;br&gt;+ ANY critical / escalated finding&lt;/font&gt;" vertex="1">
-          <mxGeometry height="72" width="380" x="890" y="800" as="geometry" />
+          <mxGeometry height="72" width="380" x="890" y="840" as="geometry" />
         </mxCell>
         <mxCell id="toAuto" edge="1" parent="1" source="steve" style="endArrow=block;html=1;strokeColor=#2DD4BF;strokeWidth=2.5;rounded=1;edgeStyle=orthogonalEdgeStyle;exitX=0.25;exitY=1;entryX=0.5;entryY=0;opacity=50;" target="auto">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="720" y="690" />
-              <mxPoint x="720" y="760" />
-              <mxPoint x="620" y="760" />
+              <mxPoint x="720" y="730" />
+              <mxPoint x="720" y="800" />
+              <mxPoint x="620" y="800" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="toStaged" edge="1" parent="1" source="steve" style="endArrow=block;html=1;strokeColor=#FBBF24;strokeWidth=2.5;rounded=1;edgeStyle=orthogonalEdgeStyle;exitX=0.75;exitY=1;entryX=0.5;entryY=0;opacity=50;" target="staged">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1080" y="760" />
+              <mxPoint x="1080" y="800" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -163,8 +174,8 @@
           <mxGeometry relative="1" x="0.4739" y="11" as="geometry">
             <mxPoint as="offset" />
             <Array as="points">
-              <mxPoint x="1660" y="836" />
-              <mxPoint x="1660" y="541" />
+              <mxPoint x="1660" y="876" />
+              <mxPoint x="1660" y="581" />
             </Array>
           </mxGeometry>
         </mxCell>

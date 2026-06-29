@@ -68,14 +68,14 @@ obvious. Use the **owning agent** column to sanity-check that `agent` and `domai
 
 | `domain` value | Owning agent(s) |
 |---|---|
-| `1 — Security & Risk Management` | keymaker (GRC, compliance, risk register), seraph (risk quantification) |
+| `1 — Security & Risk Management` | keymaker (GRC, compliance, risk register), seraph (risk quantification), logos (program-metrics scorecard, emit-only) |
 | `2 — Asset Security` | merovingian (data classification, sensitive data inventory) |
 | `3 — Security Architecture & Engineering` | niobe (crypto, secrets-mgmt quality, Zero Trust, trust boundaries) |
 | `4 — Communication & Network Security` | switch (TLS/certs, firewall/SG, VPC, DNS) |
 | `5 — Identity & Access Management` | trinity (Okta, GitHub org, AWS IAM, privilege creep) |
-| `6 — Security Assessment & Testing` | neo (red team / pentest), architect (PR/SDD review), tank (vuln triage) |
+| `6 — Security Assessment & Testing` | neo (red team / pentest), architect (PR/SDD review), tank (vuln triage), tracer (requirement→test traceability, emit-only) |
 | `7 — Security Operations` | john-wick (incident response), oracle (shadow AI / exposed endpoints), morpheus (awareness/training) |
-| `8 — Software Development Security` | cypher (secrets-in-code, deps, SDLC, SAST density) |
+| `8 — Software Development Security` | cypher (secrets-in-code, deps, SDLC, SAST density), sentinel (secure-build gate, emit-only) |
 
 `security-steve` is the cross-domain concierge/orchestrator and does not own a single domain; when
 Steve emits a finding it carries the domain of the underlying issue.
@@ -119,6 +119,10 @@ roster prevents dead handoffs to misspelled or non-existent agents.
 | `morpheus` | Security Awareness & Training |
 | `cypher` | Software Development Security |
 | `trainman` | Cloud Cost & FinOps (emit-only — never a route target) |
+| `smith` | Security Infrastructure Chaos Engineering (emit-only — never a route target) |
+| `logos` | Program-Metrics Scorecard (Strategy & Metrics — emit-only — never a route target) |
+| `sentinel` | Secure Build Gate (Implementation / Secure Build — emit-only — never a route target) |
+| `tracer` | Requirements-to-Test Traceability (Verification / Requirements-driven Testing — emit-only — never a route target) |
 | `security-steve` | Cross-domain concierge / orchestrator |
 
 > When a domain's remediation belongs to a non-agent team (e.g. a platform/Okta admin for
