@@ -24,6 +24,9 @@ They're named after characters from *The Matrix*.
 | **Switch** | Network security — TLS/certificate health, firewall rules, VPC review | CISSP Domain 4: Communication & Network Security | `/switch` |
 | **Niobe** | Security architecture — cryptography controls, Zero Trust posture, secrets management | CISSP Domain 3: Security Architecture & Engineering | `/niobe` |
 | **The Keymaker** | Compliance & risk register — keeper of the register; reviews open GRC risk tickets and records declined blockers / accepted risks handed off by the roster | CISSP Domain 1: Security & Risk Management | `/keymaker` |
+| **Logos** | Program metrics — rolls FAIR exposure, vuln aging, and SAMM coverage into one board-ready scorecard, scores each metric against target, and acts on breaches | CISSP Domain 1: Security & Risk Management | `/logos` |
+| **Tracer** | Requirements-to-test traceability — proves each security requirement in a spec maps to a passing test or control; files the unmapped ones | CISSP Domain 6: Security Assessment & Testing | `/tracer` |
+| **Sentinel** | Secure build gate — generates a CycloneDX SBOM and *blocks* the build when it's missing/incomplete or carries a CRITICAL known-vuln above threshold | CISSP Domain 8: Software Development Security | `/sentinel` |
 
 ### Supporting Characters
 
@@ -32,6 +35,7 @@ They're named after characters from *The Matrix*.
 | **John Wick** | Incident response — investigates active breaches, suspicious logins, credential leaks | `/john-wick` |
 | **Security Steve** | Concierge — routes any security question or request to the right agent | `/security-steve` |
 | **The Trainman** | Cloud cost & FinOps — finds wasteful spend in security-owned infra, quantifies the saving, drafts the IaC fix (cost counterpart to Seraph) | `/trainman` |
+| **Agent Smith** | Security infrastructure chaos engineering — injects controlled, opt-in failures into enrolled infra and verifies monitoring, alerting, and failover actually fire (Netflix ChAP pattern) | `/smith` |
 
 ---
 
@@ -52,7 +56,7 @@ Not sure which agent to use? Start with `/security-steve` — it routes you.
 
 ## How agents work together
 
-The agents aren't 14 solo operators — they're a team. The coordination layer is a **shared findings
+The agents aren't a set of solo operators — they're a team. The coordination layer is a **shared findings
 store** under [`findings/`](findings/): any agent emits a finding (a markdown file with YAML
 frontmatter), and any agent can read it. Each finding declares its own next hop in a
 `suggested_next` field — a list of agent slugs that should act next — so a leaked-secret finding
@@ -96,12 +100,13 @@ Agents are built on Claude Code and use MCP servers to connect to security tools
 | [Wiz MCP](https://docs.wiz.io) | Trinity, Oracle, Tank, Merovingian, Cypher, Switch, Niobe, John Wick, Trainman |
 | [Okta MCP](https://developer.okta.com/docs/api/) | Trinity, John Wick |
 | [Aikido MCP](https://aikido.dev) | Oracle, Tank, Cypher, John Wick |
-| [Linear MCP](https://linear.app/developers) | Neo, Trinity, Tank, Architect, Morpheus, Keymaker, Trainman |
-| [Slack MCP](https://api.slack.com/mcp) | Oracle, Morpheus, John Wick, Security Steve |
+| [Linear MCP](https://linear.app/developers) | Neo, Trinity, Tank, Architect, Morpheus, Keymaker, Trainman, Logos, Tracer, Sentinel, Smith |
+| [Slack MCP](https://api.slack.com/mcp) | Oracle, Morpheus, John Wick, Security Steve, Smith |
 | [Notion MCP](https://developers.notion.com) | Oracle, Merovingian, Architect, Security Steve |
 | GitHub CLI (`gh`) | Architect, Cypher, Keymaker, Trainman |
 | AWS CLI (`aws`) | Trainman (Cost Explorer / CUR) |
 | Docker (local) | Neo (PentAGI stack) |
+| [Syft](https://github.com/anchore/syft) + [Grype](https://github.com/anchore/grype) | Sentinel (CycloneDX SBOM generation + known-vuln scan) |
 
 See each agent's runbook for its specific requirements.
 

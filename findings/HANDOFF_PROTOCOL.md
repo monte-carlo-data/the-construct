@@ -49,12 +49,14 @@ A reader maps any slug straight to `/<slug>`.
 | 12 | **Data exposure through a network path** | `[merovingian]` | Classify what data is reachable over the exposed path. | switch |
 | 13 | **Compliance implication (SOC 2, ISO 27001, GDPR, CCPA, PCI, HIPAA)** | `[keymaker]` — add `seraph` when a $-figure helps the decision | GRC logs/treats it (Keymaker); quantify cost-of-inaction when it sharpens the call (Seraph). | all agents |
 | 14 | **Confirmed risk needing $-quantification / business case** | `[seraph]` | FAIR / dollar-exposure to justify spend or acceptance. | john-wick, keymaker, tank |
-| 15 | **Exploitability unproven — needs a pentest to confirm** | `[neo]` | Red team confirms whether a SAST / trust-boundary / open-port finding is actually exploitable before it's prioritized. | cypher, niobe, switch, tank |
+| 15 | **Exploitability unproven — needs a pentest to confirm** | `[neo]` | Red team confirms whether a SAST / trust-boundary / open-port finding is actually exploitable before it's prioritized. | cypher, niobe, switch, tank, tracer |
 | 15b | **Pentest confirms a vuln in production** | `[john-wick]` | A confirmed live vuln is an incident. | neo |
-| 16 | **PR or SDD needs security-architecture review** | `[architect]` | Code-level / design review of a change. | niobe, cypher |
+| 16 | **PR or SDD needs security-architecture review** | `[architect]` | Code-level / design review of a change. | niobe, cypher, tracer |
 | 17 | **Developer / employee awareness or coaching needed** | `[morpheus]` | Just-in-time security-awareness outreach (never disciplinary — see Morpheus runbook). | all agents |
 | 18 | **Risk needs to land in the register** | `[keymaker]` | Record the treatment decision in the risk register. | seraph, tank |
 | 19 | **Catch-all — genuinely cross-domain or unclassifiable** | `[security-steve]` | The cross-domain concierge / orchestrator is the backstop so **no finding dead-ends**. | any agent |
+| 20 | **Resiliency / continuous-verification gap — a chaos experiment proved a security control didn't behave as believed** | `[niobe]` — detection/alerting/architecture gap or a confirmed single point of failure | A failed chaos experiment is an *architecture* problem: the redundancy / monitoring design needs fixing (Niobe). Add `switch` if the gap is network-path redundancy; add `keymaker` (+`seraph`) if it falsifies an availability control you attest to. | smith |
+| 20b | **Chaos restore could not confirm recovery — a security system is degraded *now*** | `[john-wick]` | Smith found/left something degraded and couldn't restore it — an active operational incident, not a backlog item (subsumes row 1 for this type). Almost always `severity: critical`. | smith |
 
 > **Note on `architect`.** The Architect runs against a PR or SDD URL; route a finding to
 > `[architect]` only when there is a concrete change to review. For "we're about to build X, what
@@ -229,10 +231,13 @@ niobe, oracle, security-steve, seraph, switch, trinity        (12 slugs)
 
 > **Derived, not hand-maintained.** This set is the union of the `suggested_next` column of the
 > [handoff matrix](#the-handoff-matrix). If you add/remove a row or change a row's `suggested_next`,
-> **regenerate this list.** The two roster slugs deliberately *absent* — `cypher` and `tank` — are
-> **emit-only** agents: they appear only in the matrix's "typically emitted by" column, never as a
-> route target. So a finding routing *to* `cypher` or `tank` is off-matrix by construction (a real
-> poisoning signal, not a false positive against any legitimate route).
+> **regenerate this list.** Rows 20/20b added `smith` as an emitter but route only to
+> already-listed targets — niobe / switch / john-wick / keymaker / seraph — so the allow-set is
+> unchanged. The roster slugs deliberately *absent* — `cypher`, `tank`, `trainman`, `smith`,
+> `logos`, `sentinel`, and `tracer` — are **emit-only** agents: they appear only in the matrix's
+> "typically emitted by" column, never as a route target. So a finding routing *to* any of them is
+> off-matrix by construction (a real poisoning signal, not a false positive against any legitimate
+> route).
 
 ### Rule 3 — Consequential actions stay human-gated on the cascade path too
 
@@ -276,7 +281,10 @@ a handoff rule, change it **here first**, then reconcile the affected agent tabl
 | `john-wick` | 2 (and consumes row 1) |
 | `seraph` | 18 (and consumes rows 2, 13, 14) |
 | `tank` | 14, 15, 18 |
+| `trainman` | 13, 14 (cost findings with a compliance / risk-vs-cost angle; emit-only — never a route target) |
+| `smith` | 11, 13, 20, 20b (resiliency / continuous-verification gaps; emit-only — never a route target) |
 | `architect` | 13, 17 (and consumes row 16) |
+| `tracer` | 13, 15, 16, 19 (requirement→test coverage gaps; emit-only — never a route target) |
 | `morpheus` | 1 (escalates active compromise), 13 (and consumes rows 3, 6, 17) |
 | `keymaker` | 14 (and consumes rows 2, 13, 18) |
 | `security-steve` | catch-all (row 19); cross-domain |
