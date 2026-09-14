@@ -133,7 +133,9 @@ See also: [Secure Design Practicum](https://github.com/monte-carlo-data/secure-d
 
 ## License
 
-Apache 2.0. See [LICENSE](LICENSE).
+Business Source License 1.1 (BUSL-1.1). See [LICENSE](LICENSE).
+
+The Construct is source-available, not open source. Non-production use (evaluation, development, testing) is permitted; production use requires a commercial license from Monte Carlo. Each version converts to Apache 2.0 on its Change Date (four years after first publication). Snapshots published prior to 2026-09-14 remain available under Apache 2.0.
 
 ## Security
 
