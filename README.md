@@ -140,11 +140,17 @@ dead-end routes, and proposes the fix as a doc a human reviews — the matrix is
 ```
 .claude/commands/           # Claude Code skill files — one per agent (security roster + engineering line-up)
 .claude/agents/             # The sensor tier — read-only sub-agents (panther, wing, bedrock, aws)
+.github/scripts/            # The deterministic, model-free cores the skills call (validators, extractors, gates, feeds)
 docs/runbooks/agents/       # Runbooks: systems accessed, prerequisites, scope rules, workflows
 docs/engineering-sdlc-agents.md   # The engineering line-up: stage→agent, call graph, worked example
 findings/                   # Shared findings store + the schema and handoff matrix (the teamwork layer)
 knowledge/                  # Org configuration placeholders and reference docs the agents read
+programs/                   # Config the scripts read (e.g. the AISVS chapter registry Tracer maps requirements to)
+tests/                      # pytest suite for the scripts — `python3 -m pytest tests/`
 ```
+
+The scripts are plain Python 3.11+ with one dependency (`pyyaml`, for the findings validator and Hill-Climb); every
+org-specific value is an environment variable or flag with a placeholder default, listed in each module's docstring.
 
 Each agent has two files:
 - **Skill** (`.claude/commands/<agent>.md`) — the Claude Code workflow that runs

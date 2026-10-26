@@ -1,0 +1,17 @@
+{
+  "check_name": "SMTP mx2.example.com SSL/TLS",
+  "check_type": "SMTP",
+  "target": "mx2.example.com",
+  "fired_at": "2026-06-26T22:49:25Z",
+  "sensitivity": 2,
+  "is_backup_target": true,
+  "provider_status_healthy": true,
+  "service_health_ok": true,
+  "probes": [
+    {"location": "US-East-1", "state": "ok", "response_time_s": 1.66, "ip": "203.0.113.10", "ip_owner": "ExampleColo"},
+    {"location": "US-West-1", "state": "ok", "response_time_s": 0.35},
+    {"location": "US-Central-1", "state": "ok", "response_time_s": 0.11},
+    {"location": "EU-West-1", "state": "ok", "response_time_s": 0.10},
+    {"location": "EU-Central-1", "state": "critical", "ip": "203.0.113.50", "ip_owner": "ExampleVPN / AS64496", "critical_since": "2026-06-18T00:00:00Z"}
+  ]
+}

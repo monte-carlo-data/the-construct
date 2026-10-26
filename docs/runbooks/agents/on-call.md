@@ -68,7 +68,8 @@ python3 .github/scripts/oncall_triage.py --alert <alert.json> --json-out <verdic
 ## Prerequisites
 
 - Uptime.com and PagerDuty MCPs connected for the live path. The core itself needs neither — the
-  replay fixture under `.github/scripts/fixtures/oncall/` exercises it offline.
+  replay fixture `.github/scripts/fixtures/oncall/replay_example.json` (via
+  `tests/test_oncall_triage.py`) exercises it offline.
 - A `findings/` ledger per [findings/SCHEMA.md](../../../findings/SCHEMA.md).
 
 ---
