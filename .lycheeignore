@@ -1,0 +1,4 @@
+# Template placeholders that appear as link targets inside fenced code blocks.
+^url$
+^<.*>$
+^lec\.png$

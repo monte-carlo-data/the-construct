@@ -1,0 +1,4 @@
+# Development-only dependencies. The scripts in .github/scripts/ need nothing beyond the
+# standard library and PyYAML (findings_validate.py, hill_climb.py); pytest runs tests/.
+pytest==9.1.1
+PyYAML==6.0.3

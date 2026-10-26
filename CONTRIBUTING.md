@@ -67,6 +67,8 @@ Any agent that can take actions (file tickets, send Slack messages, modify resou
 2. Add or modify the skill file and runbook together — they ship as a pair
 3. Test the skill manually in Claude Code
 4. Open a PR with a clear description of what the agent does and why it's useful
+5. CI must be green: the test suite, the public-hygiene check (no real emails, account ids, tokens, or workspace
+   URLs — placeholders only), the relative-link check, and the Sentinel build gate (warn mode)
 
 ## Code of Conduct
 
