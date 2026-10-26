@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests + public-hygiene check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dev dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run the test suite
+        run: python -m pytest tests/ -q
+
+  links:
+    name: Relative links and anchors resolve
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: lychee (offline — local files and heading anchors only)
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: --offline --include-fragments --no-progress --root-dir "${{ github.workspace }}" "./**/*.md"
+          fail: true
+
+  sentinel:
+    # The repo runs its own secure-build gate on itself: generate a CycloneDX SBOM with Syft,
+    # then let sentinel_gate.py check it is present and complete and that Grype finds no
+    # CRITICAL known-vuln above the threshold. Warn mode: the verdict is reported, never blocks.
+    name: Sentinel build gate (warn mode)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Download Syft
+        id: syft
+        uses: anchore/sbom-action/download-syft@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+
+      - name: Download Grype
+        id: grype
+        uses: anchore/scan-action/download-grype@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+
+      - name: Put Syft and Grype on PATH
+        run: |
+          echo "$(dirname "${{ steps.syft.outputs.cmd }}")" >> "$GITHUB_PATH"
+          echo "$(dirname "${{ steps.grype.outputs.cmd }}")" >> "$GITHUB_PATH"
+
+      - name: Generate SBOM (Syft)
+        run: syft scan dir:. --source-name the-construct -o cyclonedx-json=sbom.cdx.json
+
+      # Mirror an SBOM-create merge step: Syft emits `type: file` evidence components named by
+      # absolute runner path (which the completeness check rightly rejects as a path leak), and
+      # the check keys the source count on a `<prefix><repo>` property in metadata.properties.
+      - name: Normalize the SBOM (drop file-evidence components, stamp the source-repo property)
+        env:
+          SBOM_SOURCE_REPO_PREFIX: "your-org:source-repo:"
+        run: |
+          python3 - <<'EOF'
+          import json, os
+          p = "sbom.cdx.json"
+          sbom = json.load(open(p))
+          sbom["components"] = [c for c in sbom.get("components", []) if c.get("type") != "file"]
+          props = sbom.setdefault("metadata", {}).setdefault("properties", [])
+          props.append({"name": os.environ["SBOM_SOURCE_REPO_PREFIX"] + "the-construct", "value": os.environ["GITHUB_SHA"]})
+          json.dump(sbom, open(p, "w"), indent=2)
+          EOF
+
+      - name: Run the gate
+        env:
+          SBOM_SOURCE_REPO_PREFIX: "your-org:source-repo:"
+        run: |
+          python3 .github/scripts/sentinel_gate.py \
+            --sbom sbom.cdx.json --mode warn --critical-threshold 0 \
+            --repo "${{ github.repository }}" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --out verdict.md
+          cat verdict.md >> "$GITHUB_STEP_SUMMARY"

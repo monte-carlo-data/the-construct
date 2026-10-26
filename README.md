@@ -1,5 +1,7 @@
 # The Construct
 
+[![CI](https://github.com/monte-carlo-data/the-construct/actions/workflows/ci.yml/badge.svg)](https://github.com/monte-carlo-data/the-construct/actions/workflows/ci.yml)
+
 > *"The Construct is our loading program. We can load anything."*
 
 The Construct is your organization's AI-powered security agent roster — a team of Claude-powered specialists, each one owning a specific security domain — plus a second line-up of engineering agents that shift security checks left into every stage of the SDLC. Every agent is a Claude Code skill: drop it in your repo, configure your MCP servers, and it runs.
@@ -151,6 +153,11 @@ tests/                      # pytest suite for the scripts — `python3 -m pytes
 
 The scripts are plain Python 3.11+ with one dependency (`pyyaml`, for the findings validator and Hill-Climb); every
 org-specific value is an environment variable or flag with a placeholder default, listed in each module's docstring.
+
+**Development.** `pip install -r requirements-dev.txt && python3 -m pytest tests/`. CI runs the same suite on every
+pull request, plus a public-hygiene check (no real emails, account ids, tokens, or workspace URLs may land here), an
+offline check that every relative link and heading anchor resolves, and the repo's own Sentinel build gate in warn
+mode. Dependabot keeps the pinned actions and dev dependencies current.
 
 Each agent has two files:
 - **Skill** (`.claude/commands/<agent>.md`) — the Claude Code workflow that runs
