@@ -30,11 +30,7 @@ findings/
 ├── SCHEMA.md                                          ← the contract
 ├── HANDOFF_PROTOCOL.md                                ← the cascade matrix
 ├── examples/
-│   ├── 2026-05-29-trinity-okta-mfa-gap-7f3a9c.md      ← hand-authored reference finding
-│   ├── 2026-06-04-oracle-shadow-ai-...-f29407.md      ← orchestrator gated-path fixture
-│   ├── 2026-06-08-cypher-leaked-aws-key-9d4e1a.md     ← kill-chain rehearsal seed
-│   ├── 2026-06-08-cypher-poisoned-...-c0ffee.md       ← poisoned-finding negative test
-│   └── 2026-06-26-on-call-aspmx2-...-b7e3d1.md        ← on-call false-positive verdict
+│   └── 2026-05-29-trinity-okta-mfa-gap-7f3a9c.md      ← hand-authored reference finding
 └── <YYYY-MM-DD>-<agent>-<subject-slug>-<shorthash>.md ← live findings (emitted by agents)
 ```
 
