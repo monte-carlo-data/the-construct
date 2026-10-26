@@ -70,7 +70,7 @@ jobs:
 
       - name: Stamp the source-repo property the completeness check expects
         env:
-          SBOM_SOURCE_REPO_PREFIX: your-org:source-repo:
+          SBOM_SOURCE_REPO_PREFIX: "your-org:source-repo:"
         run: |
           python3 - <<'EOF'
           import json, os
@@ -83,7 +83,7 @@ jobs:
 
       - name: Run the gate
         env:
-          SBOM_SOURCE_REPO_PREFIX: your-org:source-repo:
+          SBOM_SOURCE_REPO_PREFIX: "your-org:source-repo:"
         run: |
           python3 .github/scripts/sentinel_gate.py \
             --sbom sbom.cdx.json --mode warn --critical-threshold 0 \
