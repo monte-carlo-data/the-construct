@@ -69,13 +69,13 @@ jobs:
           echo "$(dirname "${{ steps.syft.outputs.cmd }}")" >> "$GITHUB_PATH"
           echo "$(dirname "${{ steps.grype.outputs.cmd }}")" >> "$GITHUB_PATH"
 
-      # Scan `dir:.` (relative) rather than an absolute path: Syft otherwise names some
-      # components by their absolute runner path, which the completeness check correctly
-      # rejects as a path leak.
       - name: Generate SBOM (Syft)
         run: syft scan dir:. --source-name the-construct -o cyclonedx-json=sbom.cdx.json
 
-      - name: Stamp the source-repo property the completeness check expects
+      # Mirror an SBOM-create merge step: Syft emits `type: file` evidence components named by
+      # absolute runner path (which the completeness check rightly rejects as a path leak), and
+      # the check keys the source count on a `<prefix><repo>` property in metadata.properties.
+      - name: Normalize the SBOM (drop file-evidence components, stamp the source-repo property)
         env:
           SBOM_SOURCE_REPO_PREFIX: "your-org:source-repo:"
         run: |
@@ -83,8 +83,9 @@ jobs:
           import json, os
           p = "sbom.cdx.json"
           sbom = json.load(open(p))
+          sbom["components"] = [c for c in sbom.get("components", []) if c.get("type") != "file"]
           props = sbom.setdefault("metadata", {}).setdefault("properties", [])
-          props.append({"name": os.environ["SBOM_SOURCE_REPO_PREFIX"] + "the-construct", "value": os.environ["GITHUB_REPOSITORY"]})
+          props.append({"name": os.environ["SBOM_SOURCE_REPO_PREFIX"] + "the-construct", "value": os.environ["GITHUB_SHA"]})
           json.dump(sbom, open(p, "w"), indent=2)
           EOF
 
