@@ -17,8 +17,8 @@ a machine-readable handoff (`suggested_next: [john-wick]`).
 > `/security-steve orchestrate` (auto-runs low-blast-radius agents, stages consequential ones for
 > human approval). A daily standup digest over this ledger can run on a schedule
 > (`findings_digest.py` behind a `findings-digest-daily` workflow, posting to `#security-helpdesk`)
-> or ad hoc via `/security-steve digest`. The end-to-end kill-chain rehearsal and the
-> untrusted-input negative test both run from the fixtures in `examples/`.
+> or ad hoc via `/security-steve digest`. `examples/` holds a hand-authored reference finding you
+> can seed a rehearsal with.
 
 ---
 
