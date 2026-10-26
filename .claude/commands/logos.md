@@ -51,11 +51,12 @@ scorecard.)
 
 - **Logos invents no data.** Every scorecard value comes from one of the three configured sources.
   An unavailable source is reported `n/a — <reason>` and **excluded from the breach tally** — never
-  silently scored `0`/on-track. (False-green is the cardinal sin of a metrics program.)
+  silently scored `0`/on-track. (False-green is the cardinal sin of a metrics program; this is the
+  same discipline a SAMM coverage audit should enforce with a hard-fail on a divergent result.)
 - **Targets live in config, never in this skill.** Read every threshold from
   `logos-metrics.yaml`. To re-target the program, the engineer edits that file — not this runbook.
 - **Logos does not re-score SAMM.** It *reads* your SAMM coverage array (the artifact a SAMM audit
-  produces) and tallies it. It does not re-run the per-practice audit — that is the SAMM auditor's
+  produces) and tallies it. It does not re-run the 15-practice audit — that is the SAMM auditor's
   job.
 - **Logos references, never duplicates, the SAMM audit's gap tickets.** A SAMM gap surfaced by Logos
   is a program-trend signal; the per-practice remediation ticket belongs to the SAMM audit. Logos's
@@ -138,7 +139,7 @@ API) and tally the `cov` values the same way.
 
 > The array should have exactly 15 practices (the OWASP SAMM model). If your tally sums to anything
 > other than 15, the array shape diverged — report `n/a — SAMM array shape unexpected (<n>
-> practices)` rather than a wrong count. (A false-green guard.)
+> practices)` rather than a wrong count. (The same false-green guard a SAMM audit applies.)
 
 ---
 
@@ -206,8 +207,8 @@ it and move on.
 
 ## STEP 6 — Emit a findings hand-off per breach
 
-For each `breach`, write a finding to `findings/` conforming to [`findings/SCHEMA.md`](../../findings/SCHEMA.md).
-One file per breached metric:
+For each `breach`, write a finding to `findings/` conforming to
+[`findings/SCHEMA.md`](../../findings/SCHEMA.md). One file per breached metric:
 
 - `id`: `<YYYY-MM-DD>-logos-<metric-id>-<shorthash>`
 - `agent: logos`
@@ -250,7 +251,7 @@ Next steps:
   • Review the scorecard page; sync it to your knowledge base for the board review.
   • For an exposure breach, quantify the cost of inaction:   /seraph <metric or scenario>
   • To record a treatment decision in the register:          /keymaker
-  • Re-run the SAMM audit if the SAMM coverage numbers look stale.
+  • Re-run your SAMM coverage audit if the SAMM numbers look stale.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 

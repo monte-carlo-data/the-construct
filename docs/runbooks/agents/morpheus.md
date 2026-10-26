@@ -36,12 +36,30 @@ Target can be: `@name`, `@email`, a Slack display name, or `#channel` for team p
 
 ---
 
+## Outreach ledger & repeat offenders
+
+Morpheus logs every drafted individual outreach to `review-outreach/ledger.csv` — date, hashed employee
+identity, scenario, trigger, source, follow-up date, status, and a repeat flag. Before drafting, it
+checks the ledger for prior outreaches to the same person (matched by salted hash) and surfaces a
+**repeat** with the prior scenarios + ages — recommending the `escalate` scenario when the same issue
+recurs. The ledger is the measurable loop: it's how you tell a first-timer from a repeat, and
+git history is the record of what outreach went out and when.
+
+**Privacy:** identity is stored as a salted HMAC hash (salt in your credential vault) — **no
+emails, names, or message bodies in git**. Names are resolved live from the Slack profile only for the
+session summary. `status` starts `drafted` and is advanced manually (`sent` / `acknowledged`); v1 does
+not auto-detect acknowledgement. Channel (`train`) posts are not logged — the loop tracks individual
+behavior. The ledger is committed each run (branch-first; Morpheus does not auto-commit).
+
+---
+
 ## Systems accessed
 
 | System | Purpose | Auth |
 |---|---|---|
 | Slack MCP | Look up user profiles, queue message drafts | MCP server auth |
 | Linear MCP | Read ticket context, add comments | MCP server auth |
+| Credential vault | Load the HMAC salt used to hash employee identity in the ledger | Vault CLI (e.g. `op`) |
 
 ---
 
@@ -52,7 +70,7 @@ Every Morpheus message follows this 5-part structure:
 1. **WHAT HAPPENED** — specific, factual, non-judgmental
 2. **WHY IT MATTERS** — security risk in plain language
 3. **WHAT TO DO NEXT** — clear, actionable steps
-4. **RELEVANT LINKS** — 1–3 Notion policy links
+4. **RELEVANT LINKS** — 1–3 policy links
 5. **ESCALATION PATH** — "If we don't hear back within 3 business days, we'll follow up directly."
 
 ---
@@ -66,7 +84,7 @@ Every Morpheus message follows this 5-part structure:
 | `data-exposure` | DLP or Wiz detects PII/customer data in wrong place |
 | `ai-deployment` | Oracle detects new repo with LLM integration, no security review |
 | `access-flag` | Unusual access pattern or request |
-| `public-share` | Internal Notion doc or Drive file set to public |
+| `public-share` | Internal doc or Drive file set to public |
 | `escalate` | Prior outreach unacknowledged after 3 business days |
 | `train` | Team-level awareness post to a channel |
 
@@ -78,15 +96,16 @@ Every Morpheus message follows this 5-part structure:
 - **Always confirm target** before drafting (resolve Slack profile, show to engineer)
 - **No disciplinary language** — if asked to draft a warning/HR message, refuse and offer a neutral awareness message instead
 - **No PII or account details in Slack** — DM only; never channel posts with named individuals
+- **Ledger stores hashes, not identities** — fail fast if the salt is unavailable rather than writing unsalted hashes
 
 ---
 
-## Notion policy links to include
+## Policy links to include
 
 | Resource | URL |
 |---|---|
-| Approved AI Vendor List | <your-approved-ai-vendors-notion-url> |
-| Security Review Process | (confirm URL — stored in Notion) |
+| Approved AI Vendor List | `<your-approved-ai-vendors-url>` (see [knowledge/config.md](../../../knowledge/config.md)) |
+| Security Review Process | `<your-security-review-process-url>` |
 | Data Classification Policy | (confirm URL — open question) |
 | Phishing Response Guide | (confirm URL — open question) |
 
@@ -100,7 +119,7 @@ Every Morpheus message follows this 5-part structure:
 |---|---|
 | Confirmed active compromise | John Wick immediately — do not send awareness outreach |
 | Compliance policy questions from employee | Keymaker |
-| IT/access/device issues | Platform team |
+| IT/access/device issues | The owning platform team (not an agent handoff) |
 | Disciplinary or HR-scope request | Refuse; route to manager or People team |
 | No response after 3 business days | `/morpheus escalate @employee` |
 | Architectural risk from shadow AI | Security Steve (after outreach) |
@@ -111,5 +130,6 @@ Every Morpheus message follows this 5-part structure:
 
 - **Slack MCP**: needs bot token with `users:read`, `chat:write` (drafts) scopes; currently personal OAuth
 - **Linear MCP**: read access; currently personal
+- **Ledger salt**: one long random value in your credential vault, readable by whoever runs Morpheus
 
-No credentials stored in 1Password specific to Morpheus — depends on shared MCP auth.
+No other credentials are specific to Morpheus — it depends on shared MCP auth.

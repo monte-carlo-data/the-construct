@@ -17,6 +17,10 @@ Like Seraph guarding the path to the Oracle, this agent guards the economics of 
 
 Seraph produces a report. It never records decisions to the risk register or closes tickets — that handoff goes to Keymaker.
 
+**Grounding & calibration.** Every FAIR input is tagged `measured` (real data / a named benchmark) or `estimated` (model judgment), and **every output that presents a dollar figure leads with a calibration banner** — `Calibration: HIGH | MEDIUM | LOW — N of M FAIR inputs estimated (not measured)` — computed deterministically from the tags (HIGH = 0 estimated, MEDIUM = <50%, LOW = ≥50%). A confidently-wrong dollar figure is worse than no number, so no Seraph brief ships without disclosing how grounded its inputs are. The authoritative mechanism is in [`/seraph` → Grounding & calibration](../../../.claude/commands/seraph.md#grounding--calibration).
+
+A queue-backed headless runtime can host Seraph as a consult target for an orchestrator; in that mode it runs with read-scoped credentials and pyfair still runs locally.
+
 ---
 
 ## How to invoke
@@ -39,7 +43,7 @@ Seraph produces a report. It never records decisions to the risk register or clo
 |---|---|---|
 | Linear MCP | Read risk / vuln tickets for scenario context | MCP server auth |
 | Wiz MCP | Pull severity, affected resources, exploitability for finding-based scenarios | MCP server auth |
-| Aikido API | Pull finding details when given an Aikido URL | OAuth client credentials (store in your secrets manager — see [Aikido API docs](https://help.aikido.dev/)) |
+| Aikido API | Pull finding details when given an Aikido URL | OAuth client credentials (store in your credential vault — see [Aikido API docs](https://help.aikido.dev/)) |
 | `pyfair` (Python) | FAIR + Monte Carlo simulation engine | Local; `pip install pyfair` |
 | `numpy` + `matplotlib` (Python) | Computes the Loss Exceedance Curve and renders `lec.png` | Local; `pip install numpy matplotlib` |
 | Local filesystem | Writes model, results, LEC chart, and exec brief under `.seraph/reports/<slug>/` | Local |
@@ -50,10 +54,10 @@ Seraph produces a report. It never records decisions to the risk register or clo
 
 1. **Verify environment** — check `pyfair`, `numpy`, and `matplotlib` are importable. If `pip` refuses with a PEP-668 "externally-managed-environment" error (Homebrew Python on macOS, system Python on recent Linux distros), use a venv: `python3 -m venv .seraph/venv && .seraph/venv/bin/pip install pyfair numpy matplotlib`
 2. **Load the scenario** — from a Linear ticket, Wiz/Aikido URL, vendor record, or freeform description; confirm understanding back to the engineer for freeform inputs
-3. **Build the FAIR model** — decompose into sub-risks when the scenario has more than one loss channel (e.g. credential theft AND helpdesk reset spike AND audit-finding exposure). For each sub-risk × treatment, derive **p05 / p50 / p95** ranges for each FAIR leaf (TEF, Vulnerability, Primary Loss, Secondary Loss); pull defaults from engineer input → source finding → industry benchmarks (DBIR, Cyentia IRIS, IBM Cost of a Breach, Ponemon). Run the calibration check (`mdiff` between stated p50 and lognormal-implied p50) — if `|mdiff| > 25%`, re-elicit.
-4. **Confirm inputs with the engineer** — display the assembled model (sub-risks, treatments to compare, materiality threshold, calibration result), wait for explicit `y` before running the simulation
+3. **Build the FAIR model** — decompose into sub-risks when the scenario has more than one loss channel (e.g. credential theft AND helpdesk reset spike AND audit-finding exposure). For each sub-risk × treatment, derive **p05 / p50 / p95** ranges for each FAIR leaf (TEF, Vulnerability, Primary Loss, Secondary Loss); pull defaults from engineer input → source finding → industry benchmarks (DBIR, Cyentia IRIS, IBM Cost of a Breach, Ponemon). Tag each input `measured` or `estimated`. Run the calibration check (`mdiff` between stated p50 and lognormal-implied p50) — if `|mdiff| > 25%`, re-elicit.
+4. **Confirm inputs with the engineer** — display the assembled model (sub-risks, treatments to compare, materiality threshold, calibration result, grounding tally), wait for explicit `y` before running the simulation
 5. **Run the simulation** — generate `model.py` under `.seraph/reports/<slug>/`, run 10,000 iterations per sub-risk × treatment, sum per-year losses across sub-risks within each treatment, compute a single overlaid Loss Exceedance Curve with a materiality vertical line, and render `lec.png`
-6. **Render the executive summary** — produce `EXEC_BRIEF.md` led by the LEC chart, a side-by-side do-nothing-vs-mitigate threshold table (P(material year), P50/P90/P95/P99, ALE, "typical bad year" geometric-mean, % years with $0 loss), and a sub-risk breakdown showing which channel dominates the tail
+6. **Render the executive summary** — produce `EXEC_BRIEF.md` led by the **calibration banner** and the LEC chart, then a side-by-side do-nothing-vs-mitigate threshold table (P(material year), P50/P90/P95/P99, ALE, "typical bad year" geometric-mean, % years with $0 loss), and a sub-risk breakdown showing which channel dominates the tail; the per-input `measured`/`estimated` tags sit below as supporting detail
 7. **Hand off** — surface the report paths (with `lec.png` called out); recording decisions is Keymaker's job
 
 ---
@@ -65,13 +69,13 @@ Under `.seraph/reports/<slug>/`:
 | File | Contents |
 |---|---|
 | `model.py` | Generated pyfair script — keeps the simulation reproducible |
-| `results.json` | Per-treatment summary: P50/P90/P95/P99, `mean_ALE`, `typical_bad_year` (geometric mean of non-zero years), `pct_no_loss_years`, `p_material_year` |
+| `results.json` | Per-treatment summary: P50/P90/P95/P99, `mean_ALE`, `typical_bad_year` (geometric mean of non-zero years), `pct_no_loss_years`, `p_material_year`; plus the `calibration` block that drives the banner |
 | `lec.png` | **Loss Exceedance Curve** — the headline chart; both treatments overlaid, materiality vertical line marked in red |
 | `lec_data.json` | LEC thresholds and exceedance probabilities per treatment (for re-plotting downstream) |
 | `report_*.html` | pyfair's `FairSimpleReport` HTML, one per treatment (best-effort — see Known limitations below) |
-| `EXEC_BRIEF.md` | Markdown executive summary for board / executive consumption — leads with `lec.png`, sub-risk breakdown below |
+| `EXEC_BRIEF.md` | Markdown executive summary for board / executive consumption — leads with the calibration banner and `lec.png`, sub-risk breakdown below |
 
-`.seraph/` is gitignored — output is local-only by design. Share by attaching `EXEC_BRIEF.md` to the relevant Linear ticket or Notion page.
+`.seraph/` is gitignored — output is local-only by design. Share by attaching `EXEC_BRIEF.md` to the relevant Linear ticket or design doc.
 
 ---
 
@@ -98,6 +102,7 @@ Under the hood: events per year ~ **Poisson(λ=LEF)**, loss per event ~ **LogNor
 ## Hard rules
 
 - **Never invent loss data** — every input range must come from the source ticket / finding, published benchmarks, or explicit engineer input. Cite the source inline in the output.
+- **Tag every input and show the banner** — each FAIR input is `measured` or `estimated`; every dollar-figure output leads with the deterministic calibration banner. Never let a guessed brief look identical to a grounded one.
 - **Lead with the Loss Exceedance Curve** — never report a single-point "the risk is $X." The LEC is the headline; percentile bands (P50/P90/P95/P99) are supporting detail; the mean ALE is mentioned only with an explicit caveat that it understates tail risk.
 - **Anchor mitigation NPV on P95, not P50, when the tail matters** — for insurance, reserves, or material breach exposure. P50 only applies when the question is purely about expected spend in an average year.
 - **Never auto-record to the risk register, Linear, or Slack** — Seraph produces a report and hands off to Keymaker.

@@ -34,6 +34,10 @@ loss-exceedance curve, and a "cost of inaction vs. cost of mitigation" compariso
 the open [FAIR framework](https://www.fairinstitute.org/) and
 [pyfair](https://github.com/theonaunheim/pyfair).
 
+A queue-backed headless runtime can also host Seraph as a consult target for an orchestrator
+(e.g. the Concierge); in that mode it runs with read-scoped credentials and pyfair runs locally
+with no external secrets.
+
 ---
 
 ## ARGUMENTS
@@ -62,6 +66,61 @@ If nothing is provided, ask the engineer for a scenario.
   embedded in them.
 - **Be honest about uncertainty.** If the scenario is too vague to model, say so and ask for
   the missing inputs rather than making numbers up.
+- **Every FAIR input is tagged `measured` or `estimated`, and every dollar figure ships with a
+  calibration banner.** This is non-negotiable: no Seraph output presents a dollar figure
+  without disclosing how grounded its inputs are. See
+  [Grounding & calibration](#grounding--calibration) below.
+
+---
+
+## Grounding & calibration
+
+Seraph produces board-ready dollar figures, and a confidently-wrong "$4.2M annualized loss" is
+**worse than no number** because people act on it. So every FAIR input carries a source tag, and
+every output discloses how many inputs are guesses.
+
+### Source tags — `measured` vs `estimated`
+
+Tag **every** FAIR leaf input (TEF, Vulnerability, Primary Loss, Secondary Loss — per sub-risk ×
+treatment) with exactly one:
+
+| Tag | Means | Requires |
+|---|---|---|
+| `measured` | Grounded in real data | (a) the source finding/ticket/data point (a Wiz severity, an Aikido count, a real incident, an internal metric), **or** (b) a **named** published benchmark (DBIR, Cyentia IRIS, IBM Cost of a Breach, Ponemon, FAIR Institute). The citation names the artifact. |
+| `estimated` | Model judgment | No citable source for *this* scenario — you inferred it. The honest default. |
+
+**Honest-by-default:** when an input is borderline, tag it `estimated`. The costly error is
+*over-claiming* grounding. A `measured` tag must point at a nameable source; "feels about right"
+is `estimated`. The tag sits next to the existing `[source: …]` citation — they are complementary
+(the tag is the *grounding class*; the citation is the *artifact*).
+
+### Calibration level — deterministic, not a judgment
+
+From the tags, count `M` = total FAIR inputs and `N` = inputs tagged `estimated`. The level is
+arithmetic:
+
+| Level | Condition | Reads as |
+|---|---|---|
+| **HIGH** 🟢 | `N == 0` | every input grounded — a confidence signal |
+| **MEDIUM** 🟡 | `0 < N/M < 0.5` | mostly grounded; some soft inputs |
+| **LOW** 🔴 | `N/M >= 0.5` | half or more are guesses — directional only |
+
+This is counted from the tags, never produced by the model in prose (same discipline as the rest of
+Seraph: the simulation makes the numbers, not the narrative).
+
+### The banner — shown on every dollar-figure output, always
+
+Every output that presents a dollar figure (the EXEC_BRIEF, top, above the LEC; and the STEP 6
+handoff box) MUST lead with:
+
+```text
+Calibration: <HIGH|MEDIUM|LOW> — <N> of <M> FAIR inputs estimated (not measured).
+<one-line read: at HIGH, "inputs are grounded in cited data."; at MEDIUM/LOW,
+ "treat these dollar figures as directional; ground the estimated inputs before acting.">
+```
+
+At HIGH the banner is a green confidence line, not a warning — it is *always* shown so grounding is
+never silent (a clean brief and a guessed brief must never look identical to an exec).
 
 ---
 
@@ -122,8 +181,8 @@ mkdir -p .seraph/reports
 
 **If a vendor name was provided:**
 - Pull the latest vendor review record from `review-vendor/` if one exists. If not, ask the
-  engineer to run `/vendor-review <vendor>` first — Seraph needs a baseline assessment to
-  quantify against.
+  engineer to run your vendor-review process for that vendor first — Seraph needs a baseline
+  assessment to quantify against.
 
 **If a freeform scenario was provided:**
 - Confirm back to the engineer what you understood:
@@ -224,20 +283,28 @@ Treatments to compare:
 Sub-risks (model each independently; results combine into a portfolio LEC):
 
   [sub-risk 1: <name, e.g. credential theft via phishing>]
-    TEF (per year):       p05 / p50 / p95 = <0.5 / 2 / 8>     [source: DBIR 2025]
-    Vulnerability (%):    p05 / p50 / p95 = <10 / 25 / 60>    [source: Wiz HIGH + EPSS 0.32]
-    Primary Loss ($):     p05 / p50 / p95 = <100K / 500K / 2M> [source: IBM 2024]
-    Secondary Loss ($):   p05 / p50 / p95 = <50K / 250K / 5M>  [source: GDPR + churn]
+    TEF (per year):       p05 / p50 / p95 = <0.5 / 2 / 8>     [measured — DBIR 2025 web-app, B2B SaaS]
+    Vulnerability (%):    p05 / p50 / p95 = <10 / 25 / 60>    [measured — Wiz HIGH + EPSS 0.32]
+    Primary Loss ($):     p05 / p50 / p95 = <100K / 500K / 2M> [estimated — no internal incident data]
+    Secondary Loss ($):   p05 / p50 / p95 = <50K / 250K / 5M>  [measured — IBM 2024 per-record × records-at-risk]
     Calibration check:    mdiff = <±X%>   <PASS / RE-ELICIT if >25%>
 
   [sub-risk 2: <name, e.g. helpdesk reset cost spike>]
     ...
+
+Grounding: each input is tagged `measured` (real data / named benchmark) or
+`estimated` (model judgment). Tally → Calibration: <HIGH|MEDIUM|LOW> (<N> of <M> estimated).
 
 Iterations:      10,000
 Output dir:      .seraph/reports/<slug>/
 
 Proceed? [y/N]
 ```
+
+> **Every input line carries a `measured`/`estimated` tag next to its source** (see
+> [Grounding & calibration](#grounding--calibration)). Show the running tally at the
+> bottom so the engineer sees the calibration level *before* approving the run — if it's LOW, that's
+> the moment to ground a few inputs rather than after the brief is written.
 
 **Wait for explicit `y` before running.** If the engineer wants to adjust an input, edit the
 proposed model and re-confirm.
@@ -288,6 +355,25 @@ inputs = {
         ...
     },
 }
+
+# Grounding tags: one tag per FAIR leaf input, "measured" or "estimated".
+# Same shape as `inputs`. These drive the calibration banner — count them, never narrate.
+# Tag the BASELINE ("Do nothing") inputs; that's what the headline figure rests on.
+tags = {
+    "<sub_risk_1>": {"tef": "measured", "vuln": "measured",
+                     "pl": "estimated", "sl": "measured"},
+    # ... one entry per sub-risk
+}
+
+def calibration(tags: dict) -> dict:
+    """Deterministic HIGH/MEDIUM/LOW from the source tags. Counts, not judgment."""
+    flat = [t for sr in tags.values() for t in sr.values()]
+    m = len(flat)
+    n = sum(1 for t in flat if t == "estimated")
+    frac = (n / m) if m else 0.0
+    level = "HIGH" if n == 0 else ("LOW" if frac >= 0.5 else "MEDIUM")
+    return {"level": level, "estimated": n, "total": m,
+            "banner": f"Calibration: {level} — {n} of {m} FAIR inputs estimated (not measured)."}
 
 def build_and_run(name, p):
     m = FairModel(name=name, n_simulations=N_SIMS)
@@ -357,6 +443,7 @@ plt.close(fig)
 
 # --- Per-treatment summary --------------------------------------------------
 summary = {"scenario": SCENARIO, "iterations": N_SIMS, "materiality": MATERIALITY,
+           "calibration": calibration(tags),   # drives the banner
            "treatments": {}}
 for tx in TREATMENTS:
     al = combined_by_treatment[tx]
@@ -416,6 +503,14 @@ Template:
 
 **Prepared by Seraph (FAIR / Monte Carlo, 10,000 iterations)**
 **Date:** YYYY-MM-DD
+
+> **🟢🟡🔴 Calibration: <HIGH|MEDIUM|LOW> — <N> of <M> FAIR inputs estimated (not measured).**
+> <At HIGH: "All inputs are grounded in cited data or the source finding." At MEDIUM/LOW: "Treat
+> these dollar figures as directional; the estimated inputs (flagged in *Inputs and Sources*) should
+> be grounded before acting on the numbers.">
+>
+> _Read straight from `results.json.calibration` — see the Grounding & calibration section of
+> the Seraph skill. This banner is mandatory: no Seraph dollar figure ships without it._
 
 ## Environment
 
@@ -482,14 +577,19 @@ red — the y-intercept is the probability of a material-loss year.
 <One paragraph: what to fund, why the math justifies it, what assumptions to challenge.>
 
 ## Inputs and Sources
-Per sub-risk × treatment (p05 / p50 / p95):
+Per sub-risk × treatment (p05 / p50 / p95). Each input carries its grounding tag —
+**`measured`** (real data / named benchmark) or **`estimated`** (model judgment) — so the reader
+can see *which* inputs are the soft ones behind the headline number:
 - <sub_risk_1>:
-  - TEF: <range> — <source>
-  - Vulnerability: <range> — <source>
-  - Primary Loss: <range> — <source>
-  - Secondary Loss: <range> — <source>
-  - Calibration: mdiff = <±X%> (PASS / RE-ELICITED)
+  - TEF: <range> — `<measured|estimated>` — <source>
+  - Vulnerability: <range> — `<measured|estimated>` — <source>
+  - Primary Loss: <range> — `<measured|estimated>` — <source>
+  - Secondary Loss: <range> — `<measured|estimated>` — <source>
+  - Calibration check: mdiff = <±X%> (PASS / RE-ELICITED)
 - <sub_risk_2>: ...
+
+**Grounding tally:** <N> of <M> inputs `estimated` → **Calibration: <HIGH|MEDIUM|LOW>** (matches the
+banner above; computed by `calibration(tags)` in `model.py`, not by hand).
 
 ## Appendix — Methodology
 - Events per year drawn from **Poisson(λ=LEF)**.
@@ -521,6 +621,7 @@ Print:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Seraph 💰 — Quantification complete
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Calibration:              <HIGH|MEDIUM|LOW> — <N> of <M> FAIR inputs estimated (not measured)
 Scenario:                 <title>
 Materiality:              $<MAT>
 
@@ -560,18 +661,40 @@ Do not auto-post to Slack, Linear, or the risk register. Seraph's job ends at th
 
 ---
 
+## Routing
+
+These map to `suggested_next` slugs when Seraph emits a finding (the quantification brief). This
+table is a **slice of the canonical
+[findings/HANDOFF_PROTOCOL.md](../../findings/HANDOFF_PROTOCOL.md)** — that doc is authoritative;
+the row numbers below reference its matrix. Emit handoffs as `suggested_next` slugs per
+[findings/SCHEMA.md](../../findings/SCHEMA.md).
+
+| Situation | `suggested_next` | Matrix row |
+|---|---|---|
+| The quantified risk should land in the register | `[keymaker]` | 18 |
+| The exposure warrants employee awareness outreach | `[morpheus]` | 17 |
+
+Per the protocol, drop `seraph` itself and keep only roster slugs. Seraph is usually a *receiver*
+(rows 2, 13, 14 hand findings *to* Seraph for a $-figure); when Seraph emits, it hands the result
+to Keymaker to record the treatment decision. Seraph never auto-posts — the engineer triggers the
+next agent.
+
+---
+
 ## Worked examples
+
+> All figures below are illustrative placeholders — not real data from any organization.
 
 ### Example 1 — "What does it cost us not to fix the SQLi paths in GRC-100?"
 
-Ranges below are p05 / p50 / p95. Materiality: $500K (1% of org ARR).
+Ranges below are p05 / p50 / p95. Materiality: $500K (hypothetical — e.g. 1% of annual revenue).
 
 - Threat actor: external, financially motivated
 - Single sub-risk: customer-data exfil via SQLi (no helpdesk / outage channels)
 - TEF: 1 / 3 / 8 (DBIR web-app attacks, B2B SaaS sector)
 - Vulnerability: 0.3 / 0.5 / 0.8 (known exploitable, partial WAF)
 - Primary Loss: $250K / $1M / $3M (incident response + customer notification)
-- Secondary Loss: $500K / $2M / $8M (regulatory + customer churn, ~120 customer accounts)
+- Secondary Loss: $500K / $2M / $8M (regulatory + customer churn, ~100 customer accounts, hypothetical)
 
 Do nothing → P50 ≈ $2.4M, P95 ≈ $9.8M, P(material year) ≈ 78%.
 Mitigate (engineering ~$200K, drops Vulnerability to 0.05/0.10/0.25) → P95 ≈ $1.6M,
@@ -585,7 +708,7 @@ P(material year) ≈ 22%. Clearly justified.
 - Primary Loss: $50K / $200K / $500K (notification + investigation)
 - Secondary Loss: $100K / $500K / $2M (depends on data shared with vendor)
 
-→ Useful for the vendor-review skill to attach a $ figure to "approved with conditions."
+→ Useful for your vendor-review process to attach a $ figure to "approved with conditions."
 
 ---
 
@@ -600,5 +723,5 @@ P(material year) ≈ 22%. Clearly justified.
 - **quantrr (reference implementation in R)** — https://jabenninghoff.github.io/quantrr/
   (Poisson-lognormal model, mdiff calibration check, materiality framing)
 - **Risk register repo** — `<your-org>/<your-risk-register>`
-- **Keymaker** — `/keymaker` to record the resulting treatment decision
-- **Vendor review** — `/vendor-review <name>` to produce the baseline Seraph quantifies against
+- **Keymaker** — [`/keymaker`](keymaker.md) to record the resulting treatment decision
+- **Vendor review** — your vendor-review process produces the baseline Seraph quantifies against

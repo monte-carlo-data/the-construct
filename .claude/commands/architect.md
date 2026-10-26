@@ -28,11 +28,11 @@ system. You know every rule. You enforce the blueprint. When engineers ship code
 review it against the rules of the system before it merges.
 
 This skill guides the user through running a security review against a GitHub pull request
-using the `pr-review.yml` GitHub Action. It helps gather the required inputs, explains the
-outputs, and walks through the review results.
+using your PR-review workflow (a GitHub Action that runs the review script). It helps gather
+the required inputs, explains the outputs, and walks through the review results.
 
-The full process documentation is in:
-`docs/runbooks/agents/architect.md`
+The full process documentation is in your PR-review workflow's own README; the runbook is at
+[`docs/runbooks/agents/architect.md`](../../docs/runbooks/agents/architect.md).
 
 ---
 
@@ -70,7 +70,7 @@ Check whether the user provided a GitHub PR URL in their invocation
 
 Ask the user:
 
-> "Do you have a Notion SDD for this PR? Paste the URL to add design context,
+> "Do you have a design doc (SDD) for this PR? Paste the URL to add design context,
 > or press Enter to skip."
 
 Then ask:
@@ -89,14 +89,36 @@ Summarize what will be run:
 ```text
 Ready to run PR security review:
 - PR: <pr_url>
-- SDD context: <notion_sdd_url or "none">
+- SDD context: <sdd_url or "none">
 - Context repos: <slugs or "none">
 - Notifications: <enabled or suppressed>
 ```
 
 ---
 
+## Step 2.5 — Load carried-forward design findings
+
+If a design-doc URL was provided (Step 2) — or a matching `design-findings.md` exists for it — load the
+**carry-forward artifact** that your design-review workflow wrote:
+`reviews/<slug>/design-findings.md` (match by the SDD URL recorded in the file's header, or by the slug
+derived from the SDD name). This is the unified design→code pipeline: the design findings raised at
+design review get verified against this PR.
+
+- **Found:** load the design findings (id, concern, "addressed when…" criterion, severity). They feed
+  Step 5C.
+- **None / no SDD URL:** print "No carried-forward design findings for this PR" and proceed normally —
+  this step is fully backwards-compatible (a PR with no design context behaves exactly as before).
+
+---
+
 ## Step 3 — Choose how to trigger the review
+
+> **Auto-trigger (optional):** you can wire a path-scoped `pull_request:` trigger in the PR-review
+> workflow so security-relevant PRs are reviewed automatically — no invocation needed. Scope it to
+> paths like CI config (`.github/**`), shared code, dependency manifests, `.claude/commands/**`, and
+> anything matching `auth`/`secret`/`iam`/`oauth`/`credential`/`token`. If that trigger is configured
+> and the PR touches one of those paths, the review may already be running — check the PR's checks
+> before triggering a duplicate. The options below are for off-path PRs or a manual re-run.
 
 Ask the user how they want to run it:
 
@@ -109,10 +131,10 @@ Ask the user how they want to run it:
 
 Direct the user to:
 
-1. Go to **Actions > PR Security Review > Run workflow** in the `mc-security` repo
+1. Go to **Actions > PR Security Review > Run workflow** in your security repo
 2. Fill in:
    - **GitHub PR URL**: `<pr_url>`
-   - **Notion SDD URL**: `<notion_sdd_url>` (leave blank if none)
+   - **Design-doc URL**: `<sdd_url>` (leave blank if none)
    - **Skip notifications**: checked if suppressing
 3. Click **Run workflow**
 
@@ -126,8 +148,8 @@ Show the config to add to `.github/pr-review-config.yml` in their branch:
 ```yaml
 pr_review_url: "<pr_url>"
 
-# Optional — adds design context from Notion (requires NOTION_TOKEN secret)
-# notion_sdd_url: "https://www.notion.so/<your-workspace>/..."
+# Optional — adds design context from a design doc (requires NOTION_TOKEN secret)
+# notion_sdd_url: "<your-design-doc-url>"
 
 # Optional — fetch code and markdown from related repos for additional context (max 3)
 # context_repos: "<your-github-org>/your-repo,<your-github-org>/your-other-repo"
@@ -146,10 +168,10 @@ Show the caller snippet:
 ```yaml
 jobs:
   pr-review:
-    uses: <your-org>/the-construct/.github/workflows/pr-review-reusable.yml@main
+    uses: <your-org>/<your-security-repo>/.github/workflows/pr-review-reusable.yml@main
     with:
       pr-review-url: "<pr_url>"
-      # notion-sdd-url: "https://www.notion.so/..."   # optional
+      # notion-sdd-url: "<your-design-doc-url>"   # optional
       # context-repos: "<your-github-org>/your-repo"   # optional, comma-separated, max 3
       skip-notifications: false
     secrets:
@@ -163,7 +185,7 @@ jobs:
 ```
 
 Explain: "Add this to your repo's workflow. It references the canonical script from
-`mc-security` directly — no need to copy files."
+your security repo directly — no need to copy files."
 
 ---
 
@@ -173,7 +195,7 @@ Ask the user:
 
 > "Does the repo running this workflow have the required secrets configured?
 > - `ANTHROPIC_API_KEY` — required
-> - `NOTION_TOKEN` — required only if providing a Notion SDD URL
+> - `NOTION_TOKEN` — required only if providing a Notion design-doc URL
 > - `SDD_SLACK_WEBHOOK_URL` — optional (enables Slack notifications)
 > - `LINEAR_API_KEY` — optional (creates Linear triage ticket for Required reviews)"
 
@@ -196,9 +218,23 @@ Explain what the recommendation means and what action is expected:
 
 | Recommendation | Meaning | Next step |
 |---|---|---|
-| **Required** | Security team must be consulted before this PR merges | Post in [<your-security-channel>](#your-security-channel) before merging |
-| **Recommended** | Security team should review but is not blocking | Consider posting in [<your-security-channel>](#your-security-channel) for async review |
+| **Required** | Security team must be consulted before this PR merges | Open a Security ticket linking the PR, before merging |
+| **Recommended** | Security team should review but is not blocking | Consider a Security ticket for async review |
 | **Not Required** | No Security team involvement needed | Proceed — the security questions are still worth addressing in review |
+
+A Linear ticket is the intake path for every verdict above `Not Required` — it queues, gets an
+owner, and survives a scrolled-past channel. `#security-helpdesk` is for **questions**, not intake:
+answer them there, but still point the author at a ticket.
+
+Never tell an author that a label, tag, or Security approval on the PR unblocks the merge.
+Security does not sign off — the reviewing team owns the merge decision with our findings in hand.
+
+Some repos wire this reusable into a **merge gate they own** and give it a bypass label that any of
+the repo's writers can apply. Do not treat such a label as a Security sign-off, and never advise an
+author to apply one — it records an approval that never happened. If an author says a label is their
+unblock, tell them what actually closes the verdict (the ticket) and flag the gate to the team.
+Whether their check blocks the merge is their repo's business; what it claims about Security is
+ours.
 
 ### Security questions
 
@@ -214,7 +250,7 @@ Note that questions below 70% confidence are suppressed from the PR comment enti
 ### Notifications
 
 If notifications fired (Slack message or Linear ticket), confirm the user knows:
-- The Slack message went to **<your-security-channel>**
+- The Slack message went to **#security-helpdesk**
 - A Linear ticket was created in the Security team's Triage queue (Required only)
 - They should respond to or monitor those channels for follow-up
 
@@ -225,7 +261,7 @@ If notifications fired (Slack message or Linear ticket), confirm the user knows:
 After walking through the review results with the user, ask:
 
 > "Would you like to record decisions for the security questions? (Y/N)
-> Decisions are saved to `decisions.md` in the review directory and can be updated later with `/decision <slug>`."
+> Decisions are saved to `decisions.md` in the review directory and can be updated later with your decision-capture workflow."
 
 If the user answers **N**, skip to Step 6.
 
@@ -256,6 +292,20 @@ Options:
   - For **Accepted Risk** or **Deferred**: prompt "Feedback (required):" and re-prompt if empty.
   - For **Resolved** or **Requires Fix**: prompt "Feedback (optional, press Enter to skip):"
   - For **Skip**: move to the next question with no change.
+
+- **Accepted Risk → risk register:** when a question is dispositioned **Accepted Risk**,
+  engineering has explicitly chosen not to remediate — record that accepted risk in the register.
+  After capturing the feedback, ask:
+  > "This is an accepted risk. Record it in the risk register? (Y/N)"
+
+  If yes, hand off to Keymaker (the risk-register keeper — see Routing, row 13):
+  > `/keymaker declined-blocker`
+  >
+  > passing: source skill `architect`, source reference the **PR URL** (and the Linear ticket if one
+  > was given), the question **title** and **text** as the Blocker, and the feedback as rationale.
+  > Keymaker records it via a single-file PR on your risk-register repo.
+  Only on an explicit Y — never auto-record. If risk-register access fails, relay the token scope
+  Keymaker reports; do not silently drop the accepted risk.
 
 - After all questions are processed, assemble the `decisions.md` content. If prior entries exist for the same slug, merge: questions that appear in both the existing file and this PR review are updated in place; new questions from this PR are appended. When a question was seen in multiple PRs, list each PR URL under a `**Sources:**` field.
 
@@ -289,6 +339,38 @@ Options:
 
 ---
 
+## Step 5C — Verify carried-forward design findings
+
+If Step 2.5 loaded a `design-findings.md`, check each design finding against **this PR's diff** and
+produce a **"Design findings carried forward"** section in the review output. For each finding, classify:
+
+- **✅ Addressed** — the PR diff does the expected thing (the "addressed when…" criterion is met).
+- **❌ Not addressed** — the expected change is absent from the diff (the design concern shipped
+  unaddressed).
+- **⚠️ Can't determine** — not visible in this diff (may be in another PR, or needs runtime/config
+  verification). Never assert "addressed" without diff evidence — "can't determine" is a valid outcome.
+
+Output:
+
+```text
+## Design findings carried forward (from <SDD name>)
+
+| id | concern | verdict | note |
+|----|---------|---------|------|
+| DF-1 | endpoint X has no auth | ✅ addressed | auth middleware added in handler.py |
+| DF-2 | API key in config | ❌ not addressed | key still read from committed config.yaml |
+```
+
+**Fold ❌ not-addressed findings into the review:** each becomes a security question, and an unaddressed
+**Critical/High** design finding pushes the involvement recommendation toward **Required** (a design
+concern that shipped unaddressed is exactly what code review exists to catch). Reference the design doc
+in the output and link the implementing PR back on your design-review tracking record so the design↔code
+pair is traceable.
+
+If Step 2.5 found no design findings, omit this section entirely (backwards-compatible).
+
+---
+
 ## Step 6 — Troubleshooting
 
 If the workflow failed, help diagnose common issues:
@@ -304,17 +386,58 @@ pass a `SOURCE_REPO_TOKEN` PAT with `repo` scope as a secret to the reusable wor
 → Either remove `notion_sdd_url` from the config or add the `NOTION_TOKEN` secret.
 
 **Review output is too generic**
-→ Add a Notion SDD URL for design context, and make sure the PR has a descriptive
+→ Add a design-doc URL for design context, and make sure the PR has a descriptive
 title and body — the reviewer uses both as input.
 
 ---
 
 ## Notes
 
-- The `pr-review.yml` workflow does not update `TRACKING.md` — PR reviews are not
-  part of the SDD design review log.
+- The PR-review workflow does not update design-review tracking — PR reviews are not
+  part of the design-review log.
 - If the PR is already merged or closed, the review can still be run retroactively —
   the diff remains accessible via the GitHub API.
-- For setup details, refer to `docs/runbooks/agents/architect.md`.
-- If the PR involves deploying or hosting an internal tool, delegate to the `common` agent
-  to route it correctly.
+- For setup details, refer to your PR-review workflow's README.
+
+---
+
+## Routing
+
+These map to `suggested_next` slugs when The Architect emits a finding from a PR/design review. This
+table is a **slice of the canonical
+[findings/HANDOFF_PROTOCOL.md](../../findings/HANDOFF_PROTOCOL.md)** — that doc is authoritative; the
+row numbers below reference its matrix. Emit handoffs as `suggested_next` slugs per
+[findings/SCHEMA.md](../../findings/SCHEMA.md).
+
+| Situation | `suggested_next` | Matrix row |
+|---|---|---|
+| A review finding has compliance implications | `[keymaker]` (add `seraph` if a $-figure helps) | 13 |
+| The change/author needs security-awareness coaching | `[morpheus]` | 17 |
+| Exploitability of a finding is unproven and worth confirming | `[neo]` | 15 |
+
+Per the protocol, drop `architect` itself and keep only roster slugs. The Architect is the *target*
+of row 16 (others hand PR/design reviews **to** it). An `Involvement: Required` recommendation posts to
+**#security-helpdesk** / files a Triage ticket — that's the existing notification path, not a
+`suggested_next` agent.
+
+### Engineering-side follow-through (a pointer, not a handoff)
+
+The Architect produces the *review*; the author still has to land the fix. Name the engineering agent
+that does it in the review comment so a finding turns into a concrete next command:
+
+| What the review found | Engineering agent that fixes it |
+|---|---|
+| A SAST/secret alert or code-level flaw in the PR's repo | [`/apoc`](apoc.md) — folds the fix into the author's current branch |
+| A CI/CD workflow weakness in the diff | [`/bane`](bane.md) — token scope, action pinning, `pull_request_target` |
+| An IaC misconfiguration in the diff | [`/hamann`](hamann.md) — Terraform/K8s/IAM review pre-merge |
+| A risky new dependency in the diff | [`/dozer`](dozer.md) — malicious-package / license / provenance check |
+| The fix must not silently regress | [`/mouse`](mouse.md) — abuse-case + regression tests in the same PR |
+| The design needs a threat model, not just a review | [`/persephone`](persephone.md) — the team's own STRIDE/MAESTRO model |
+
+Note the inverse already exists: `/bane` and `/persephone` **call The Architect read-only** for the
+security view of a complex change. That is intra-run sub-agent dispatch, not a findings handoff.
+
+These are **engineering SDLC agents** — a separate line-up outside the findings ledger — so this is a
+pointer for the author, **never** a `suggested_next` value (off-matrix by construction). The Architect
+keeps owning the review verdict. See
+[Engineering SDLC agents](../../docs/engineering-sdlc-agents.md).

@@ -28,7 +28,7 @@ JSON-serializable** — no YAML anchors, custom tags, or other YAML-only constru
 |---|---|---|---|
 | `schema_version` | integer | yes | Schema major version. Currently `1`. Readers branch on this. |
 | `id` | string | yes | Globally unique, **immutable** identifier. Convention: `<YYYY-MM-DD>-<agent>-<subject-slug>-<shorthash>`. Once written, never changes — status transitions edit the file in place. This is the anchor handoffs and the ledger digest reference. |
-| `agent` | enum (slug) | yes | The emitting agent. One slug from the [roster](#agent-roster--suggested_next-vocabulary). |
+| `agent` | enum (slug) | yes | The emitting agent. One slug from the [roster](#agent-roster--agent--suggested_next-vocabulary). |
 | `timestamp` | string (ISO-8601 UTC) | yes | When the finding was emitted. MUST be **quoted** so YAML keeps it a string, e.g. `"2026-05-29T16:42:00Z"` — an unquoted ISO-8601 value parses to a YAML/Python `datetime` that is not JSON-serializable, breaking the round-trip guarantee. |
 | `severity` | enum | yes | One of [`critical`, `high`, `medium`, `low`, `informational`](#severity-vocabulary). |
 | `domain` | enum (CISSP) | yes | The [CISSP domain](#domain-vocabulary-cissp) this finding belongs to, as `<number> — <name>`. |
@@ -74,7 +74,7 @@ obvious. Use the **owning agent** column to sanity-check that `agent` and `domai
 | `4 — Communication & Network Security` | switch (TLS/certs, firewall/SG, VPC, DNS) |
 | `5 — Identity & Access Management` | trinity (Okta, GitHub org, AWS IAM, privilege creep) |
 | `6 — Security Assessment & Testing` | neo (red team / pentest), architect (PR/SDD review), tank (vuln triage), tracer (requirement→test traceability, emit-only) |
-| `7 — Security Operations` | john-wick (incident response), oracle (shadow AI / exposed endpoints), morpheus (awareness/training) |
+| `7 — Security Operations` | john-wick (incident response), oracle (shadow AI / exposed endpoints), morpheus (awareness/training), on-call (page triage, emit-only), analyst (detection validation/triage, emit-only) |
 | `8 — Software Development Security` | cypher (secrets-in-code, deps, SDLC, SAST density), sentinel (secure-build gate, emit-only) |
 
 `security-steve` is the cross-domain concierge/orchestrator and does not own a single domain; when
@@ -118,12 +118,123 @@ roster prevents dead handoffs to misspelled or non-existent agents.
 | `oracle` | AI Exposure & Shadow IT |
 | `morpheus` | Security Awareness & Training |
 | `cypher` | Software Development Security |
-| `trainman` | Cloud Cost & FinOps (emit-only — never a route target) |
-| `smith` | Security Infrastructure Chaos Engineering (emit-only — never a route target) |
-| `logos` | Program-Metrics Scorecard (Strategy & Metrics — emit-only — never a route target) |
-| `sentinel` | Secure Build Gate (Implementation / Secure Build — emit-only — never a route target) |
-| `tracer` | Requirements-to-Test Traceability (Verification / Requirements-driven Testing — emit-only — never a route target) |
+| `trainman` | Cloud Cost & FinOps (emit-only — see note below) |
+| `smith` | Security Infrastructure Chaos Engineering (emit-only — see note below) |
+| `logos` | Program-Metrics Scorecard (Strategy & Metrics — emit-only — see note below) |
+| `sentinel` | Secure Build Gate (Implementation / Secure Build — emit-only — see note below) |
+| `tracer` | Requirements-to-Test Traceability (Verification / Requirements-driven Testing — emit-only — see note below) |
+| `on-call` | On-Call Triage (page false-positive vs incident classifier — emit-only — see note below) |
+| `analyst` | Detection Validation & Triage (SIEM alert interception + cross-system validation / re-score — emit-only — see note below) |
+| `skidbladnir` | AWS Account Deployment (draft-first PRs against your infrastructure IaC repo, Spacelift run interpretation, AWS-state verification, drift + tagging — emit-only — see note below) |
+| `panther` | SIEM sensor (**sensor tier**, emit-only — see note below) |
+| `wing` | SaaS-posture / SSPM-ITDR sensor (**sensor tier**, emit-only — see note below) |
+| `bedrock` | DSPM / data-security sensor (**sensor tier**, emit-only — see note below) |
+| `aws` | Cloud control-plane sensor (**sensor tier**, emit-only — see note below) |
 | `security-steve` | Cross-domain concierge / orchestrator |
+
+> **Emit-only agents.** `cypher`, `tank`, `trainman`, `smith`, `logos`, `sentinel`, `tracer`, `on-call`, `analyst`, and `skidbladnir` are valid values for the `agent` field
+> (they *emit* findings) but are deliberately **absent from the matrix route-target allow-set** — no
+> finding's `suggested_next` should ever route *to* them (see
+> [HANDOFF_PROTOCOL.md → Zero Trust, Rule 2](HANDOFF_PROTOCOL.md#rule-2--suggested_next-is-validated-against-the-matrix-not-just-the-roster)).
+> A hop *to* one of them is off-matrix by construction — a real poisoning signal, not a legitimate
+> route. Trainman (Cloud Cost & FinOps) sits outside the CISSP domain axis; when it emits, the
+> finding carries the domain of the underlying issue (e.g. a control-cut tradeoff is
+> `1 — Security & Risk Management`), the same rule `security-steve` already follows. Smith
+> (chaos engineering / continuous verification) emits in `7 — Security Operations` and routes its
+> findings *out* to the agent that owns the fix (e.g. `niobe` for an architecture gap, `john-wick`
+> for a degraded-now restore failure); nothing routes *to* `smith`. Logos (program-metrics
+> scorecard) emits in `1 — Security & Risk Management` and routes breach findings *out* (e.g.
+> `seraph` for a $-quantification, `keymaker` for a register decision, `security-steve` for a
+> cross-domain coverage gap); nothing routes *to* `logos` — a scorecard is a source, not a sink.
+> Sentinel (secure-build gate) emits in `8 — Software Development Security` and routes a *blocked*
+> build's remediation *out* (`tank` for a CRITICAL dep, `neo` if exploitability is contested,
+> `keymaker` for a failing attested control); nothing routes *to* `sentinel` — a build gate is a
+> source, not a sink. Tracer (requirement→test traceability) emits in `6 — Security Assessment &
+> Testing` and routes a coverage gap *out* (`architect` for the missing test, `neo` if verification is
+> contested, `keymaker` for an untested attested control, `security-steve` for a cross-domain gap);
+> nothing routes *to* `tracer` — a traceability check is a source, not a sink. On-Call (page
+> triage) emits in `7 — Security Operations` and routes a *confirmed* page *out* — `john-wick` when
+> a page is a real incident (rows 1 / 15b / 20b); a false-positive verdict carries `suggested_next:
+> []` (On-Call acks/closes it itself). Nothing routes *to* `on-call` — a page-classifier is a
+> source, not a sink (a hop *to* it would be off-matrix, i.e. a poisoning signal). The Analyst
+> (`analyst`) is the SecOps analogue for **SIEM security detections**: it intercepts a fired
+> detection, validates the claimed vulnerability and re-scores the risk across every involved system
+> (fanning out to `trinity` / `switch` / `merovingian` / `tank` and the sensor tier for their reads),
+> then routes the *validated* result *out* — `john-wick` for a confirmed-active detection (row 1),
+> `neo` when exploitability is unproven (row 15), `seraph` for a $-business-case (row 14), `keymaker`
+> for a compliance access pattern (row 13); a false positive carries `suggested_next: []` (The Analyst
+> proposes the human-gated alert close-out itself). All route targets are already-listed, so the
+> allow-set is unchanged. Nothing routes *to* `analyst` — a detection-validator is a source, not a
+> sink (a hop *to* it is off-matrix by construction, a poisoning signal). Its cross-system fan-out is
+> **intra-run sub-agent dispatch**, not a findings handoff. Skidbladnir (AWS account deployment)
+> sits outside the CISSP domain axis like Trainman: when it emits — deployment drift, tagging
+> violations, a failed Spacelift run with a security angle — the finding carries the domain of the
+> underlying issue and routes *out* by what drifted (matrix row 21: `switch` for a network path,
+> `merovingian` for a data store, `keymaker` + `seraph` for an attested control; operational-only
+> drift is `[]` with the owning team named). Nothing routes *to* `skidbladnir` — a deployer is a
+> source, not a sink.
+
+<!-- -->
+
+> **Sensor-tier agents.** `panther` (SIEM sensor), `wing` (SaaS-posture / SSPM-ITDR sensor),
+> `bedrock` (DSPM / data-security sensor), and `aws` (cloud control-plane sensor) are
+> **reusable read-mostly sub-agents** any roster agent calls to sharpen a static/posture judgment
+> with live telemetry — Panther with SIEM logs, Wing with SaaS grants/threats, Bedrock with the
+> DSPM data inventory (what sensitive data exists and who reaches it), AWS with the cloud control
+> plane (what infrastructure is *actually* configured as right now, vs. what Terraform or a scanner
+> claims). They are valid `agent`
+> values (they *emit* findings when the telemetry warrants a handoff) but, like the emit-only tier
+> above, are **deliberately absent from the matrix-target allow-set** — nothing routes *to* a
+> sensor; a hop *to* one is off-matrix by construction (a poisoning signal). Panther and Wing emit
+> in `7 — Security Operations` by default; Bedrock emits in `2 — Asset Security` by default (it is a
+> data-security sensor). `aws` has **no single default domain** — it spans the control plane, so it
+> always carries the domain of the underlying issue (`4 — Communication & Network Security` for a
+> permissive security group, `5 — Identity & Access Management` for a wildcard role,
+> `3 — Security Architecture & Engineering` for an encryption/KMS gap). Each carries the domain of
+> the underlying issue when it clearly belongs
+> elsewhere, and all route the finding *out* to the agent that owns the decision (`john-wick` for an
+> active threat, `oracle` for shadow SaaS, `trinity`/`merovingian` for grant/data blast radius,
+> `switch` for a network-path exposure, `niobe` for an architecture gap,
+> `morpheus` for a person to coach, `keymaker` for a compliance access pattern) — all already-listed
+> route targets, so the allow-set is unchanged. A sensor is a source, not a sink. See
+> [`.claude/agents/panther.md`](../.claude/agents/panther.md),
+> [`.claude/agents/wing.md`](../.claude/agents/wing.md),
+> [`.claude/agents/bedrock.md`](../.claude/agents/bedrock.md), and
+> [`.claude/agents/aws.md`](../.claude/agents/aws.md).
+
+<!-- -->
+
+> **Engineering SDLC agents are deliberately NOT on this roster.** The ten engineering-side agents
+> — `rama-kandra`, `persephone`, `dozer`, `bane`, `apoc`, `mouse`, `hamann`, `lock`, `roland`,
+> `twins` — are a **separate line-up** that engineers run in their own dev loop.
+> They are neither emitters nor route targets: **they do not write to this ledger at all**, so they
+> need no `agent` slug. They report to the engineer in-session and escalate to a human channel
+> (`#security-team`, always as a *draft*) or to a roster agent by **calling it read-only**.
+>
+> This makes them the third category, distinct from the two above: an *emit-only* agent is a source
+> that writes findings; a *sensor* is a read-mostly sub-agent that writes findings; an **engineering
+> SDLC agent writes no finding at all**. The consequences are deliberate and worth stating, because
+> each is a property CI can check:
+>
+> - **Nothing routes to them.** A `suggested_next` containing any of the ten is **off-matrix by
+>   construction** — a poisoning signal, exactly like a hop to `cypher` or `panther`. This holds
+>   without a doc change: `findings_validate.py` parses the allow-set from the matrix, and none of
+>   the ten appears in any row's `suggested_next`.
+> - **They cannot emit.** Because they are absent from this roster, a finding claiming
+>   `agent: dozer` **fails validation** (`agent ... not in SCHEMA roster`). That is the intended
+>   behavior, not a gap: a finding attributed to an engineering agent is either a mistake or forged.
+> - **The allow-set is unchanged** — still the same 12 route targets. Adding this line-up changes no
+>   row, so no regeneration is needed (see
+>   [HANDOFF_PROTOCOL.md → Rule 2](HANDOFF_PROTOCOL.md#rule-2--suggested_next-is-validated-against-the-matrix-not-just-the-roster)).
+>
+> Their read-only calls *into* the roster (`/persephone` → `architect`/`niobe`, `/lock` →
+> `sentinel`/`keymaker`, `/roland` → `tank`/`seraph`, …) are **intra-run sub-agent dispatch**, the
+> same mechanism The Analyst uses for its fan-out — not a findings handoff, and not governed by the
+> matrix. The boundary in the other direction is **call, never modify**: no engineering agent edits a
+> roster skill, this schema, the matrix, or this ledger. Guide:
+> [docs/engineering-sdlc-agents.md](../docs/engineering-sdlc-agents.md).
+
+<!-- -->
 
 > When a domain's remediation belongs to a non-agent team (e.g. a platform/Okta admin for
 > offboarding), keep `suggested_next` to the agent that surfaces/tracks it and name the human team

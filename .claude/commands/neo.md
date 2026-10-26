@@ -40,7 +40,13 @@ Neo's weapon is **PentAGI** — a self-hosted, Claude-powered autonomous pentest
 with 20+ built-in tools (nmap, metasploit, sqlmap, nikto, ffuf, and more), a headless
 browser for recon, semantic memory across runs, and a REST API Neo drives directly.
 
-The stack lives in `vuln-mgmt-attacker/`. Secrets come from 1Password (local) or
+His second weapon is the **nuclei dynamic-validation harness**: one hand-written template
+per unvalidated hypothesis, run through an RoE-guarded runner in `vuln-mgmt-attacker/nuclei/`.
+Where a hypothesis is not request-provable, Neo routes it to the owning lane (log correlation
+via the `panther`/`aws` sub-agents, or config review) instead of forcing a template — see
+WORKFLOW G and `vuln-mgmt-attacker/nuclei/coverage.md`.
+
+The stack lives in `vuln-mgmt-attacker/`. Secrets come from your credential vault (local) or
 AWS Secrets Manager (CI/AWS) via `secrets.sh` — no `.env` file required.
 
 ---
@@ -50,6 +56,12 @@ AWS Secrets Manager (CI/AWS) via `secrets.sh` — no `.env` file required.
 - **A domain or URL** — `neo target.example.com` or `neo https://staging.example.com`
 - **A Linear ticket** — `neo SEC-1234` → loads target and scope from the ticket
 - **A task keyword** — `neo status` | `neo findings` | `neo triage` | `neo stop`
+- **A hypothesis to validate** — `neo validate <ticket-id>` (or `neo validate R02`) →
+  WORKFLOW G: run the matching nuclei template/helper against an authorized target
+  and record validated/killed on the ticket
+- **`recurring [target]`** — load the authorized standing target(s) from
+  `review-pentest/recurring-targets.md`, re-confirm scope, run the assessment, then **auto-file** a
+  deduped, owner-routed Linear ticket per confirmed finding (WORKFLOW F). Monthly cadence.
 - **Nothing** — Neo checks stack status and asks what to hit
 
 ---
@@ -100,7 +112,7 @@ PentAGI reaches out over the internet — no internal target containers needed.
 Target:      <domain / URL / IP>
 Mode:        External — PentAGI reaches target over internet
 Stack:       <running / starting now>
-Tool:        PentAGI + Claude claude-sonnet-4-6
+Tool:        PentAGI + Claude
 ASK_USER:    true ← PentAGI will pause before risky actions
 
 ⚠️  Confirm:
@@ -121,9 +133,9 @@ Used when testing against the local vulnerable app containers.
 Target:      <dvwa / juice-shop> (local container on pentest-net)
 Mode:        Internal — network-isolated, no internet egress from target
 Stack:       <running / starting now>
-Tool:        PentAGI + Claude claude-sonnet-4-6
+Tool:        PentAGI + Claude
 ASK_USER:    true
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Proceed? [yes / no]
 ```
 
@@ -176,7 +188,7 @@ web UI on first launch), go to Settings → API Tokens → Generate. Then store 
 ```bash
 ./secrets.sh set-token <your-token>
 ```
-This saves the token to 1Password so it's available on every future run.
+This saves the token to your credential vault so it's available on every future run.
 
 ---
 
@@ -313,7 +325,7 @@ End with a summary:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Target:    <target>
 Date:      <YYYY-MM-DD>
-Tool:      PentAGI + Claude claude-sonnet-4-6
+Tool:      PentAGI + Claude
 
 Findings:
   Critical:  <N>
@@ -325,6 +337,78 @@ Findings:
 Top finding: <title — one line summary>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+---
+
+## WORKFLOW F — Auto-file findings (recurring runs)
+
+Runs after WORKFLOW C on a `/neo recurring` run (or on demand when the engineer asks to file). Turns
+**confirmed** findings into deduped, owner-routed Linear tickets so a recurring pentest produces tracked,
+owned work — not run output that rots.
+
+For each finding Neo marked **✅ Confirmed** in WORKFLOW C (skip ⚠️ Needs-manual-verification and ❌
+False-positive — those are deferred, not filed):
+
+1. **Dedup.** Search Linear for an existing **open** ticket for the same target + finding (match by
+   finding title / affected endpoint, e.g. title contains `[Neo]` + the endpoint). If found, **skip**
+   and note it as deduped — monthly runs converge instead of piling up.
+2. **Resolve owner.** Use your resource-ownership lookup for the affected resource/endpoint to get the
+   owning team; fall back to **Security** if unresolved.
+3. **File one ticket per confirmed finding:**
+   - **Team:** the resolved owning team (or Security) · **State:** Triage
+   - **Title:** `[Neo] <finding title> — <target>`
+   - **Body:** severity, affected endpoint, PoC summary (what PentAGI did to confirm), recommended fix,
+     and a link back to the assessment.
+4. **Confirmation:** in an interactive run, show the planned tickets and **confirm before creating**
+   (the "no Linear tickets without explicit confirmation" rule still holds). A scheduled run files
+   confirmed findings per the registry's standing authorization — but **never** unconfirmed findings and
+   **never** a production target.
+
+Report:
+
+```text
+🔴 Neo auto-file <date> — target <target>
+   Filed:     <N> tickets (confirmed findings, owner-routed)
+   Deduped:   <M> (already open)
+   Deferred:  <K> needs-manual-verification · <J> false-positive (not filed)
+```
+
+---
+
+## WORKFLOW G — Validate a hypothesis
+
+`neo validate <ticket-id | R-id>` — turn one unvalidated hypothesis into a recorded
+proof-or-kill. The harness lives in `vuln-mgmt-attacker/nuclei/`; its `coverage.md` is the
+authoritative R→artifact→status table.
+
+1. **Resolve the hypothesis.** Fetch the ticket via `mcp__linear__get_issue` for the exact claim
+   and source refs. Check `coverage.md` for the artifact and status.
+2. **Not request-provable?** Rows marked `not-request-provable` never get a forced template: route
+   config claims to the `aws` sub-agent (read-only state check), log-redaction claims to a
+   marker-request plus `panther`/`aws` log correlation, and DoS-adjacent claims to a manual,
+   single-request, test-environment-only note on the ticket. Say which lane and stop.
+3. **Scope confirmation** (same rules as STEP 1): default target is a disposable test instance.
+   Production requires explicit human authorization in this conversation AND a deconfliction notice
+   already sent to whoever runs your SIEM/NOC — the runner (`run.sh`) enforces
+   `--prod-ok --deconflicted` + typed confirmation on top.
+4. **Run the template** through the guarded runner, never a bare `nuclei` call:
+
+   ```bash
+   cd vuln-mgmt-attacker
+   ./nuclei/run.sh -u <target-url> -t nuclei/templates/<family>/<R-id>-<name>.yaml
+   # or: make hypo t=<target-url> tpl=nuclei/templates/<family>/<R-id>-<name>.yaml
+   ```
+
+   ffuf/jwt families run via the helpers in `nuclei/helpers/` — same rules.
+5. **Read the result honestly.** A match = evidence the hypothesis's observable fired; validate it
+   against the claim wording (some templates prove a weaker precondition and need the log-side marker
+   grep before a verdict — the template description says so). No match after a tuned run = killed, with
+   the counter-evidence (which matcher never fired and why).
+6. **Record the verdict** on the ticket as a comment: validated/killed, the template path, the evidence
+   dir (`nuclei/evidence/<run>`), and UTC timestamps. Update `coverage.md` status in the same change.
+   Do not batch verdicts across tickets without confirmation.
+7. **Never** escalate request counts to force a match. Rate limits and single-request probes are the
+   design, not an inconvenience — RoE line 1 (no customer impact) outranks every hypothesis.
 
 ---
 
@@ -343,17 +427,17 @@ make clean-all   # asks for confirmation before deleting volumes
 
 ## WORKFLOW E — Evaluate a new tool (not PentAGI)
 
-When evaluating Strix, PentestGPT, Shannon, CAI, or others from the SEC-1234 list:
+When evaluating another autonomous-pentest tool (Strix, PentestGPT, Shannon, CAI, or others):
 
 1. Fetch the repo README and docs via WebFetch
 2. Score against the 7 criteria: deployment model, scope controls, PoC validation,
    tool coverage, CI/CD integration, cost, vendor security (1–5 each)
 3. Document prompt injection posture: does it process web responses and act on them?
 4. Check native Anthropic API support — if OpenAI-only, how hard is the port?
-5. Output the evaluation summary format from your own tool evaluation criteria
+5. Output the evaluation summary using your own tool-evaluation criteria
 
 For any SaaS tool: use a synthetic dummy target only — never real source code,
-real credentials, or production details until a a vendor security review is complete.
+real credentials, or production details until a vendor security review is complete.
 
 ---
 
@@ -380,12 +464,20 @@ Do nothing without confirmation.
 
 ## Routing
 
-> **This table is a slice of the [handoff matrix](../../findings/HANDOFF_PROTOCOL.md).** That matrix is the authoritative, machine-readable cascade; this list is the quick reference for this agent. When a rule changes, change it there first. Emit handoffs as `suggested_next` slugs per [findings/SCHEMA.md](../../findings/SCHEMA.md).
+These map to `suggested_next` slugs when Neo emits findings. This table is a **slice of the
+canonical [findings/HANDOFF_PROTOCOL.md](../../findings/HANDOFF_PROTOCOL.md)** — that doc is
+authoritative; the row numbers below reference its matrix. Emit handoffs as `suggested_next` slugs
+per [findings/SCHEMA.md](../../findings/SCHEMA.md).
 
-- **Confirmed vuln in production** → John Wick (incident response)
-- **Exposed internal tool or shadow deployment found** → Oracle
-- **SaaS tool selected for adoption** → `/vendor-review` (add your own vendor review skill)
-- **Compliance implications from findings** → Keymaker
+| Situation | `suggested_next` | Matrix row |
+|---|---|---|
+| Confirmed vuln in production | `[john-wick]` | 15b |
+| Exposed internal tool or shadow deployment found | `[oracle]` | 6 |
+| Compliance implications from findings | `[keymaker]` (add `seraph` if a $-figure helps) | 13 |
+
+Per the protocol, set `suggested_next` by taking the union of every matching row, dropping `neo`
+itself, and keeping only roster slugs. "SaaS tool selected for adoption" is a **skill**, not an
+agent handoff — run your vendor-review process and name it in *Recommended action*.
 
 ---
 
@@ -396,9 +488,10 @@ All files live in `vuln-mgmt-attacker/`:
 | File | Purpose |
 |---|---|
 | `docker-compose.yml` | Full stack: PentAGI + pgvector + scraper + SearXNG + DVWA + Juice Shop (commented) |
-| `secrets.sh` | Loads credentials from 1Password (local) or AWS Secrets Manager (CI) |
+| `secrets.sh` | Loads credentials from your credential vault (local) or AWS Secrets Manager (CI) |
 | `Makefile` | Shortcuts: `make up`, `make run t=<target>`, `make findings`, `make down` |
 | `scope.md` | Scope confirmation template — fill out before every external target run |
+| `nuclei/` | Dynamic-validation harness: `run.sh` (RoE-guarded runner), `coverage.md` (hypothesis tracker), `templates/`, ffuf/jwt_tool `helpers/` |
 | `.local-state` | Auto-generated internal service passwords — gitignored, never committed |
 
 **Endpoints when running:**
@@ -408,6 +501,6 @@ All files live in `vuln-mgmt-attacker/`:
 - PentAGI REST API: `https://localhost:8443/api/v1`
 
 **Secrets:**
-- `ANTHROPIC_API_KEY` → 1Password: "<your-anthropic-key-item>" / your-credentials-vault
-- `PENTAGI_API_TOKEN` → 1Password: "<your-pentagi-token-item>" / your-credentials-vault (set via `./secrets.sh set-token <token>`)
+- `ANTHROPIC_API_KEY` → your credential vault (item `<your-anthropic-key-item>` — see [knowledge/config.md](../../knowledge/config.md))
+- `PENTAGI_API_TOKEN` → your credential vault (item `<your-pentagi-token-item>`, set via `./secrets.sh set-token <token>`)
 - Internal passwords → `.local-state` (auto-generated, gitignored)

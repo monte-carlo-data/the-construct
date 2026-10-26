@@ -18,7 +18,7 @@ used by agents when filing tickets or drafting Slack outreach.
 |---|---|---|---|
 | Example: AWS Production | Platform | #platform-eng | All prod AWS accounts |
 | Example: GitHub Org | Engineering | #eng-infra | |
-| Example: Okta | IT / Security | #team-security | |
+| Example: Okta | IT / Security | #security-team | |
 | Example: Snowflake | Data Platform | #data-platform | |
 
 ---

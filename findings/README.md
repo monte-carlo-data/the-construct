@@ -10,13 +10,15 @@ a machine-readable handoff (`suggested_next: [john-wick]`).
   `suggested_next` population logic: *which* agent acts next on a finding-type, and how an emitter
   picks `suggested_next` defensibly.
 - **Why repo-as-source-of-truth:** markdown + frontmatter, committed, `git diff`-able. The same
-  pattern works for any reviewable artifact.
+  pattern works for any reviewable artifact (design reviews, incident write-ups).
 
 > This is the **shape** layer. The cascade rules (when a finding triggers which agent) live in
 > [HANDOFF_PROTOCOL.md](HANDOFF_PROTOCOL.md). Security Steve *executing* handoffs is delivered as
 > `/security-steve orchestrate` (auto-runs low-blast-radius agents, stages consequential ones for
-> human approval); a read-only standup digest over this ledger is available via
-> `/security-steve digest`.
+> human approval). A daily standup digest over this ledger can run on a schedule
+> (`findings_digest.py` behind a `findings-digest-daily` workflow, posting to `#security-helpdesk`)
+> or ad hoc via `/security-steve digest`. `examples/` holds a hand-authored reference finding you
+> can seed a rehearsal with.
 
 ---
 
@@ -110,10 +112,12 @@ suggested_next: [morpheus]
   [HANDOFF_PROTOCOL.md](HANDOFF_PROTOCOL.md) (classify → look up matrix row(s) → union → drop self →
   roster-validate), so every handoff is defensible. When you *read* a finding, the matrix tells you
   which `/<slug>` should act next.
-- Automatic *execution* of a handoff is delivered by `/security-steve orchestrate`: it reads a
-  finding's `suggested_next` and dispatches the next agent (low-blast-radius agents auto-run;
-  consequential ones are staged for human approval), and offers to flip `open → handed-off` for the
-  hops it auto-runs. The `/security-steve digest` view is a **read-only** summary of this ledger.
+- Flipping `status` to `handed-off` and recording the chain is maintained by hand; the daily
+  standup digest is a **read-only** view that summarizes this ledger to `#security-helpdesk`
+  (it reports the chain but does not edit `status`). Automatic *execution* of the handoff is
+  delivered by `/security-steve orchestrate`: it reads a finding's `suggested_next` and dispatches
+  the next agent (low-blast-radius agents auto-run; consequential ones are staged for human
+  approval), and offers to flip `open → handed-off` for the hops it auto-runs.
 
 ---
 
@@ -151,5 +155,6 @@ for path in glob.glob("findings/**/*.md", recursive=True):
 PY
 ```
 
-A CI lint for `findings/` is a natural follow-on; v1 relies on this manual check plus the
-parse-verified example.
+A CI lint (`findings_validate.py`, which also checks every `suggested_next` against the
+matrix-target allow-set in [HANDOFF_PROTOCOL.md](HANDOFF_PROTOCOL.md)) is the natural follow-on;
+v1 relies on this manual check plus the parse-verified examples.

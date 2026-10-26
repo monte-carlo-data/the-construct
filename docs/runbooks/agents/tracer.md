@@ -10,11 +10,11 @@
 ## What it does
 
 Tracer follows a single thread from a **requirement** to the **test that proves it**. The roster
-authors requirements (your spec/requirements document) and reviews changes (The Architect,
-`pr-review`, `sdd-review`) — but no agent proves each security requirement maps to a passing test or
-control. Tracer closes that loop: it reads a spec, extracts its security requirements, and produces a
-**coverage matrix** that says, per requirement, exactly which test or control verifies it — or that
-nothing does.
+authors requirements (your spec/requirements document) and reviews changes (The Architect, your
+PR-review and design-review workflows) — but no agent proves each security requirement maps to a
+passing test or control. Tracer closes that loop: it reads a spec, extracts its security
+requirements, and produces a **coverage matrix** that says, per requirement, exactly which test or
+control verifies it — or that nothing does.
 
 It runs a deterministic, model-free extractor over one spec:
 
@@ -58,22 +58,20 @@ requirements as `covered` (cited in `tests/test_tracer_trace.py`) and its skill-
 
 ## Components
 
-- **Extractor** — [`.github/scripts/tracer_trace.py`](../../../.github/scripts/tracer_trace.py): the
-  pure, deterministic parse-and-match core (no model call). CLI emits markdown (`--md`) + JSON
-  (`--json`); exits non-zero only when the spec can't be read.
-- **Tests** — [`tests/test_tracer_trace.py`](../../../tests/test_tracer_trace.py): prove the parser,
-  the explicit-vs-inferred matcher, the spec-scope guard, and the no-false-green summary, with a
-  synthetic file map (no API, no disk). `python3 tests/test_tracer_trace.py`.
-- **AISVS chapter registry** —
-  [`programs/verification/aisvs-chapters.yaml`](../../../programs/verification/aisvs-chapters.yaml):
-  the OWASP AISVS chapter label catalog. Config, not code — Tracer degrades to generic chapter text if
-  it's absent.
+- **Extractor** — `.github/scripts/tracer_trace.py`: the pure, deterministic parse-and-match core
+  (no model call). CLI emits markdown (`--md`) + JSON (`--json`); exits non-zero only when the spec
+  can't be read.
+- **Tests** — `tests/test_tracer_trace.py`: prove the parser, the explicit-vs-inferred matcher, the
+  spec-scope guard, and the no-false-green summary, with a synthetic file map (no API, no disk).
+  `python3 tests/test_tracer_trace.py`.
+- **AISVS chapter registry** — `programs/verification/aisvs-chapters.yaml`: the OWASP AISVS chapter
+  label catalog. Config, not code — Tracer degrades to generic chapter text if it's absent.
 
 ### CI follow-up (designed-for, not built)
 
 A future `tracer-trace.yml` will run the extractor on every changed spec in a PR and post the matrix
-as a comment, mirroring `sentinel-gate.yml` / `samm-audit.yml`. The extractor's `--json` output and
-stable exit-code contract are shaped so that job is a thin wrapper, not a rewrite.
+as a comment, mirroring the Sentinel gate workflow. The extractor's `--json` output and stable
+exit-code contract are shaped so that job is a thin wrapper, not a rewrite.
 
 ---
 
@@ -100,11 +98,16 @@ poisoning signal). Slices of [findings/HANDOFF_PROTOCOL.md](../../../findings/HA
 |---|---|
 | Untested requirement needs a test/control written (concrete change to review) | `[architect]` (row 16) |
 | Requirement's verification/exploitability is contested | `[neo]` (row 15) |
-| A control we attest to has no verifying test (compliance) | `[keymaker]` (row 13, +`seraph` for $-figure) |
+| A control you attest to has no verifying test (compliance) | `[keymaker]` (row 13, +`seraph` for $-figure) |
 | Genuinely cross-domain / unclassifiable gap | `[security-steve]` (row 19) |
 
 The usual hand-off is `[architect]` — a missing test is a change to review. Where the next step is
 writing a test in a non-roster team's suite, name that team in the finding's *Recommended action*.
+
+Engineering-side follow-through is a pointer, not a route: Tracer's `unmapped` list is
+[`/mouse`](../../../.claude/commands/mouse.md)'s work queue — the engineering agent that writes the
+missing security tests in the team's own idiom. See
+[Engineering SDLC agents](../../engineering-sdlc-agents.md).
 
 ---
 
@@ -112,13 +115,16 @@ writing a test in a non-roster team's suite, name that team in the finding's *Re
 
 - **Your spec/requirements document** authors the FR-NNN requirements Tracer reads — Tracer is the
   verification counterpart to that authoring.
-- **The Architect / pr-review / sdd-review** review the *change* that adds a missing test (Tracer's
-  usual `[architect]` hand-off); they carry design findings forward, Tracer carries the
-  requirement→test mapping.
+- **The Architect / your PR-review and design-review workflows** review the *change* that adds a
+  missing test (Tracer's usual `[architect]` hand-off); they carry design findings forward, Tracer
+  carries the requirement→test mapping.
 - **Sentinel** gates the *build* on SBOM/CVE thresholds; Tracer gates *traceability* of requirements
   to tests. Different verification axes — Sentinel proves the build is clean, Tracer proves each
   requirement is tested.
-- **samm-audit** scores the SAMM practice Tracer closes (Verification / Requirements-driven Testing).
+- **Mouse** (engineering line-up) consumes Tracer's `unmapped` list and writes the tests; Tracer
+  still owns whether coverage is adequate.
+- **Your SAMM coverage audit** scores the SAMM practice Tracer closes (Verification /
+  Requirements-driven Testing).
 
 ---
 

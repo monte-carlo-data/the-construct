@@ -21,6 +21,7 @@ allowed-tools:
   - mcp__linear__get_issue
   - mcp__linear__list_issues
   - mcp__linear__save_issue
+  - Agent
   - Bash
   - Read
   - Write
@@ -60,6 +61,7 @@ Optional — one of:
 - A **Linear ticket ID** (e.g. `SEC-1234`) — scope the sweep to that ticket's cost concern.
 - An **AWS account ID or name** (e.g. `123456789012`, `<your-security-account>`) — sweep one account.
 - A **service name** (e.g. `AWSConfig`, `AmazonCloudWatch`, `AmazonGuardDuty`) — drill one driver.
+  `panther` drills driver #9 (SIEM ingestion vs. quota).
 - `ledger` — print the current savings ledger and lifecycle state; do not run a new sweep.
 - `track <finding-id> <state>` — advance a ledger row's lifecycle
   (`drafted`/`merged`/`realized`/`dismissed`); proof-of-value bookkeeping, no sweep.
@@ -103,7 +105,7 @@ present (it must degrade, never fail).
 > `aws ce get-cost-and-usage … --group-by Type=DIMENSION,Key=LINKED_ACCOUNT` returns per-account
 > spend for **every** linked account at once. **This is the right path for a full sweep** — do NOT
 > iterate per-account profile-by-profile. Use your org's payer-account profile (SSO via your IdP),
-> a read-only identity scoped to `ce:*` and `describe`/`list`/`get` on the cost-driver services —
+> a read-mostly identity scoped to `ce:*` and `describe`/`list`/`get` on the cost-driver services —
 > never a mutating call (GLOBAL RULES).
 
 ```bash
@@ -165,7 +167,8 @@ your ownership records. If no AWS identity is available, pull the account list f
 (`mcp__wiz__list_cloud_accounts`) and use the Wiz cost tools instead.
 
 **Linear ticket:** `mcp__linear__get_issue`. Extract the cost concern, any dollar anchor, and any
-named account/service. (e.g. a ticket flagging "$10k/mo AWS Config" on security-owned recorders.)
+named account/service. (e.g. a ticket flagging a recurring AWS Config bill on security-owned
+recorders.)
 
 **Account / service argument:** scope directly to that account or service.
 
@@ -173,7 +176,8 @@ Confirm scope back before a broad sweep:
 
 > "Trainman 🚇 — Sweeping <N accounts | account X | service Y> for cost savings. Source:
 > <AWS Cost Explorer | Wiz (AWS creds absent)>. Looking at: Config recorders, idle NAT/EIP, log
-> retention, GuardDuty/SecurityHub spread, Container Insights, idle/duplicate compute. Proceed? [y/N]"
+> retention, GuardDuty/SecurityHub spread, Container Insights, idle/duplicate compute, SIEM
+> ingestion vs. quota. Proceed? [y/N]"
 
 ---
 
@@ -193,6 +197,7 @@ the saving is the difference.
 | 6 | **GuardDuty / Security Hub spread** | These enabled in dormant/sandbox accounts with no workloads | Per-account GuardDuty/SecurityHub monthly cost | **Route to Seraph/Keymaker** — disabling a detective control is a risk call, not a cost call |
 | 7 | **Idle / over-provisioned compute** | Stopped-but-not-terminated EC2 with attached EBS; oversized instances; orphaned EBS/snapshots | `get_resource_cost` per resource; `get_cost_optimization_opportunities` (Wiz/Trusted Advisor) | Right-size / terminate (ticket; cross-ref your ownership records) |
 | 8 | **Duplicate tooling** | Two tools billing for the same coverage (e.g. native + third-party) | Sum of the redundant line | Consolidate (ticket; often a Seraph/Keymaker risk-vs-cost call) |
+| 9 | **SIEM ingestion vs. quota (Panther)** | Month-to-date ingestion over, or on pace to exceed, the contracted quota; one source dominating; duplicate delivery; high-volume log types with no detection rules | Dispatch the Panther sub-agent (below) for bytes by source. Report the saving in **GB/mo against the quota**; convert to $ only with a contract overage/tier price, otherwise tag `rough` | Ticket to the source owner (trim fields upstream, fix the forwarder, narrow CloudTrail events). **Dropping a source or event type → Seraph/Keymaker** — it removes detection coverage |
 
 Useful primitives:
 
@@ -214,6 +219,19 @@ Useful primitives:
   `aws ec2 describe-nat-gateways` + CloudWatch NAT `BytesOutToDestination`;
   `aws ec2 describe-addresses` (unassociated EIPs); `aws logs describe-log-groups`
   (`retentionInDays`).
+- **Panther (driver #9):** Panther is a SaaS licence with a monthly ingestion quota, so it never
+  shows up in Cost Explorer or Wiz. Dispatch the [Panther sub-agent](../agents/panther.md) with the
+  ingestion axis:
+
+  > *"ingestion: month-to-date bytes processed per log source against the quota, top 5 sources with
+  > daily trend, any spike days, duplicate-delivery rate for the top sources, and which of them
+  > have no detection rules. Read-only."*
+
+  Turn each top source into a finding: current GB/mo, the reduction a specific fix would give (e.g.
+  trimming a field that is 90% of the bytes), and the owning team. A high-volume log type with no
+  rules is a cost *and* a coverage question — list it, but leave the "drop it or write rules" call
+  to Seraph/Keymaker. If the sub-agent is unavailable, say so and skip driver #9 rather than
+  guessing.
 
 For each candidate finding record: current $/mo, post-change $/mo, **monthly saving**, the
 **basis** (which line/calc), the **owning account**, and the **owning stack** (next step).
@@ -224,7 +242,7 @@ For each candidate finding record: current $/mo, post-change $/mo, **monthly sav
 
 A saving is only actionable if you know who owns the resource and which stack provisions it.
 
-1. **IaC mapping (preferred for PR-able fixes).** Grep your Terraform/IaC repo for the
+1. **IaC mapping (preferred for PR-able fixes).** Grep your infrastructure IaC repo for the
    resource/module:
    ```bash
    grep -rl "<service-or-resource-keyword>" <path-to-your-iac-repo>/modules
@@ -232,7 +250,8 @@ A saving is only actionable if you know who owns the resource and which stack pr
    e.g. AWS Config → an `aws_config` module. If the spend maps to an IaC module, the fix is
    **PR-able**.
 2. **AWS tags.** With creds, read the resource's owner/team tags.
-3. **Fallback:** resolve the owner from your ownership records (ownership doc → AWS tags →
+3. **Fallback:** resolve the owner from your ownership records
+   ([knowledge/System_Ownership.md](../../knowledge/System_Ownership.md) → AWS tags →
    Slack/Notion/GitHub). Use for compute/idle-resource findings that aren't a clean Terraform
    change.
 
@@ -289,7 +308,7 @@ For each chosen PR-able finding:
 2. Make the **minimal** Terraform change (e.g. recorder `CONTINUOUS` → `DAILY`, add
    `retention_in_days`). Read the module first; match its style.
 3. **Bump the module version** if your IaC repo's conventions require it whenever editing files
-   inside a published module.
+   inside a published module (e.g. `module_version` in a Spacelift `.spacelift/config.yml`).
 4. Stage, commit (Co-Authored-By trailer), and open the PR via `gh` — **do not push for the user**
    if your push flow requires a human-gated confirmation; the human approves the push, then merges.
    Plan the change so it's `terraform plan`-clean, but **never `apply`**.
@@ -322,11 +341,23 @@ ledger and refresh the human summary:
 - `review-cost/trainman/SAVINGS.md` — human rollup: total found / drafted / merged / realized
   $/mo, and a table of open findings by state.
 
+For a driver #9 finding with no contract price, leave `est_monthly_saving_usd` blank and put the
+GB/mo reduction and quota context in `notes` — don't invent a dollar figure.
+
 `finding_id` convention: `<YYYY-MM-DD>-trainman-<account>-<driver>-<shorthash>` (same shape as the
 shared-findings `id`). Lifecycle states: `found → drafted → merged → realized` (or `dismissed`).
 Advance a row later with `/trainman track <finding-id> <state>` — that mode edits the ledger only,
 no sweep. **Realized** saving is filled in only once the change is merged *and* the next month's
 bill confirms it (cite the CUR/Wiz line) — that's the proof, not the estimate.
+
+Append with a small helper that lives alongside the ledger so the CSV stays well-formed (write one
+if your checkout doesn't have it yet):
+
+```bash
+review-cost/trainman/append-ledger.sh \
+  --id "<finding_id>" --account "<acct>" --stack "<stack>" --driver "<driver>" \
+  --saving "<usd>" --basis "<basis>" --fix "<pr|ticket>" --artifact "<url>" --state "found"
+```
 
 ---
 
@@ -429,8 +460,15 @@ the savings ledger.
 
 ## Key resources
 
+- **Your infrastructure IaC repo** — where the `aws_config` module and the other cost-driver
+  resources are provisioned; bump the module version per its conventions when editing a module.
 - **Wiz cost tools** — `get_cost_analysis_grouped`, `get_resource_cost`,
   `get_cost_optimization_opportunities`, `cost_spike_investigation_skill`, `get_cost_investigation`.
 - **AWS Cost Explorer** — `aws ce get-cost-and-usage` (use a read-only payer-account profile).
 - **Seraph** — `/seraph <finding>` for the risk-in-dollars side of any "cut a control to save"
   call; **Keymaker** — `/keymaker` when the control is compliance-required.
+- **Ownership records** — [knowledge/System_Ownership.md](../../knowledge/System_Ownership.md) to
+  resolve a non-IaC owner.
+- **Panther sub-agent** — [`.claude/agents/panther.md`](../agents/panther.md) (`ingestion` query
+  type) for driver #9: a SIEM licence's ingestion quota is invisible to Cost Explorer and Wiz, and
+  a single chatty source can quietly consume most of it.
