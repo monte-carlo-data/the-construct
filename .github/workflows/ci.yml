@@ -56,17 +56,24 @@ jobs:
       - name: Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Generate SBOM (Syft)
-        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
-        with:
-          path: .
-          format: cyclonedx-json
-          output-file: sbom.cdx.json
-          upload-artifact: false
-          upload-release-assets: false
+      - name: Download Syft
+        id: syft
+        uses: anchore/sbom-action/download-syft@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
 
-      - name: Install Grype
+      - name: Download Grype
+        id: grype
         uses: anchore/scan-action/download-grype@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+
+      - name: Put Syft and Grype on PATH
+        run: |
+          echo "$(dirname "${{ steps.syft.outputs.cmd }}")" >> "$GITHUB_PATH"
+          echo "$(dirname "${{ steps.grype.outputs.cmd }}")" >> "$GITHUB_PATH"
+
+      # Scan `dir:.` (relative) rather than an absolute path: Syft otherwise names some
+      # components by their absolute runner path, which the completeness check correctly
+      # rejects as a path leak.
+      - name: Generate SBOM (Syft)
+        run: syft scan dir:. --source-name the-construct -o cyclonedx-json=sbom.cdx.json
 
       - name: Stamp the source-repo property the completeness check expects
         env:
