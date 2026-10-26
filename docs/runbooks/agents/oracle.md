@@ -37,7 +37,7 @@ A **consult** (a question about one named entity, typically dispatched by the Co
 | Censys API | Exposed service scanning | `CENSYS_API_ID` + `CENSYS_API_SECRET` |
 | Aikido MCP | Cloud misconfigs, exposed secrets | MCP server auth (read-scoped) |
 | GitHub API | AI signal detection in repos and Actions | `GITHUB_TOKEN` (`read:org`, `repo`) |
-| GitHub App (org-owned) | Read the two approved-inventory lists from their Git source of truth | `GITHUB_APP_ID` + `GITHUB_APP_INSTALLATION_ID` + private key in your credential vault; `contents:read` only, via `.github/scripts/github_app_fetch.py` |
+| GitHub App (org-owned) | Read the two approved-inventory lists from their Git source of truth | `GH_APP_ID` + `GH_APP_INSTALLATION_ID` + `GH_APP_PRIVATE_KEY` from your credential vault; `contents:read` only, via `.github/scripts/github_app_fetch.py` |
 | Slack MCP | Shadow AI signals in channels | MCP server auth |
 | Linear MCP | Create/update findings tickets | MCP server auth |
 | Panther / Wing / Bedrock sub-agents | Confirm live traffic, SaaS authorization, and sensitive data behind an exposure | Read-scoped sensor credentials ([`panther`](../../../.claude/agents/panther.md), [`wing`](../../../.claude/agents/wing.md), [`bedrock`](../../../.claude/agents/bedrock.md)) |

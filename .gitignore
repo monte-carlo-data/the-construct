@@ -9,3 +9,8 @@ secret-scan-*.json
 
 # macOS
 .DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/

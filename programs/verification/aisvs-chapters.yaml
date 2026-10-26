@@ -1,0 +1,36 @@
+# Tracer — AISVS chapter registry
+#
+# The OWASP AI Security Verification Standard (AISVS) chapter catalog. Tracer uses
+# this to put a HUMAN-READABLE LABEL on an `AISVS C<n>` reference it parses out of a
+# spec — the parser normalizes any of "AISVS C3" / "AISVS Chapter 3" / "AISVS-3" to
+# `AISVS-C3`, and this file maps that id to its title for the traceability matrix.
+#
+# This is a LABEL registry, not a control catalog: Tracer does not score AISVS
+# requirement-by-requirement (that is a future, deeper deliverable). It records that
+# a spec *claims* an AISVS chapter and whether a test/control cites that chapter back.
+#
+# Source: OWASP AISVS (github.com/OWASP/AISVS). Chapter numbering follows the v1.0
+# table of contents. When AISVS revs, update this file (it is config, not code) — the
+# parser/extractor never hard-codes a chapter.
+#
+# Spec authoring convention (so Tracer can trace it): reference a chapter inline as
+# `AISVS C3` or `AISVS Chapter 3` in the spec, and cite the same `AISVS C3` token in
+# the test/control docstring or comment that verifies it. An explicit citation is
+# `covered`; a chapter referenced by a spec with no citing control is `unmapped`.
+
+schema_version: 1
+
+chapters:
+  C1:  "Training Data Governance & Bias Management"
+  C2:  "User Input Validation"
+  C3:  "Model Lifecycle Management & Provenance"
+  C4:  "Infrastructure, Configuration & Deployment Security"
+  C5:  "Access Control & Identity for AI Components"
+  C6:  "Supply Chain Security for Models, Frameworks & Data"
+  C7:  "Model Behavior, Output Filtering & Safety"
+  C8:  "Memory, Embeddings & Vector Database Security"
+  C9:  "Orchestration & Agentic Action Security"
+  C10: "Adversarial Robustness & Attack Resistance"
+  C11: "Privacy Protection & Data Minimization"
+  C12: "Monitoring, Logging & Anomaly Detection"
+  C13: "Human Oversight, Accountability & Governance"

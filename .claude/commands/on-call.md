@@ -54,8 +54,8 @@ end-to-end service monitor (e.g. a mail-flow heartbeat) whose signal On-Call con
 - **PagerDuty MCP** — incident details + the gated ack/resolve/note action.
 
 Both connectors must be connected (live token) for the live path. The classification core needs
-neither — it runs against an alert JSON and is what the replay test under
-`.github/scripts/fixtures/oncall/` exercises.
+neither — it runs against an alert JSON and is what the replay test (`tests/test_oncall_triage.py`,
+over `.github/scripts/fixtures/oncall/replay_example.json`) exercises.
 
 ## CONSULT MODE (headless / Concierge dispatch) — READ THIS BEFORE STEP 0
 
@@ -119,7 +119,7 @@ call it a false positive on missing data. A fully-down tailnet (every group fail
 ## Step 0 — Gather inputs
 
 Resolve the page into a single **alert JSON** (the shape the core consumes; see the replay fixture
-under `.github/scripts/fixtures/oncall/`):
+`.github/scripts/fixtures/oncall/replay_example.json`):
 
 | Field | Source |
 |---|---|

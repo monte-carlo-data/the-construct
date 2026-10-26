@@ -193,7 +193,7 @@ not a handoff).
 ## Key resources
 
 - **Analyzer** — `.github/scripts/hill_climb.py`
-- **Tests** — `.github/scripts/test_hill_climb.py`
+- **Tests** — `tests/test_hill_climb.py`
 - **The matrix + allow-set it analyzes** — [`findings/HANDOFF_PROTOCOL.md`](../../findings/HANDOFF_PROTOCOL.md)
 - **The validator it complements** — `.github/scripts/findings_validate.py`
 - **Sibling modes** — [`/security-steve orchestrate` / `digest`](security-steve.md)

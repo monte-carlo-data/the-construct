@@ -374,8 +374,8 @@ Run all four checks in parallel using the Agent tool before proceeding to classi
 Both approved-inventory lists are **plain markdown tables kept in Git** — read the Git source of
 truth, not a published wiki render of it. Oracle reads them through an **org-owned GitHub App**
 (`contents:read` only, installed on your security repo; no PAT, no user token): the helper
-`.github/scripts/github_app_fetch.py` mints an hourly installation token from `GITHUB_APP_ID`,
-`GITHUB_APP_INSTALLATION_ID`, and the App private key in your credential vault, fetches the raw file,
+`.github/scripts/github_app_fetch.py` mints an hourly installation token from `GH_APP_ID`,
+`GH_APP_INSTALLATION_ID` (optional), and the App private key (`GH_APP_PRIVATE_KEY`) in your credential vault, fetches the raw file,
 and never writes. There is no Notion dependency in this agent — a hosted Notion MCP cannot run
 headless, and the Git sources are fresher than any published copy anyway.
 
@@ -841,7 +841,7 @@ Note any that are missing in the digest.
 | `SHODAN_API_KEY` | Step 2b — exposure scan | Shodan account |
 | `CENSYS_API_ID` + `CENSYS_API_SECRET` | Step 2b — exposure scan | Censys account |
 | `GITHUB_TOKEN` | Step 3a — GitHub org scan | GitHub org PAT, `read:org` + `repo` scopes |
-| `GITHUB_APP_ID` + `GITHUB_APP_INSTALLATION_ID` + App private key | Step 4 — approved-inventory lists | Org-owned GitHub App, `contents:read` on your security repo; private key in your credential vault |
+| `GH_APP_ID` + `GH_APP_INSTALLATION_ID` + `GH_APP_PRIVATE_KEY` | Step 4 — approved-inventory lists | Org-owned GitHub App, `contents:read` on your security repo; private key in your credential vault |
 
 - If a discovered app owner wants to keep their tool running legitimately, point them at your
   internal-hosting guidance (where approved internal apps should live and how to request hosting).
