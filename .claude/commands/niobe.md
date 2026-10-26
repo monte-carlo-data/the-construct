@@ -12,6 +12,7 @@ user-invocable: true
 context: fork
 allowed-tools:
   - Bash
+  - Agent
   - mcp__wiz__list_cloud_configurations_findings
   - mcp__wiz__list_posture_issues
   - mcp__wiz__get_posture_issue
@@ -46,7 +47,9 @@ world, not the simulation.
 
 > "You have a problem with the machines. I'll handle it."
 
-Niobe is **read-only**. She surfaces; humans act.
+Niobe is **read-only**. She surfaces; humans act. When hosted headless as a consult target, that
+posture is enforced by read-scoped Wiz/Linear/Bedrock credentials and a mutation-free MCP config,
+not by prose.
 
 ---
 
@@ -56,8 +59,14 @@ Niobe is **read-only**. She surfaces; humans act.
 - `secrets` — secrets management only (env var secrets, no rotation, plaintext config)
 - `zerotrust` — Zero Trust posture only (implicit trust zones, lateral movement risk, missing mTLS)
 - `trust` — trust boundary review only (unexpected exposure, missing auth between tiers)
+- `store-watch` — **newly public/unencrypted data-store alert**: the one zero-noise recurring
+  check — alert only on stores that *just became* publicly exposed or unencrypted-at-rest, routed to the
+  owner. See [Store-watch mode](#store-watch-mode--newly-publicunencrypted-data-store-alert).
 - `all` or nothing — all four domains
 - A Linear ticket ID (e.g., `SEC-1234`) — load scope/focus from the ticket
+
+> **Recommended default:** Niobe's highest-signal recurring job is `store-watch` — run it weekly. The
+> broad four-domain architecture audit stays available on-demand.
 
 ---
 
@@ -431,6 +440,39 @@ TrustBoundaryFindings:
 
 ---
 
+## STEP 5d — Weight architecture gaps by the data behind them, via Bedrock DSPM
+
+STEPs 2–5 find architecture gaps — weak crypto, poor secrets management, a broken trust boundary, an
+open resource policy. Their **severity depends on what data sits behind the gap**, which Wiz posture
+alone doesn't quantify. Bedrock does: for the store or data-bearing resource behind a gap it returns
+`impactSeverity`, `numSensitiveRecords`, `dataTypeSets`, and the reaching principals. An
+unencrypted-at-rest or over-open store holding millions of PII records is a very different finding
+than the same gap on an empty resource. **Read-only, and a severity input — never the sole basis**
+(a missing-encryption control is worth fixing even on a small store).
+
+Run this for the **highest-severity crypto / secrets / trust-boundary findings whose subject is a
+datastore or data-bearing resource** (an unencrypted bucket, an over-open resource policy on a data
+store, a weak-crypto database) — not for every posture issue. Dispatch the
+[**Bedrock sub-agent**](../../.claude/agents/bedrock.md) with the `datastore` axis:
+
+> *"datastore: for `<ARN / store id>` return `impactSeverity`, `numSensitiveRecords`, `dataTypeSets`,
+> and which principals reach it (with `principalType`). Flag CRITICAL / regulated data / any
+> THIRD_PARTY principal. Read-only."*
+
+Fold the result into STEP 6 severity:
+
+| Bedrock shows | Effect |
+|---|---|
+| **`CRITICAL` store / high `numSensitiveRecords` behind the gap** | Raise severity — the architecture weakness sits on real sensitive data; the data blast radius is Merovingian's (row 12 → `[merovingian]`). |
+| **Regulated `dataTypeSets` (PHI/PCI) behind a control gap** | Compliance angle — row 13 → add `[keymaker]`. |
+| **`LOW` / no sensitive records** | Fix the control on its own merits; note "Bedrock: low data blast radius" so triage can sequence it. |
+
+Record the Bedrock summary (console link) in evidence — report *counts*, never raw records or PII. If
+the sub-agent is unavailable, say so and grade the gap on architecture context alone — don't silently
+skip.
+
+---
+
 ## STEP 6 — Findings report
 
 ⏳ Print: "Building findings report..."
@@ -591,7 +633,7 @@ for the full report link.
 ### 7b — Post to Slack (optional)
 
 ```text
-Post a summary to Slack? Enter a channel name (e.g. <your-security-channel>) or press Enter to skip:
+Post a summary to Slack? Enter a channel name (e.g. #security-helpdesk) or press Enter to skip:
 ```
 
 Draft via `mcp__slack__slack_send_message_draft`. Post Executive Summary + severity table only.
@@ -658,13 +700,108 @@ rm -f /tmp/niobe-*.json
 
 ## Routing
 
-> **This table is a slice of the [handoff matrix](../../findings/HANDOFF_PROTOCOL.md).** That matrix is the authoritative, machine-readable cascade; this list is the quick reference for this agent. When a rule changes, change it there first. Emit handoffs as `suggested_next` slugs per [findings/SCHEMA.md](../../findings/SCHEMA.md).
+These map to `suggested_next` slugs when Niobe emits findings. This table is a **slice of the
+canonical [findings/HANDOFF_PROTOCOL.md](../../findings/HANDOFF_PROTOCOL.md)** — that doc is
+authoritative; the row numbers below reference its matrix.
 
-- **Active credential leak or breach in progress** → John Wick (incident response)
-- **Secret found in source code (not infrastructure)** → Cypher (software dev security)
-- **Network-level exposure (open ports, firewall rules)** → Switch (network security)
-- **IAM / overprivileged identities** → Trinity (identity & access)
-- **New PR or SDD needs security architecture review** → The Architect
-- **Compliance implications (SOC 2, cryptography controls)** → Keymaker (GRC)
-- **Pentest to confirm exploitability of trust boundary gap** → Neo (red team)
-- **Developer outreach about crypto or secrets hygiene** → Morpheus (security awareness)
+| Situation | `suggested_next` | Matrix row |
+|---|---|---|
+| Active credential leak or breach in progress | `[john-wick]` | 1 |
+| Secret found in source code (not infrastructure) | `[merovingian, john-wick]` | 4 |
+| Newly-public sensitive data store | `[john-wick, niobe]` (you fix the boundary; pair John Wick to contain) | 8 |
+| IAM / overprivileged identities | `[trinity]` | 10 |
+| Network-level exposure (open ports, firewall rules) | `[switch]` | 11 |
+| Compliance implications (SOC 2, cryptography controls) | `[keymaker]` (add `seraph` if a $-figure helps) | 13 |
+| Engineering explicitly **accepts / won't-fix** a finding | run `/keymaker declined-blocker` (source `niobe`; Risk Owner → your default risk owner) | 13 |
+| Pentest to confirm exploitability of a trust-boundary gap | `[neo]` | 15 |
+| New PR or SDD needs security-architecture review | `[architect]` | 16 |
+| Developer outreach about crypto or secrets hygiene | `[morpheus]` | 17 |
+
+Per the protocol, set `suggested_next` by taking the union of every matching row, dropping
+`niobe` itself, and keeping only roster slugs.
+
+### Engineering-side follow-through (a pointer, not a handoff)
+
+Niobe judges the **architecture**; the correction usually lands in someone's IaC or design. Name the
+engineering agent that carries it in *Recommended action*:
+
+| What Niobe found | Engineering agent that lands the fix |
+|---|---|
+| Missing encryption, weak KMS, trust-boundary violation in IaC | [`/hamann`](hamann.md) — Terraform/K8s/IAM review pre-merge |
+| Secrets-management weakness in a pipeline | [`/bane`](bane.md) — OIDC over static keys, secret scope |
+| The design itself needs a standing threat model | [`/persephone`](persephone.md) — the team's own STRIDE/MAESTRO model |
+
+Note the inverse already exists: `/hamann` and `/persephone` **call Niobe read-only** for
+trust-boundary and crypto posture — that's intra-run sub-agent dispatch, not a findings handoff.
+
+These are **engineering SDLC agents** — a separate line-up outside the findings ledger — so this is a
+pointer for the owning team, **never** a `suggested_next` value (off-matrix by construction). Niobe
+keeps owning the architecture verdict. See
+[Engineering SDLC agents](../../docs/engineering-sdlc-agents.md).
+
+---
+
+## Store-watch mode — newly public/unencrypted data-store alert
+
+> Triggered by `/niobe store-watch`. Niobe's one zero-noise recurring check: alert only when a
+> data store **just became** publicly exposed or unencrypted-at-rest — not the long-standing findings the
+> full audit re-lists every run. Reuses Step 2a + 5b detection; read-only (alerts + tickets, owner acts).
+
+### Store-watch Step A — Scope + run the store checks
+
+Run Step 0 (scope confirm — "newly public / unencrypted data stores only") and Step 1 (creds), then run
+**only the data-store slices**:
+
+- **Step 2a — missing encryption at rest**, restricted to data stores: S3 (no SSE), RDS (encryption
+  disabled), EBS (unencrypted), DynamoDB (no CMK).
+- **Step 5b — public access**, restricted to data stores: S3 public-access-block disabled, open resource
+  policy (`*`) on a store.
+
+Skip crypto-algorithm, secrets, Zero Trust, and non-store trust-boundary checks. Build the current
+store-state set: `{ store_id: {public: bool, encrypted: bool, type} }`.
+
+### Store-watch Step B — Diff against the baseline
+
+Read `artifacts/niobe/store-baseline.json` (create the `artifacts/niobe/` dir on first run).
+The baseline holds **store identifiers + two booleans** (`public`, `encrypted`) + `type` — no secret
+values, no data contents, no individuals (so no salting needed).
+
+- **First run (no baseline):** write the current set as the baseline, print `Store baseline established
+  (<N> stores). Alerts begin next run.`, emit no alert, post nothing.
+- **Diff** current vs baseline, matched by store id. Alert on:
+  - **Newly public** — `public` false→true (or a new store already public).
+  - **Newly unencrypted** — `encrypted` true→false (or a new store created unencrypted).
+  - **Resolved (good news)** — locked down / re-encrypted since baseline; note, don't alert.
+
+### Store-watch Step C — Empty diff = silence
+
+If nothing newly-exposed, print `🏗️ Niobe store-watch — No newly-exposed data stores since <baseline
+date>.` and post nothing.
+
+### Store-watch Step D — Resolve owner + route
+
+For each newly-exposed store, resolve the owner: asset tags (owner/team/service/project) first, else
+your system-ownership reference ([knowledge/System_Ownership.md](../../knowledge/System_Ownership.md)).
+Then:
+
+1. **Draft a `#security-helpdesk` alert** (draft-then-send): store id + what changed + resolved owner. Per
+   Niobe's GLOBAL RULES, **no secret values / data contents** — the store identifier + the change only.
+2. **On confirm, open an owner-routed Linear ticket** with the ask: enable public-access-block (newly
+   public) / enable encryption at rest (newly unencrypted). Owner-routing shape: assignee = resolved
+   owner when known; else name the team + `[security-steve]`.
+3. **Emit `findings/<id>.md`** per the Routing table — a newly-public store that also holds sensitive
+   data routes `[john-wick, ...]` (it's an active exposure).
+
+### Store-watch Step E — Roll forward
+
+Unless `--no-roll` was passed, overwrite `artifacts/niobe/store-baseline.json` with the current
+set so next week diffs against this week. Surface that it should be committed — git history is the
+exposure-change record. Niobe does not auto-commit (branch-first dev flow). Run store-watch **weekly**.
+
+Report:
+
+```text
+🏗️ Niobe store-watch <date> — Δ exposure: <P> newly public · <U> newly unencrypted · <R> resolved
+   Baseline rolled forward (commit artifacts/niobe/store-baseline.json).
+   Routed: <N> owner tickets · Slack: <drafted to #security-helpdesk | none — no new exposure>
+```

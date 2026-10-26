@@ -3,17 +3,16 @@
 **Character**: Agent Smith from *The Matrix* — the agent that breaks things on purpose  
 **Domain**: CISSP Domain 7 — Security Operations (resiliency / continuous verification)  
 **Skill**: [`/smith`](../../../.claude/commands/smith.md)  
-**Status**: Wired — no live target enrolled yet (enroll one via the opt-in registry, with owner sign-off)
+**Status**: Wired — targets are enrolled through the opt-in registry with owner sign-off; nothing is eligible until you enroll it
 
 ---
 
 ## What it does
 
 Smith deliberately induces controlled, reversible failures in **opt-in** security infrastructure
-(e.g. a proxy, a private-network mesh — never your secrets manager in v1) and verifies that the
-system-health probes (your infrastructure liveness probes), the alerting, and the failover behave
-the way you *think* they do. He finds single points of failure and monitoring blind spots **on your
-schedule**, before a real incident does.
+(an egress proxy, a VPN — never your secrets manager in v1) and verifies that the system-health
+liveness probes, the alerting, and the failover behave the way you *think* they do. He finds single
+points of failure and monitoring blind spots **on your schedule**, before a real incident does.
 
 > "Never send a human to do a machine's job."
 
@@ -105,7 +104,7 @@ Slice of the canonical [findings/HANDOFF_PROTOCOL.md](../../../findings/HANDOFF_
 | Confirmed single point of failure / failover didn't hold (architecture gap) | Niobe | 20 |
 | Alerting / detection didn't fire — monitor/architecture of the control needs work | Niobe | 20 |
 | Network-path failover gap (TLS/SG/VPC/DNS redundancy) | Niobe + Switch | 20, 11 |
-| An availability control we attest to doesn't actually work | Keymaker (+ Seraph for $-figure) | 13 |
+| An availability control you attest to doesn't actually work | Keymaker (+ Seraph for $-figure) | 13 |
 | Engineering accepts / won't-fix the gap | `/keymaker declined-blocker` (source `smith`) | 13 |
 
 ---
@@ -115,7 +114,7 @@ Slice of the canonical [findings/HANDOFF_PROTOCOL.md](../../../findings/HANDOFF_
 - **System-health snapshot + alert source**: read-only access to wherever the liveness probe
   results and alert state are published — confirm the concrete path/API before the first live run
 - **Inject/restore credentials**: the least-privilege credential each named action needs (e.g. a
-  cloud role scoped to restart only the redundant staging probe); sourced from your secrets manager
+  cloud role scoped to restart only the redundant staging probe); sourced from your credential vault
 - **Slack / Linear MCP**: shared agent service accounts (post to `#security-team`; Linear read/write)
 
 ---

@@ -16,10 +16,10 @@ board-ready page, scores each against a configured target, and **acts** on breac
 The three inputs:
 
 - **FAIR exposure** — Seraph's `.seraph/reports/*/results.json` (highest standing P95, calibration).
-- **Open-vuln aging** — your vuln-tracking Linear team (the vuln-ticket workflow's output): overdue
+- **Open-vuln aging** — your vuln-tracking Linear team (your vuln-ticket workflow's output): overdue
   count + oldest age.
-- **SAMM coverage** — your security dashboard's `const SAMM` array (the SAMM-audit artifact):
-  full/gap tallies.
+- **SAMM coverage** — your security dashboard's `const SAMM` array (your SAMM coverage audit's
+  artifact): full/gap tallies.
 
 On a breach, Logos opens a deduped Linear issue (your agent-tracking project) and emits a `findings/`
 hand-off routed onward — to Seraph (quantify), Keymaker (register), or Security Steve (program gap).
@@ -69,12 +69,12 @@ Slices of [findings/HANDOFF_PROTOCOL.md](../../../findings/HANDOFF_PROTOCOL.md):
 
 ## Relationship to the rest of the roster
 
-- **The SAMM audit** scores the 15 practices and keeps the dashboard array honest; Logos *consumes*
-  that array as one of three inputs. The SAMM audit is the coverage auditor; Logos is the metrics
-  owner. Logos references — never duplicates — the SAMM audit's per-practice gap tickets.
+- **Your SAMM coverage audit** scores the 15 practices and keeps the dashboard array honest; Logos
+  *consumes* that array as one of three inputs. The SAMM audit is the coverage auditor; Logos is the
+  metrics owner. Logos references — never duplicates — the SAMM audit's per-practice gap tickets.
 - **Seraph** quantifies a single risk in dollars; Logos surfaces the *standing* exposure across all
   Seraph reports and routes a breach back to Seraph for a fresh business case.
-- **The vuln-ticket workflow** creates and ages the vuln issues; Logos reads their aging as a metric.
+- **Your vuln-ticket workflow** creates and ages the vuln issues; Logos reads their aging as a metric.
 
 ---
 

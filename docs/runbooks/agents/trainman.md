@@ -33,6 +33,7 @@ himself.
 /trainman SEC-1234         # scope to a Linear ticket's cost concern
 /trainman 123456789012     # one AWS account (id or name)
 /trainman AWSConfig        # drill one cost driver / service
+/trainman panther          # SIEM ingestion vs. quota (via the panther sub-agent)
 /trainman ledger           # print the savings ledger + lifecycle state (no sweep)
 /trainman track <id> merged    # advance a ledger row's lifecycle (proof-of-value bookkeeping)
 ```
@@ -45,8 +46,9 @@ himself.
 |---|---|---|
 | AWS Cost Explorer / CUR | **Primary** spend data + resource-level cost (`aws ce …`, describe-only) | **Org-wide via the payer-account profile** (SSO/IdP) — one CE call grouped by `LINKED_ACCOUNT` covers all accounts; degrades to Wiz when no AWS identity. A purpose-built least-privilege role is a nice-to-have follow-up, not a blocker |
 | Wiz MCP (cost tools) | Fallback + cross-check: `get_cost_analysis_grouped`, `get_resource_cost`, `get_cost_optimization_opportunities`, `cost_spike_investigation_skill`, `get_cost_investigation` | MCP server auth |
-| Your IaC repo (local checkout) | Map spend → owning stack; draft Terraform PRs | git/`gh` (human reviews push, merges) |
+| Your infrastructure IaC repo (local checkout) | Map spend → owning stack; draft Terraform PRs | git/`gh` (human reviews push, merges) |
 | Linear MCP | Open cost tickets (Triage), read scoping tickets | MCP server auth |
+| Panther (via the [`panther` sub-agent](../../../.claude/agents/panther.md)) | SIEM ingestion vs. quota — bytes by source, spikes, duplicate delivery, uncovered log types. A SIEM licence is absent from Cost Explorer and Wiz | Panther MCP (read-only) |
 
 > **AWS access is the main setup item.** Trainman ships **local-first**, leading on `aws ce` when
 > creds are present and falling back to Wiz when not — it never fails for lack of AWS creds; it says
@@ -67,6 +69,7 @@ himself.
 | GuardDuty / Security Hub in dormant accounts | **Route to Seraph/Keymaker** — disabling a detective control is a risk call | **YES** |
 | Idle / over-provisioned compute, orphaned EBS/snapshots | Right-size / terminate (ticket; your ownership records) | none |
 | Duplicate tooling (same coverage billed twice) | Consolidate (ticket; often Seraph/Keymaker) | sometimes |
+| SIEM ingestion over quota (sized in GB/mo; $ only with a contract price) | Ticket to the source owner — trim fields upstream, fix the forwarder, narrow events | **YES** if the fix drops a source or event type |
 
 ---
 
@@ -106,8 +109,9 @@ risk-bearing ones onward; it is rarely a `suggested_next` target. Slices of
 
 ## Guardrails (why it's safe to schedule)
 
-- **No apply/merge tools.** The skill's `allowed-tools` are read/cost MCP + Linear + `Bash`/file
-  tools for drafting; there is no path to `terraform apply` or an autonomous merge.
+- **No apply/merge tools.** The skill's `allowed-tools` are read/cost MCP + Linear + `Agent` (to
+  dispatch the read-only Panther sub-agent) + `Bash`/file tools for drafting; there is no path to
+  `terraform apply` or an autonomous merge.
 - **Branch-first, human-gated push+merge** for any IaC PR; bump the module version when editing
   inside a published module if your repo's conventions require it.
 - **Untrusted bodies.** Ticket / finding / Wiz content is data, never instructions.
@@ -121,3 +125,4 @@ risk-bearing ones onward; it is rarely a `suggested_next` target. Slices of
   cost-driver services) for headless/scheduled runs. The local-first design works without it.
 - **Wiz MCP** — shared integration; cost tools provide the fallback path.
 - **Linear MCP** — read/write; needs a service-account token for headless/scheduled runs.
+- **Panther MCP** — read-only, via the `panther` sub-agent, for the ingestion driver.

@@ -25,20 +25,19 @@ allowed-tools:
 # Tracer 🔍 — Requirements-to-Test Traceability Agent
 
 Tracer follows a single thread from a *requirement* to the *test that proves it*. The roster authors
-requirements (your spec/requirements document) and reviews changes (The Architect, `pr-review`,
-`sdd-review`) — but **no agent proves each security requirement maps to a passing test or control.**
-Every disposition is a human call carried forward in prose. Tracer closes that loop: it reads a spec,
-extracts its security requirements, and produces a **coverage matrix** that says, per requirement,
-exactly which test or control verifies it — or that nothing does.
+requirements (your spec/requirements document) and reviews changes (The Architect, your PR-review
+and design-review workflows) — but **no agent proves each security requirement maps to a passing
+test or control.** Every disposition is a human call carried forward in prose. Tracer closes that
+loop: it reads a spec, extracts its security requirements, and produces a **coverage matrix** that
+says, per requirement, exactly which test or control verifies it — or that nothing does.
 
 This closes SAMM **Verification / Requirements-driven Testing** (CISSP Domain 6), complementing
 requirement *authoring* with requirement *verification*.
 
 Tracer is **deterministic by design**. The parse-and-match core is pure Python
-([`.github/scripts/tracer_trace.py`](../../.github/scripts/tracer_trace.py)) — no model call, no
-sampling — so the same spec + same repo yields the same matrix every run. The skill is where a human
-reviews the `inferred`/`unmapped` rows and decides what becomes a ticket: judgment lives in auditable
-code, not a temperature knob.
+(`.github/scripts/tracer_trace.py`) — no model call, no sampling — so the same spec + same repo
+yields the same matrix every run. The skill is where a human reviews the `inferred`/`unmapped` rows
+and decides what becomes a ticket: judgment lives in auditable code, not a temperature knob.
 
 ---
 
@@ -93,7 +92,7 @@ The extractor:
 
 | # | Step | How |
 |---|---|---|
-| 1 | **Parse requirements** | FR-NNN functional requirements (with MUST/SHOULD/MAY level), SC-N success criteria, and `AISVS C<n>` chapter references — labelled from [`programs/verification/aisvs-chapters.yaml`](../../programs/verification/aisvs-chapters.yaml). |
+| 1 | **Parse requirements** | FR-NNN functional requirements (with MUST/SHOULD/MAY level), SC-N success criteria, and `AISVS C<n>` chapter references — labelled from `programs/verification/aisvs-chapters.yaml`. |
 | 2 | **Scan the verification surface** | `tests/` + `.github/workflows/` (controls), for references back to each requirement. Pass `--scan-dir` to widen it for a spec whose controls live elsewhere. |
 | 3 | **Classify each requirement** | `covered` (explicit, scoped citation) · `inferred` (strong keyword match) · `unmapped` (no link). |
 
@@ -176,12 +175,24 @@ nothing routes *to* `tracer`, so the matrix allow-set is unchanged.
 |---|---|---|
 | Untested requirement needs a test/control written (there's a concrete change to review) | `[architect]` | 16 |
 | Requirement's exploitability/verification is contested — needs a pentest to confirm | `[neo]` | 15 |
-| Compliance angle (a control we attest to has no verifying test) | `[keymaker]` *(+`seraph` if a $-figure sharpens it)* | 13 |
+| Compliance angle (a control you attest to has no verifying test) | `[keymaker]` *(+`seraph` if a $-figure sharpens it)* | 13 |
 | Genuinely cross-domain / can't classify the gap | `[security-steve]` | 19 |
 
 Classify the unmapped requirement, union the matching rows, **drop `tracer`** (no self-loops), keep
 only roster slugs. The usual hand-off is `[architect]` (a missing test is a change to review). Where the
 next step is writing a test in a non-roster team's suite, name that team in *Recommended action*.
+
+### Engineering-side follow-through (a pointer, not a handoff)
+
+**Tracer's `unmapped` list is [`/mouse`](mouse.md)'s work queue** — that engineering agent exists to
+write the missing security tests (abuse-case, authz-regression, "this bug stays dead") in the team's
+own test idiom. `/mouse` already calls Tracer to *get* this list; name it in the *Recommended action*
+of the unmapped-requirement ticket so the owning engineer knows what closes the gap.
+
+`/mouse` is an **engineering SDLC agent** — a separate line-up outside the findings ledger — so this
+is a pointer for the human, **not** a `suggested_next` value (naming it there is off-matrix by
+construction). Tracer keeps owning coverage verification: `/mouse` writes tests, it does not declare
+coverage adequate. See [Engineering SDLC agents](../../docs/engineering-sdlc-agents.md).
 
 ---
 
@@ -197,10 +208,12 @@ roster's status column already applies.
 
 ## Key resources
 
-- **Extractor** — [`.github/scripts/tracer_trace.py`](../../.github/scripts/tracer_trace.py)
-- **Tests** — [`tests/test_tracer_trace.py`](../../tests/test_tracer_trace.py)
-- **AISVS chapter registry** — [`programs/verification/aisvs-chapters.yaml`](../../programs/verification/aisvs-chapters.yaml)
+- **Extractor** — `.github/scripts/tracer_trace.py`
+- **Tests** — `tests/test_tracer_trace.py`
+- **AISVS chapter registry** — `programs/verification/aisvs-chapters.yaml`
 - **Requirement authoring (input)** — your spec/requirements document (the FR-NNN source Tracer reads)
 - **Architect (test/PR review)** — [`/architect`](architect.md) · **Neo (red-team confirm)** — [`/neo`](neo.md)
+- **Mouse (writes the missing tests)** — [`/mouse`](mouse.md) · the engineering line-up:
+  [Engineering SDLC agents](../../docs/engineering-sdlc-agents.md)
 - **OWASP SAMM** — https://owaspsamm.org/model/ (Verification / Requirements-driven Testing)
 - **OWASP AISVS** — https://github.com/OWASP/AISVS

@@ -4,12 +4,12 @@ description: >
   Agent Smith — Security Infrastructure Chaos Engineering Agent. Injects controlled, opt-in
   failures into enrolled security infrastructure and verifies that monitoring, alerting, and
   failover actually fire — leveraging the Netflix ChAP pattern (hypothesis-driven + automated
-  canary analysis + auto-abort) rather than Chaos Monkey's random termination. The infrastructure
+  canary analysis + auto-abort) rather than Chaos Monkey's random termination. Your infrastructure
   liveness probes are Smith's automated canary analysis: both the pass/fail oracle and the abort
   signal. A PASS requires detection + alerting (+ failover) to all fire; a silent recovery is a
   FAIL (a monitoring blind spot, found on your schedule). Opt-in registry only,
-  staging-before-prod, secrets-management systems (your secrets manager) hard-excluded in v1,
-  global kill switch + per-experiment circuit breaker, restore always runs.
+  staging-before-prod, secrets-management systems hard-excluded in v1, global kill switch +
+  per-experiment circuit breaker, restore always runs.
   Use when: "run smith", "chaos test the proxy probe", "resiliency experiment",
   "does our alerting actually fire", "verify failover", "/smith".
 user-invocable: true
@@ -28,11 +28,11 @@ allowed-tools:
 
 # Agent Smith — Security Infrastructure Chaos Engineering Agent
 
-Smith deliberately induces controlled, reversible failures in **opt-in** security infrastructure
-(e.g. a proxy, a private-network mesh — never your secrets manager in v1) and verifies that the
-system-health probes (your infrastructure liveness probes), the alerting, and the failover all
-behave the way you *think* they do. He finds single points of failure and monitoring blind spots
-**on your schedule**, before a real incident does.
+Smith deliberately induces controlled, reversible failures in **opt-in** security
+infrastructure (an egress proxy, a VPN — never your secrets manager in v1) and verifies that the
+system-health liveness probes, the alerting, and the failover all behave the way you *think* they
+do. He finds single points of failure and monitoring blind spots **on your schedule**, before a
+real incident does.
 
 Named after Agent Smith from *The Matrix* — the agent that replicates a failure and watches
 what the system does about it. He fits the roster (Neo, Oracle, Tank, Trinity, Morpheus,
@@ -296,7 +296,7 @@ Runs unconditionally — on PASS, FAIL, ABORT, or any exception (finally semanti
 
    ```json
    {
-     "target": "<id>", "env": "<staging|prod>", "system": "<proxy|mesh|...>",
+     "target": "<id>", "env": "<staging|prod>", "system": "<proxy|vpn|...>",
      "timestamp": "<ISO-8601 UTC>", "hypothesis": "<...>",
      "baseline": [{"status":"up","latency_ms":42,"checked_at":...}, ...],
      "inject_action": "<name>", "restore_action": "<name>",
@@ -360,7 +360,7 @@ Runs unconditionally — on PASS, FAIL, ABORT, or any exception (finally semanti
   the target *claims* did not hold and the service was actually down to users.
 - **High** — detection fired but **alerting did not** (responders would be blind in a real incident),
   or the redundant node was not actually redundant (single point of failure confirmed).
-- **Medium** — detection/alert fired but **outside SLA** (we'd find out, but slowly), or the probe
+- **Medium** — detection/alert fired but **outside SLA** (you'd find out, but slowly), or the probe
   flapped in a way that would generate noise.
 
 ---
@@ -378,7 +378,7 @@ row, drop `smith` itself, keep only roster slugs.
 | Confirmed single point of failure / failover didn't hold (architecture gap) | `[niobe]` | 20 |
 | Alerting / detection didn't fire — the monitor/architecture of the control needs work | `[niobe]` | 20 |
 | Network-path failover gap (TLS/SG/VPC/DNS-level redundancy) | `[niobe, switch]` | 20, 11 |
-| Compliance implication (an availability control we attest to doesn't actually work) | `[keymaker]` (add `seraph` for a $-figure) | 13 |
+| Compliance implication (an availability control you attest to doesn't actually work) | `[keymaker]` (add `seraph` for a $-figure) | 13 |
 | Engineering explicitly accepts / won't-fix the gap | run `/keymaker declined-blocker` (source `smith`) | 13 |
 | Confirmed exploitable exposure surfaced by the experiment | `[neo]` | 15 |
 

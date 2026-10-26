@@ -5,8 +5,23 @@ We welcome contributions — new agents, improvements to existing skills, better
 ## Before You Start
 
 - Open an issue to discuss new agents or significant changes before investing time in a PR
-- Each agent should map to a recognizable security domain (CISSP, NIST CSF, or equivalent)
+- Each agent should map to a recognizable security domain (CISSP, NIST CSF, or equivalent) — or, for the engineering line-up, to one SDLC stage
 - New agents should follow the existing pattern: a skill file in `.claude/commands/` and a runbook in `docs/runbooks/agents/`
+
+## Which line-up does a new agent belong to?
+
+There are three kinds of agent here, and the teamwork layer treats them differently (see
+[`findings/SCHEMA.md`](findings/SCHEMA.md)):
+
+| Kind | Lives in | Emits findings? | Can be a `suggested_next` target? |
+|---|---|---|---|
+| Security roster agent | `.claude/commands/` | yes | yes, if the handoff matrix lists it (emit-only agents are never targets) |
+| Sensor sub-agent | `.claude/agents/` | yes | never — a sensor is a source, not a sink |
+| Engineering SDLC agent | `.claude/commands/` | **never** | never — it calls roster agents read-only and reports to the engineer |
+
+Engineering agents follow **call, never modify**: they may invoke a roster agent and use its answer, and they may not
+edit a security skill, the handoff matrix, or the findings ledger. If you add one, add it to
+[`docs/engineering-sdlc-agents.md`](docs/engineering-sdlc-agents.md) rather than to the roster tables.
 
 ## Skill File Conventions
 
