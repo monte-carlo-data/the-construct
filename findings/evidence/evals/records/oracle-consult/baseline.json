@@ -1,0 +1,66 @@
+{
+  "record_version": 1,
+  "case_id": "oracle-consult",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "analyst",
+      "tool": "panther_get_alert",
+      "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+      "axis": "identity.activity"
+    },
+    {
+      "agent": "oracle",
+      "tool": "panther_get_alert",
+      "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+      "axis": "exposure.traffic"
+    },
+    {
+      "agent": "oracle",
+      "tool": "ec2_describe_addresses",
+      "uri": "aws:ec2/describe-addresses?PublicIp=203.0.113.9",
+      "axis": "exposure.ownership"
+    },
+    {
+      "agent": "oracle",
+      "tool": "aikido_issues_list",
+      "uri": "aikido:issue/551203",
+      "axis": "vuln.presence"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "ddd712d2fb9d63f42ac483fbeca5131b39a0a3964212374341d1ec19eff44354",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": [
+        "aws:ec2/describe-addresses?PublicIp=203.0.113.9",
+        "panther:alert/00000000-0000-4000-8000-000000000003"
+      ]
+    }
+  ],
+  "verdict": "mc_owned",
+  "behaviour": "answer",
+  "grounding_stated": "verified",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "oracle": 14000
+  },
+  "end_to_end_seconds": 900,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

@@ -1,0 +1,47 @@
+{
+  "record_version": 1,
+  "case_id": "deleted-source",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "tank",
+      "tool": "aikido_issues_list",
+      "uri": "aikido:issue/551203",
+      "axis": "vuln.presence"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "3d6a7577481a21d771b7b4fa070d08d74b36589b310aeff7ca5f60b8124e98d7",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": [
+        "aikido:issue/551203"
+      ]
+    }
+  ],
+  "verdict": "not_present",
+  "behaviour": "answer",
+  "grounding_stated": "partial",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "tank": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

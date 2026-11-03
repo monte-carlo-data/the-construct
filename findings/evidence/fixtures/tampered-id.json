@@ -1,0 +1,109 @@
+{
+  "contract_version": 1,
+  "bundle_id": "eb-tampered-0001",
+  "producer": "panther",
+  "receiver": "analyst",
+  "created_at": "2026-10-27T16:47:00Z",
+  "items": [
+    {
+      "evidence_id": "ev-29e53f0b4f09120d",
+      "type": "live_observation",
+      "source": {
+        "system": "panther",
+        "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+        "revision": "updatedAt=2026-10-27T16:42:10Z"
+      },
+      "observed_at": "2026-10-27T16:41:58Z",
+      "retrieved_at": "2026-10-27T16:45:02Z",
+      "scope": {
+        "accounts": [
+          "123456789012"
+        ],
+        "resources": [
+          "arn:aws:iam::123456789012:role/deploy-runner"
+        ],
+        "environment": "tools"
+      },
+      "content": {
+        "excerpt": "AssumeRole deploy-runner by svc-deploy@example.com from 203.0.113.9; first appearance of this sourceIPAddress for this principal in 30d; 1 event. (edited in transit)"
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:panther",
+        "access": "read-only",
+        "allowed_receivers": [
+          "analyst",
+          "concierge",
+          "tank",
+          "oracle",
+          "trinity"
+        ]
+      },
+      "axes": [
+        "identity.activity",
+        "exposure.traffic"
+      ]
+    },
+    {
+      "evidence_id": "ev-c10a26f05a997b02",
+      "type": "live_observation",
+      "source": {
+        "system": "wing",
+        "uri": "wing:app/deploy-runner-ci",
+        "revision": "etag=W/\"a9f3\""
+      },
+      "observed_at": "2026-10-27T16:46:30Z",
+      "retrieved_at": "2026-10-27T16:46:31Z",
+      "scope": {
+        "accounts": [
+          "wing:example-org"
+        ],
+        "resources": [
+          "wing:app/deploy-runner-ci"
+        ]
+      },
+      "content": {
+        "excerpt": "classification=Authorized aiStatus=none usersCount=1 scopes=[repo:read]"
+      },
+      "authority": {
+        "level": "corroborating",
+        "principal": "agent:wing",
+        "access": "read-only",
+        "allowed_receivers": [
+          "analyst",
+          "concierge",
+          "tank",
+          "oracle",
+          "trinity"
+        ]
+      },
+      "axes": [
+        "saas.authorization"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "c1",
+      "statement": "deploy-runner-ci is an authorized app with narrow scopes",
+      "status": "supported",
+      "supported_by": [
+        "ev-c10a26f05a997b02"
+      ],
+      "contradicted_by": []
+    }
+  ],
+  "questions": [],
+  "hops": [
+    {
+      "agent": "panther",
+      "request_id": "rid-analyst-0001",
+      "at": "2026-10-27T16:47:00Z"
+    }
+  ],
+  "coverage": {
+    "status": "complete",
+    "not_covered": []
+  },
+  "request_id": "rid-analyst-0001"
+}

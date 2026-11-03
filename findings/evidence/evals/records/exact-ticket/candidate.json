@@ -1,0 +1,95 @@
+{
+  "record_version": 1,
+  "case_id": "exact-ticket",
+  "label": "candidate",
+  "mode": "on",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "analyst",
+      "tool": "linear_get_issue",
+      "uri": "linear:issue/SEC-0001",
+      "axis": "triage.history"
+    }
+  ],
+  "bundle": {
+    "contract_version": 1,
+    "bundle_id": "eb-eval-exact-ticket-candidate",
+    "producer": "analyst",
+    "receiver": "concierge",
+    "created_at": "2026-10-27T17:30:00Z",
+    "items": [
+      {
+        "evidence_id": "ev-c64f60655de0cd1e",
+        "type": "reviewed_reference",
+        "source": {
+          "system": "linear",
+          "uri": "linear:issue/SEC-0001",
+          "revision": "read=2026-10-27T17:01:00Z"
+        },
+        "observed_at": "2026-10-27T17:01:00Z",
+        "retrieved_at": "2026-10-27T17:01:00Z",
+        "scope": {
+          "accounts": [
+            "linear:example-org"
+          ],
+          "resources": [
+            "linear:issue/SEC-0001"
+          ]
+        },
+        "content": {
+          "excerpt": "SEC-0001 closed 2026-09-03: svc-deploy new-IP AssumeRole was a misrouted runner, not FP"
+        },
+        "authority": {
+          "level": "authoritative",
+          "principal": "agent:linear",
+          "access": "read-only",
+          "allowed_receivers": [
+            "*"
+          ]
+        },
+        "axes": [
+          "triage.history"
+        ]
+      }
+    ],
+    "claims": [],
+    "questions": [],
+    "hops": [],
+    "coverage": {
+      "status": "complete",
+      "not_covered": []
+    }
+  },
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "99350b1979ea37301c9ca9d7a0747efce6a15d36aac01303da9c9cbc567d6804",
+      "material": true,
+      "hedged": false,
+      "cites": [
+        "ev-c64f60655de0cd1e"
+      ],
+      "keys": []
+    }
+  ],
+  "verdict": "not_fp",
+  "behaviour": "answer",
+  "grounding_stated": "verified",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "analyst": 12200
+  },
+  "end_to_end_seconds": 260,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

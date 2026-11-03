@@ -1,0 +1,25 @@
+{
+  "contract_version": 1,
+  "skill": "tank",
+  "required": [
+    {
+      "axis": "vuln.presence",
+      "types": [
+        "live_observation",
+        "reviewed_reference"
+      ],
+      "sources": [
+        "aikido",
+        "wiz",
+        "github"
+      ],
+      "max_age_seconds": 86400
+    }
+  ],
+  "freshness": {
+    "live_observation": 86400,
+    "reviewed_reference": 2592000,
+    "historical_conclusion": null
+  },
+  "insufficient_evidence": "partial"
+}

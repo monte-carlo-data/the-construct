@@ -1,0 +1,63 @@
+{
+  "contract_version": 1,
+  "bundle_id": "eb-historical-0001",
+  "producer": "analyst",
+  "receiver": "concierge",
+  "created_at": "2026-10-27T16:48:00Z",
+  "items": [
+    {
+      "evidence_id": "ev-5a2b01a569888423",
+      "type": "historical_conclusion",
+      "source": {
+        "system": "analyst",
+        "uri": "dynamodb:analyst-verdicts/fp#rule.aws.assume_role_new_ip#svc-deploy",
+        "revision": "verdict=2026-09-02"
+      },
+      "observed_at": "2026-09-02T11:20:00Z",
+      "retrieved_at": "2026-10-27T16:45:03Z",
+      "scope": {
+        "accounts": [
+          "123456789012"
+        ],
+        "resources": [
+          "arn:aws:iam::123456789012:role/deploy-runner"
+        ]
+      },
+      "content": {
+        "excerpt": "human verdict 2026-09-02: not an FP (look-alike was a real misrouted runner). expired 2026-10-02."
+      },
+      "authority": {
+        "level": "corroborating",
+        "principal": "human:security-reviewer",
+        "access": "read-only",
+        "allowed_receivers": [
+          "analyst",
+          "concierge",
+          "tank",
+          "oracle",
+          "trinity"
+        ]
+      },
+      "axes": [
+        "identity.activity"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "c1",
+      "statement": "svc-deploy from a new IP has been a real incident before",
+      "status": "supported",
+      "supported_by": [
+        "ev-5a2b01a569888423"
+      ],
+      "contradicted_by": []
+    }
+  ],
+  "questions": [],
+  "hops": [],
+  "coverage": {
+    "status": "complete",
+    "not_covered": []
+  }
+}

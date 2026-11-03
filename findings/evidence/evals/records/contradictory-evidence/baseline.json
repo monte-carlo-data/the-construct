@@ -1,0 +1,56 @@
+{
+  "record_version": 1,
+  "case_id": "contradictory-evidence",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "tank",
+      "tool": "aikido_issues_list",
+      "uri": "aikido:issue/551203",
+      "axis": "vuln.presence"
+    },
+    {
+      "agent": "tank",
+      "tool": "wiz_get_issue",
+      "uri": "wiz:issue/00000000-0000-4000-8000-000000000001",
+      "axis": "vuln.presence"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "df2b7169a343d5510c41be9247892711a16ad54f63f05a8fb8ceda0c4aba0224",
+      "material": true,
+      "hedged": true,
+      "cites": [],
+      "keys": [
+        "aikido:issue/551203",
+        "wiz:issue/00000000-0000-4000-8000-000000000001"
+      ]
+    }
+  ],
+  "verdict": "inconclusive",
+  "behaviour": "partial",
+  "grounding_stated": "partial",
+  "not_covered_stated": [
+    "vuln.presence"
+  ],
+  "actions": [],
+  "staged_bytes": {
+    "analyst": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

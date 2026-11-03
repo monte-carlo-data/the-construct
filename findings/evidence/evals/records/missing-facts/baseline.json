@@ -1,0 +1,40 @@
+{
+  "record_version": 1,
+  "case_id": "missing-facts",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "ce7a657d8a2e7859649f19d77dec36539011a21fcfc066ec33b3d3f67d5c3fd6",
+      "material": true,
+      "hedged": true,
+      "cites": [],
+      "keys": []
+    }
+  ],
+  "verdict": null,
+  "behaviour": "abstain",
+  "grounding_stated": "insufficient",
+  "not_covered_stated": [
+    "exposure.ownership"
+  ],
+  "actions": [],
+  "staged_bytes": {
+    "concierge": 12000
+  },
+  "end_to_end_seconds": 60,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

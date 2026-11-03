@@ -1,0 +1,73 @@
+{
+  "contract_version": 1,
+  "bundle_id": "eb-eval-deleted-0001",
+  "producer": "concierge",
+  "receiver": "tank",
+  "created_at": "2026-10-27T16:49:00Z",
+  "items": [
+    {
+      "evidence_id": "ev-60e9ba301253ba94",
+      "type": "live_observation",
+      "source": {
+        "system": "github",
+        "uri": "github:example-org/deploy-runner/blob/2026.10.01/docker/libxml2.lock",
+        "revision": "sha=7e1d0c4"
+      },
+      "observed_at": "2026-10-26T10:00:00Z",
+      "retrieved_at": "2026-10-26T10:00:05Z",
+      "scope": {
+        "accounts": [
+          "github:example-org"
+        ],
+        "resources": [
+          "github:example-org/deploy-runner/blob/2026.10.01/docker/libxml2.lock"
+        ]
+      },
+      "content": {
+        "ref": "github:example-org/deploy-runner/blob/2026.10.01/docker/libxml2.lock"
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:tank",
+        "access": "read-only",
+        "allowed_receivers": [
+          "*"
+        ]
+      },
+      "axes": [
+        "vuln.presence"
+      ],
+      "expires_at": "2026-10-26T12:00:00Z"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "c1",
+      "statement": "deploy-runner pins a fixed libxml2",
+      "status": "supported",
+      "supported_by": [
+        "ev-60e9ba301253ba94"
+      ],
+      "contradicted_by": []
+    }
+  ],
+  "questions": [],
+  "hops": [
+    {
+      "agent": "analyst",
+      "request_id": "rid-analyst-0001",
+      "at": "2026-10-27T16:49:00Z"
+    },
+    {
+      "agent": "concierge",
+      "request_id": "rid-replay-tank-0001",
+      "at": "2026-10-27T16:49:00Z"
+    }
+  ],
+  "coverage": {
+    "status": "complete",
+    "not_covered": []
+  },
+  "request_id": "rid-replay-tank-0001",
+  "parent_request_id": "rid-replay-parent-0001"
+}

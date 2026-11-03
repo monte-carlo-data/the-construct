@@ -1,0 +1,56 @@
+{
+  "record_version": 1,
+  "case_id": "ambiguous-scope",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "analyst",
+      "tool": "iam_get_role",
+      "uri": "aws:iam/arn:aws:iam::123456789012:role/deploy-runner",
+      "axis": "identity.privilege"
+    },
+    {
+      "agent": "analyst",
+      "tool": "iam_get_role",
+      "uri": "aws:iam/arn:aws:iam::111122223333:role/deploy-runner",
+      "axis": "identity.privilege"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "c521438f1973156ef1564c7cc7965ae5dc725fc5494dd0408388b04f7aad1903",
+      "material": true,
+      "hedged": true,
+      "cites": [],
+      "keys": [
+        "aws:iam/arn:aws:iam::111122223333:role/deploy-runner",
+        "aws:iam/arn:aws:iam::123456789012:role/deploy-runner"
+      ]
+    }
+  ],
+  "verdict": null,
+  "behaviour": "partial",
+  "grounding_stated": "partial",
+  "not_covered_stated": [
+    "identity.privilege"
+  ],
+  "actions": [],
+  "staged_bytes": {
+    "analyst": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

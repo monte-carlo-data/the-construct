@@ -1,0 +1,47 @@
+{
+  "record_version": 1,
+  "case_id": "exact-repo",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "tank",
+      "tool": "github_get_file",
+      "uri": "github:example-org/deploy-runner/blob/main/Dockerfile",
+      "axis": "vuln.presence"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "d230d686740297ee299f086147b653974dc673d7121bf3e5af24f5adfe2d8057",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": [
+        "github:example-org/deploy-runner/blob/main/Dockerfile"
+      ]
+    }
+  ],
+  "verdict": "2.13.9",
+  "behaviour": "answer",
+  "grounding_stated": "verified",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "tank": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

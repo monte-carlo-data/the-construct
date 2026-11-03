@@ -1,0 +1,23 @@
+{
+  "contract_version": 1,
+  "bundle_id": "eb-missing-0001",
+  "producer": "oracle",
+  "receiver": "concierge",
+  "created_at": "2026-10-27T16:55:00Z",
+  "items": [],
+  "claims": [
+    {
+      "claim_id": "c1",
+      "statement": "203.0.113.9 is a known org-owned egress address",
+      "status": "supported",
+      "supported_by": [],
+      "contradicted_by": []
+    }
+  ],
+  "questions": [],
+  "hops": [],
+  "coverage": {
+    "status": "complete",
+    "not_covered": []
+  }
+}

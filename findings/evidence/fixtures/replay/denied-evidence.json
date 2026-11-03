@@ -1,0 +1,117 @@
+{
+  "contract_version": 1,
+  "bundle_id": "eb-replay-denied-0001",
+  "producer": "concierge",
+  "receiver": "tank",
+  "created_at": "2026-10-27T16:49:00Z",
+  "items": [
+    {
+      "evidence_id": "ev-78c8ee15ea39d2bd",
+      "type": "live_observation",
+      "source": {
+        "system": "panther",
+        "uri": "panther:query/00000000-0000-4000-8000-000000000002",
+        "revision": "query=2026-10-27T16:50:21Z"
+      },
+      "observed_at": "2026-10-27T16:50:21Z",
+      "retrieved_at": "2026-10-27T16:50:40Z",
+      "scope": {
+        "accounts": [
+          "123456789012"
+        ],
+        "resources": [
+          "arn:aws:iam::123456789012:role/deploy-runner"
+        ],
+        "environment": "tools"
+      },
+      "content": {
+        "excerpt": "30d data-lake pivot: svc-deploy AssumeRole deploy-runner from 2 sourceIPAddress values (10.20.0.0/16 NAT, 203.0.113.9); 203.0.113.9 first seen 2026-10-27T16:41:58Z."
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:panther",
+        "access": "read-only",
+        "allowed_receivers": [
+          "analyst",
+          "concierge",
+          "trinity"
+        ]
+      },
+      "axes": [
+        "identity.activity"
+      ]
+    },
+    {
+      "evidence_id": "ev-3e05f1a50e71a396",
+      "type": "live_observation",
+      "source": {
+        "system": "aikido",
+        "uri": "aikido:issue/551203",
+        "revision": "updatedAt=2026-10-27T09:00:00Z"
+      },
+      "observed_at": "2026-10-27T09:00:00Z",
+      "retrieved_at": "2026-10-27T17:05:40Z",
+      "scope": {
+        "accounts": [
+          "github:example-org"
+        ],
+        "resources": [
+          "ghcr.io/example-org/deploy-runner:2026.10.21"
+        ]
+      },
+      "content": {
+        "excerpt": "CVE-2026-1234 (libxml2) status=fixed_in_image: 2026.10.21 ships libxml2 2.13.9; not reachable from the runner entrypoint."
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:tank",
+        "access": "read-only",
+        "allowed_receivers": [
+          "*"
+        ]
+      },
+      "axes": [
+        "vuln.presence"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "c1",
+      "statement": "svc-deploy has only ever assumed deploy-runner from known egress addresses",
+      "status": "supported",
+      "supported_by": [
+        "ev-78c8ee15ea39d2bd"
+      ],
+      "contradicted_by": []
+    },
+    {
+      "claim_id": "c2",
+      "statement": "CVE-2026-1234 is not present on the running deploy-runner image",
+      "status": "supported",
+      "supported_by": [
+        "ev-3e05f1a50e71a396"
+      ],
+      "contradicted_by": []
+    }
+  ],
+  "questions": [],
+  "hops": [
+    {
+      "agent": "analyst",
+      "request_id": "rid-analyst-0001",
+      "at": "2026-10-27T16:49:00Z"
+    },
+    {
+      "agent": "concierge",
+      "request_id": "rid-replay-tank-0001",
+      "at": "2026-10-27T16:49:00Z"
+    }
+  ],
+  "coverage": {
+    "status": "complete",
+    "not_covered": []
+  },
+  "request_id": "rid-replay-tank-0001",
+  "parent_request_id": "rid-replay-parent-0001"
+}

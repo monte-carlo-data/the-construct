@@ -1,0 +1,20 @@
+{
+  "thresholds_version": 1,
+  "reviewed": {
+    "by": "security@your-org.com",
+    "date": "2026-10-28",
+    "note": "Reviewed and accepted as proposed, before any operational run was scored. Changing any value requires a new review (by + date) in the same PR."
+  },
+  "small_n": 10,
+  "per_run": {
+    "recall_drop_max": 0.1,
+    "unsupported_max": 1,
+    "silent_gaps_max": 0
+  },
+  "aggregate": {
+    "recall_mean_min": 0.9,
+    "precision_mean_min": 0.75,
+    "context_bytes_ratio_max": 1.15,
+    "latency_median_ratio_max": 1.2
+  }
+}

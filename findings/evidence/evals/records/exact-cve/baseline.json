@@ -1,0 +1,47 @@
+{
+  "record_version": 1,
+  "case_id": "exact-cve",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "tank",
+      "tool": "aikido_issues_list",
+      "uri": "aikido:issue/551203",
+      "axis": "vuln.presence"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "b3286fded6bfdc3015770f3acffdbeab276acfe7555c0438f05eb3e8273997ee",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": [
+        "aikido:issue/551203"
+      ]
+    }
+  ],
+  "verdict": "not_present",
+  "behaviour": "answer",
+  "grounding_stated": "verified",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "tank": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

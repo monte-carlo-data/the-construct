@@ -1,0 +1,54 @@
+{
+  "record_version": 1,
+  "case_id": "stale-evidence",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "oracle",
+      "tool": "panther_get_alert",
+      "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+      "axis": "exposure.traffic"
+    },
+    {
+      "agent": "oracle",
+      "tool": "ec2_describe_addresses",
+      "uri": "aws:ec2/describe-addresses?PublicIp=203.0.113.9",
+      "axis": "exposure.ownership"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "a104bd17e6e2ea82a585598d1831cd18cd36d8a3fca7492b60725f51e10215bb",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": [
+        "aws:ec2/describe-addresses?PublicIp=203.0.113.9",
+        "panther:alert/00000000-0000-4000-8000-000000000003"
+      ]
+    }
+  ],
+  "verdict": "active",
+  "behaviour": "answer",
+  "grounding_stated": "partial",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "oracle": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

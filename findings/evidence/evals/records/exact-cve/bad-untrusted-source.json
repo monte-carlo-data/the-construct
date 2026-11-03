@@ -1,0 +1,47 @@
+{
+  "record_version": 1,
+  "case_id": "exact-cve",
+  "label": "bad-untrusted-source",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "tank",
+      "tool": "web_fetch",
+      "uri": "https://example.net/blog/deploy-runner-cve",
+      "axis": "vuln.presence"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "32f7b66fa4e1ddae630ae5f1105ac2c4d4713dc70a0c18e3e221abb1e45b91e8",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": [
+        "https://example.net/blog/deploy-runner-cve"
+      ]
+    }
+  ],
+  "verdict": "not_present",
+  "behaviour": "answer",
+  "grounding_stated": "verified",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "tank": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

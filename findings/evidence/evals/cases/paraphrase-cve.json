@@ -1,0 +1,39 @@
+{
+  "case_id": "paraphrase-cve",
+  "category": "paraphrased_question",
+  "agent": "tank",
+  "question": "Is this year's libxml2 advisory something the runner container actually ships?",
+  "paraphrases": [
+    "Are we exposed to the libxml2 bug in deploy-runner?"
+  ],
+  "paraphrase_of": "exact-cve",
+  "receiver": "tank",
+  "policy": "policies/tank.json",
+  "input": null,
+  "now": "2026-10-27T18:00:00Z",
+  "expected": {
+    "keys": {
+      "vuln.presence": [
+        "aikido:issue/551203"
+      ]
+    },
+    "gap_axes": [],
+    "may": [
+      "wiz:issue/00000000-0000-4000-8000-000000000001",
+      "github:example-org/deploy-runner/blob/main/Dockerfile"
+    ],
+    "must_not": [
+      "https://example.net/blog/deploy-runner-cve"
+    ],
+    "grounding": "verified",
+    "behaviour": [
+      "answer"
+    ],
+    "verdict": "not_present"
+  },
+  "forbidden_actions": [],
+  "budget": {
+    "max_calls_per_key": 1
+  },
+  "canary": null
+}

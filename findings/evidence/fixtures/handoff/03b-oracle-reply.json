@@ -1,0 +1,222 @@
+{
+  "contract_version": 1,
+  "bundle_id": "eb-handoff-03b-oracle-reply",
+  "producer": "oracle",
+  "receiver": "concierge",
+  "created_at": "2026-10-27T17:03:00Z",
+  "items": [
+    {
+      "evidence_id": "ev-29e53f0b4f09120d",
+      "type": "live_observation",
+      "source": {
+        "system": "panther",
+        "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+        "revision": "updatedAt=2026-10-27T16:42:10Z"
+      },
+      "observed_at": "2026-10-27T16:41:58Z",
+      "retrieved_at": "2026-10-27T16:45:02Z",
+      "scope": {
+        "accounts": [
+          "123456789012"
+        ],
+        "resources": [
+          "arn:aws:iam::123456789012:role/deploy-runner"
+        ],
+        "environment": "tools"
+      },
+      "content": {
+        "excerpt": "AssumeRole deploy-runner by svc-deploy@example.com from 203.0.113.9; first appearance of this sourceIPAddress for this principal in 30d; 1 event."
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:panther",
+        "access": "read-only",
+        "allowed_receivers": [
+          "analyst",
+          "concierge",
+          "tank",
+          "oracle",
+          "trinity"
+        ]
+      },
+      "axes": [
+        "identity.activity",
+        "exposure.traffic"
+      ]
+    },
+    {
+      "evidence_id": "ev-c10a26f05a997b02",
+      "type": "live_observation",
+      "source": {
+        "system": "wing",
+        "uri": "wing:app/deploy-runner-ci",
+        "revision": "etag=W/\"a9f3\""
+      },
+      "observed_at": "2026-10-27T16:46:30Z",
+      "retrieved_at": "2026-10-27T16:46:31Z",
+      "scope": {
+        "accounts": [
+          "wing:example-org"
+        ],
+        "resources": [
+          "wing:app/deploy-runner-ci"
+        ]
+      },
+      "content": {
+        "excerpt": "classification=Authorized aiStatus=none usersCount=1 scopes=[repo:read]"
+      },
+      "authority": {
+        "level": "corroborating",
+        "principal": "agent:wing",
+        "access": "read-only",
+        "allowed_receivers": [
+          "analyst",
+          "concierge",
+          "tank",
+          "oracle",
+          "trinity"
+        ]
+      },
+      "axes": [
+        "saas.authorization"
+      ]
+    },
+    {
+      "evidence_id": "ev-5a2b01a569888423",
+      "type": "historical_conclusion",
+      "source": {
+        "system": "analyst",
+        "uri": "dynamodb:analyst-verdicts/fp#rule.aws.assume_role_new_ip#svc-deploy",
+        "revision": "verdict=2026-09-02"
+      },
+      "observed_at": "2026-09-02T11:20:00Z",
+      "retrieved_at": "2026-10-27T16:45:03Z",
+      "scope": {
+        "accounts": [
+          "123456789012"
+        ],
+        "resources": [
+          "arn:aws:iam::123456789012:role/deploy-runner"
+        ]
+      },
+      "content": {
+        "excerpt": "human verdict 2026-09-02: not an FP (look-alike was a real misrouted runner). expired 2026-10-02."
+      },
+      "authority": {
+        "level": "corroborating",
+        "principal": "human:security-reviewer",
+        "access": "read-only",
+        "allowed_receivers": [
+          "analyst",
+          "concierge",
+          "tank",
+          "oracle",
+          "trinity"
+        ]
+      },
+      "axes": [
+        "identity.activity"
+      ]
+    },
+    {
+      "evidence_id": "ev-82560ff0ddd29e6d",
+      "type": "live_observation",
+      "source": {
+        "system": "aws",
+        "uri": "aws:ec2/describe-addresses?PublicIp=203.0.113.9",
+        "revision": "request=2026-10-27T17:02:11Z"
+      },
+      "observed_at": "2026-10-27T17:02:11Z",
+      "retrieved_at": "2026-10-27T17:02:11Z",
+      "scope": {
+        "accounts": [
+          "123456789012"
+        ],
+        "resources": [
+          "eipalloc-0a1b2c3d4e5f60718"
+        ],
+        "environment": "tools"
+      },
+      "content": {
+        "excerpt": "PublicIp=203.0.113.9 AllocationId=eipalloc-0a1b2c3d4e5f60718 Tags: Name=tools-nat-b owner=platform purpose=egress"
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:aws",
+        "access": "read-only",
+        "allowed_receivers": [
+          "*"
+        ]
+      },
+      "axes": [
+        "exposure.ownership"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "c1",
+      "statement": "svc-deploy's AssumeRole from 203.0.113.9 is a benign deploy-runner rotation",
+      "status": "unresolved",
+      "supported_by": [],
+      "contradicted_by": []
+    }
+  ],
+  "questions": [
+    {
+      "question_id": "q1",
+      "text": "Is 203.0.113.9 a org-owned egress address or an unknown host?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "about": [
+        "ev-29e53f0b4f09120d"
+      ],
+      "answer_evidence": [
+        "ev-82560ff0ddd29e6d"
+      ]
+    },
+    {
+      "question_id": "q2",
+      "text": "Does CVE-2026-1234 apply to the deploy-runner image?",
+      "raised_by": "analyst",
+      "status": "open",
+      "about": [
+        "ev-29e53f0b4f09120d",
+        "ev-c10a26f05a997b02"
+      ]
+    }
+  ],
+  "hops": [
+    {
+      "agent": "analyst",
+      "request_id": "rid-analyst-0001",
+      "at": "2026-10-27T16:48:00Z"
+    },
+    {
+      "agent": "concierge",
+      "request_id": "rid-concierge-child-oracle-0001",
+      "at": "2026-10-27T16:49:00Z"
+    },
+    {
+      "agent": "oracle",
+      "request_id": "rid-concierge-child-oracle-0001",
+      "at": "2026-10-27T17:03:00Z"
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "not_covered": [
+      "identity.privilege",
+      "exposure.external_scan"
+    ]
+  },
+  "request_id": "rid-concierge-child-oracle-0001",
+  "redactions": [
+    {
+      "evidence_id": "ev-fcb844dbcd40964e",
+      "reason": "denied",
+      "receiver": "oracle"
+    }
+  ],
+  "parent_request_id": "rid-concierge-parent-0001"
+}

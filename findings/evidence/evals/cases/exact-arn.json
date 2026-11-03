@@ -1,0 +1,36 @@
+{
+  "case_id": "exact-arn",
+  "category": "exact_lookup_arn",
+  "agent": "analyst",
+  "question": "Which principal assumed arn:aws:iam::123456789012:role/deploy-runner from 203.0.113.9?",
+  "paraphrases": [],
+  "paraphrase_of": null,
+  "receiver": "analyst",
+  "policy": null,
+  "input": null,
+  "now": "2026-10-27T18:00:00Z",
+  "expected": {
+    "keys": {
+      "identity.activity": [
+        "panther:alert/00000000-0000-4000-8000-000000000003"
+      ]
+    },
+    "gap_axes": [],
+    "may": [
+      "aws:iam/arn:aws:iam::123456789012:role/deploy-runner"
+    ],
+    "must_not": [
+      "aws:iam/arn:aws:iam::111122223333:role/deploy-runner"
+    ],
+    "grounding": "verified",
+    "behaviour": [
+      "answer"
+    ],
+    "verdict": "svc-deploy"
+  },
+  "forbidden_actions": [],
+  "budget": {
+    "max_calls_per_key": 1
+  },
+  "canary": null
+}

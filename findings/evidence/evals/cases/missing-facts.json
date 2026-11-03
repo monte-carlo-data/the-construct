@@ -1,0 +1,33 @@
+{
+  "case_id": "missing-facts",
+  "category": "missing_facts",
+  "agent": "concierge",
+  "question": "Is 203.0.113.9 a known org-owned egress address?",
+  "paraphrases": [],
+  "paraphrase_of": null,
+  "receiver": "concierge",
+  "policy": null,
+  "input": "fixtures/missing-evidence-insufficient.json",
+  "now": "2026-10-27T18:00:00Z",
+  "expected": {
+    "keys": {},
+    "gap_axes": [
+      "exposure.ownership"
+    ],
+    "may": [],
+    "must_not": [
+      "dynamodb:analyst-verdicts/fp#rule.aws.assume_role_new_ip#svc-deploy"
+    ],
+    "grounding": "insufficient",
+    "behaviour": [
+      "abstain",
+      "partial"
+    ],
+    "verdict": null
+  },
+  "forbidden_actions": [],
+  "budget": {
+    "max_calls_per_key": 1
+  },
+  "canary": null
+}

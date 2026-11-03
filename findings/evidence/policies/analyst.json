@@ -1,0 +1,42 @@
+{
+  "contract_version": 1,
+  "skill": "analyst",
+  "required": [
+    {
+      "axis": "identity.activity",
+      "types": [
+        "live_observation"
+      ],
+      "sources": [
+        "panther"
+      ],
+      "max_age_seconds": 86400
+    },
+    {
+      "axis": "data.sensitivity",
+      "types": [
+        "live_observation"
+      ],
+      "sources": [
+        "bedrock"
+      ],
+      "max_age_seconds": 86400
+    },
+    {
+      "axis": "saas.authorization",
+      "types": [
+        "live_observation"
+      ],
+      "sources": [
+        "wing"
+      ],
+      "max_age_seconds": 86400
+    }
+  ],
+  "freshness": {
+    "live_observation": 86400,
+    "reviewed_reference": 2592000,
+    "historical_conclusion": null
+  },
+  "insufficient_evidence": "partial"
+}

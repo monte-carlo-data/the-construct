@@ -1,0 +1,35 @@
+{
+  "contract_version": 1,
+  "skill": "oracle",
+  "required": [
+    {
+      "axis": "exposure.traffic",
+      "types": [
+        "live_observation"
+      ],
+      "sources": [
+        "panther"
+      ],
+      "max_age_seconds": 86400
+    },
+    {
+      "axis": "exposure.ownership",
+      "types": [
+        "live_observation",
+        "reviewed_reference"
+      ],
+      "sources": [
+        "aws",
+        "github",
+        "securitytrails"
+      ],
+      "max_age_seconds": 604800
+    }
+  ],
+  "freshness": {
+    "live_observation": 86400,
+    "reviewed_reference": 2592000,
+    "historical_conclusion": null
+  },
+  "insufficient_evidence": "partial"
+}

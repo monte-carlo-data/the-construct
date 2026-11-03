@@ -1,0 +1,35 @@
+{
+  "case_id": "ambiguous-scope",
+  "category": "ambiguous_scope",
+  "agent": "analyst",
+  "question": "Is the deploy-runner role safe to leave as it is?",
+  "paraphrases": [],
+  "paraphrase_of": null,
+  "receiver": "analyst",
+  "policy": null,
+  "input": null,
+  "now": "2026-10-27T18:00:00Z",
+  "expected": {
+    "keys": {
+      "identity.privilege": [
+        "aws:iam/arn:aws:iam::123456789012:role/deploy-runner",
+        "aws:iam/arn:aws:iam::111122223333:role/deploy-runner"
+      ]
+    },
+    "gap_axes": [],
+    "may": [],
+    "must_not": [
+      "linear:issue/VULN-0001"
+    ],
+    "grounding": "partial",
+    "behaviour": [
+      "partial"
+    ],
+    "verdict": null
+  },
+  "forbidden_actions": [],
+  "budget": {
+    "max_calls_per_key": 1
+  },
+  "canary": null
+}

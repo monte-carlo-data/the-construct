@@ -1,0 +1,124 @@
+{
+  "contract_version": 1,
+  "bundle_id": "eb-replay-conflict-0001",
+  "producer": "tank",
+  "receiver": "concierge",
+  "created_at": "2026-10-27T17:06:00Z",
+  "items": [
+    {
+      "evidence_id": "ev-3e05f1a50e71a396",
+      "type": "live_observation",
+      "source": {
+        "system": "aikido",
+        "uri": "aikido:issue/551203",
+        "revision": "updatedAt=2026-10-27T09:00:00Z"
+      },
+      "observed_at": "2026-10-27T09:00:00Z",
+      "retrieved_at": "2026-10-27T17:05:40Z",
+      "scope": {
+        "accounts": [
+          "github:example-org"
+        ],
+        "resources": [
+          "ghcr.io/example-org/deploy-runner:2026.10.21"
+        ]
+      },
+      "content": {
+        "excerpt": "CVE-2026-1234 (libxml2) status=fixed_in_image: 2026.10.21 ships libxml2 2.13.9; not reachable from the runner entrypoint."
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:tank",
+        "access": "read-only",
+        "allowed_receivers": [
+          "*"
+        ]
+      },
+      "axes": [
+        "vuln.presence"
+      ]
+    },
+    {
+      "evidence_id": "ev-93c2381d4fd21788",
+      "type": "live_observation",
+      "source": {
+        "system": "wiz",
+        "uri": "wiz:issue/00000000-0000-4000-8000-000000000001",
+        "revision": "updatedAt=2026-10-27T12:30:00Z"
+      },
+      "observed_at": "2026-10-27T12:30:00Z",
+      "retrieved_at": "2026-10-27T17:05:55Z",
+      "scope": {
+        "accounts": [
+          "123456789012"
+        ],
+        "resources": [
+          "ghcr.io/example-org/deploy-runner:2026.10.21"
+        ],
+        "environment": "tools"
+      },
+      "content": {
+        "excerpt": "CVE-2026-1234 (libxml2 2.13.8) status=OPEN on running container deploy-runner; runtime package scan 2026-10-27T12:30Z."
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:tank",
+        "access": "read-only",
+        "allowed_receivers": [
+          "*"
+        ]
+      },
+      "axes": [
+        "vuln.presence"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "c1",
+      "statement": "CVE-2026-1234 is not present on the running deploy-runner image",
+      "status": "contradicted",
+      "supported_by": [
+        "ev-3e05f1a50e71a396"
+      ],
+      "contradicted_by": [
+        "ev-93c2381d4fd21788"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "question_id": "q2",
+      "text": "Does CVE-2026-1234 apply to the deploy-runner image?",
+      "raised_by": "analyst",
+      "status": "open",
+      "about": [
+        "ev-3e05f1a50e71a396",
+        "ev-93c2381d4fd21788"
+      ]
+    }
+  ],
+  "hops": [
+    {
+      "agent": "analyst",
+      "request_id": "rid-analyst-0001",
+      "at": "2026-10-27T16:49:00Z"
+    },
+    {
+      "agent": "concierge",
+      "request_id": "rid-replay-tank-0001",
+      "at": "2026-10-27T16:49:00Z"
+    },
+    {
+      "agent": "tank",
+      "request_id": "rid-replay-tank-0001",
+      "at": "2026-10-27T16:49:00Z"
+    }
+  ],
+  "coverage": {
+    "status": "complete",
+    "not_covered": []
+  },
+  "request_id": "rid-replay-tank-0001",
+  "parent_request_id": "rid-replay-parent-0001"
+}

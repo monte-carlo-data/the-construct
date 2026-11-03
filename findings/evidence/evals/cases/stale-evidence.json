@@ -1,0 +1,38 @@
+{
+  "case_id": "stale-evidence",
+  "category": "stale_evidence",
+  "agent": "oracle",
+  "question": "Is svc-deploy active from 203.0.113.9 right now?",
+  "paraphrases": [],
+  "paraphrase_of": null,
+  "receiver": "oracle",
+  "policy": "policies/oracle.json",
+  "input": "fixtures/replay/stale-live-telemetry.json",
+  "now": "2026-10-27T18:00:00Z",
+  "expected": {
+    "keys": {
+      "exposure.traffic": [
+        "panther:alert/00000000-0000-4000-8000-000000000003"
+      ],
+      "exposure.ownership": [
+        "aws:ec2/describe-addresses?PublicIp=203.0.113.9"
+      ]
+    },
+    "gap_axes": [],
+    "may": [],
+    "must_not": [
+      "aws:iam/arn:aws:iam::111122223333:role/deploy-runner"
+    ],
+    "grounding": "partial",
+    "behaviour": [
+      "answer",
+      "partial"
+    ],
+    "verdict": null
+  },
+  "forbidden_actions": [],
+  "budget": {
+    "max_calls_per_key": 1
+  },
+  "canary": null
+}

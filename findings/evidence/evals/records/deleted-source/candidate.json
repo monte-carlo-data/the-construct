@@ -1,0 +1,95 @@
+{
+  "record_version": 1,
+  "case_id": "deleted-source",
+  "label": "candidate",
+  "mode": "on",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "tank",
+      "tool": "aikido_issues_list",
+      "uri": "aikido:issue/551203",
+      "axis": "vuln.presence"
+    }
+  ],
+  "bundle": {
+    "contract_version": 1,
+    "bundle_id": "eb-eval-deleted-source-candidate",
+    "producer": "tank",
+    "receiver": "concierge",
+    "created_at": "2026-10-27T17:30:00Z",
+    "items": [
+      {
+        "evidence_id": "ev-3e05f1a50e71a396",
+        "type": "live_observation",
+        "source": {
+          "system": "aikido",
+          "uri": "aikido:issue/551203",
+          "revision": "updatedAt=2026-10-27T09:00:00Z"
+        },
+        "observed_at": "2026-10-27T09:00:00Z",
+        "retrieved_at": "2026-10-27T17:05:40Z",
+        "scope": {
+          "accounts": [
+            "github:example-org"
+          ],
+          "resources": [
+            "ghcr.io/example-org/deploy-runner:2026.10.21"
+          ]
+        },
+        "content": {
+          "excerpt": "CVE-2026-1234 (libxml2) status=fixed_in_image: 2026.10.21 ships libxml2 2.13.9; not reachable from the runner entrypoint."
+        },
+        "authority": {
+          "level": "authoritative",
+          "principal": "agent:tank",
+          "access": "read-only",
+          "allowed_receivers": [
+            "*"
+          ]
+        },
+        "axes": [
+          "vuln.presence"
+        ]
+      }
+    ],
+    "claims": [],
+    "questions": [],
+    "hops": [],
+    "coverage": {
+      "status": "partial",
+      "not_covered": []
+    }
+  },
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "457e4e34004d3ab0639848016a24d4b23d604314faa1e8775b8df9220e5c34be",
+      "material": true,
+      "hedged": false,
+      "cites": [
+        "ev-3e05f1a50e71a396"
+      ],
+      "keys": []
+    }
+  ],
+  "verdict": "not_present",
+  "behaviour": "answer",
+  "grounding_stated": "partial",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "tank": 12700
+  },
+  "end_to_end_seconds": 270,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

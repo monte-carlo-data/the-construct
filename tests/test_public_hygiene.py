@@ -25,6 +25,11 @@ SELF_EXCLUDED = {
 # Exact matched strings that are known-safe.
 ALLOWED = {
     "123456789012",  # documentation AWS account id
+    "111122223333",  # the second AWS documentation account id (evidence fixtures: "same role, another account")
+    # Synthetic ids in the generated evidence fixtures (findings/evidence/); the generator pins them.
+    "00000000-0000-4000-8000-000000000001",
+    "00000000-0000-4000-8000-000000000002",
+    "00000000-0000-4000-8000-000000000003",
     "security@your-org.com",
     "noreply@anthropic.com",
     "/home/runner/",  # GitHub-hosted runner home, used as test data for the path-leak detector
