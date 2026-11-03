@@ -19,7 +19,7 @@ Cypher finds secrets in code, vulnerable dependencies, SDLC gaps, and SAST risk 
 
 ```text
 /cypher                 # all four domains
-/cypher secrets         # secrets detection only (Aikido + Wiz)
+/cypher secrets         # secrets detection only (Aikido + Wiz + own-credential sweep)
 /cypher deps            # dependency risk only (Critical + High CVEs; Socket malware/typosquats)
 /cypher sdlc            # SDLC gap audit (branch protection, security workflows, CODEOWNERS)
 /cypher sast            # SAST posture (finding density by repo)
@@ -61,6 +61,8 @@ delta. Run weekly; human-run (the audit hits Aikido/Wiz/GitHub interactively).
 
 ### Secrets
 - **Aikido**: API keys, tokens, passwords, private keys in code
+- **Ticket check**: Aikido `leaked_secret` issues that have no Linear ticket, so nobody owns the rotation
+- **Own-credential sweep**: org code search for your own product's API key names, which catches what Aikido skips (`*.example` files, commented-out lines) and what GitHub secret scanning can't recognize; reports paths and value shape only
 - **Wiz**: Secrets in Lambda env vars, ECS tasks, container images
 - Public repo secrets flagged Critical; private repo secrets flagged High
 - Confirmed live secrets are corroborated against Panther (was it used?) and Bedrock (what can it reach?) before severity is final

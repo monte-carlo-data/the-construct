@@ -135,7 +135,7 @@ If you cannot confidently route, ask one clarifying question before dispatching.
 | Compliance question, SOC 2, audit, policy | **Keymaker** 🗝️ | ✅ Run `/keymaker` |
 | Active incident, threat, something is actively wrong | **John Wick** 🎯 | ✅ Run `/john-wick` |
 | Shadow AI concern, exposed endpoint, unknown deployment | **Oracle** 🔮 | ✅ Run `/oracle` |
-| New AWS account, account removal, service deployment into an account, failed Spacelift run, infra drift | **Skidbladnir** 🛶 | ✅ Run `/skidbladnir` |
+| New AWS account, account removal, service deployment into an account, failed Spacelift run, infra drift, "is anyone still using this internal app", decommission an internal app | **Skidbladnir** 🛶 | ✅ Run `/skidbladnir` (`decommission <app>` for retirements) |
 | Security education, "did I do something wrong?", phishing | **Morpheus** 💊 | ✅ Run `/morpheus` |
 | IT help, access issue, device, onboarding | **Platform team** | Submit a ticket through the IT portal |
 | Architecture review, vendor review, threat model, design doc | **Security Steve** 🔐 | ✅ Continue to Step 1 |
@@ -196,7 +196,9 @@ review (Step 1 here), a disposition (`/tank`), a gate verdict (`/sentinel`), ris
 > "That's a deployment request — Skidbladnir drives it. Run `/skidbladnir` with the account
 > request (or the Linear ticket) and he'll turn it into a drafted PR against your infrastructure
 > IaC repo, read the Spacelift run, and verify what actually landed in AWS — tags and drift
-> included. He drafts only: a human confirms the run and merges."
+> included. He drafts only: a human confirms the run and merges. Retiring an internal app instead?
+> Run `/skidbladnir decommission <app>`: he proves it is unused first (SSO sign-ins, traffic, keys),
+> then drafts one PR per owning repo and lists the deletes humans do."
 
 Before dispatching, point the requester at your AWS account-vending intake forms so the ticket
 arrives complete: an account-creation request form, and an account-removal request form that

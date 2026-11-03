@@ -39,6 +39,9 @@ toolset.
 /skidbladnir <request form>   # pasted Account Creation Request Form contents
 /skidbladnir 123456789012     # verify one account's deployed state, tagging, drift
 /skidbladnir logs <run-id>    # interpret one Spacelift run against the known-pattern catalogue
+/skidbladnir decommission <app> [--days=30] [--gate-only]
+                              # retire an internal app: usage gate → inventory → one PR per repo
+                              # → human checklist → verification
 ```
 
 ---

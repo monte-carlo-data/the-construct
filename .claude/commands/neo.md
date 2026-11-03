@@ -504,3 +504,11 @@ All files live in `vuln-mgmt-attacker/`:
 - `ANTHROPIC_API_KEY` → your credential vault (item `<your-anthropic-key-item>` — see [knowledge/config.md](../../knowledge/config.md))
 - `PENTAGI_API_TOKEN` → your credential vault (item `<your-pentagi-token-item>`, set via `./secrets.sh set-token <token>`)
 - Internal passwords → `.local-state` (auto-generated, gitignored)
+
+## Optional video evidence (explicit request only)
+
+When a human specifically requests a visual reproduction, record one with your
+screen-capture tooling. Keep ordinary runs unrecorded. Recording does not
+expand authorized scope, lift assessment holds, enable a disabled provider, or
+upgrade exploitability. Keep raw clips local; only link human-reviewed material
+through the existing finding's `Video evidence: ...` Linear Resource.

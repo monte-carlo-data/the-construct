@@ -65,6 +65,9 @@ Trinity is **read-only**. She surfaces; humans act.
 - `policy-drift` — **Okta SSO/policy drift**: diff Okta sign-on / MFA-enrollment policies and
   bypass groups against a known-good baseline; surface new bypass groups, weakened MFA rules, edited
   sign-on policies with before→after. See [Policy-drift mode](#policy-drift-mode--okta-ssopolicy-drift).
+- `app-usage <okta app label|id> [--days=N]` — **is this app still used?**: count sign-ins
+  and provisioning events on one Okta app over the window (default 30 days) and return a used/unused
+  verdict with the evidence. See [App-usage mode](#app-usage-mode--is-this-okta-app-still-used).
 - A Linear ticket ID (e.g., `SEC-1234`) — load scope/focus from the ticket
 
 ---
@@ -79,6 +82,9 @@ Trinity is **read-only**. She surfaces; humans act.
 - **Policy-drift** — `/trinity policy-drift`. Diff Okta *policy configuration* (not who-has-access)
   against a known-good baseline. **If the first argument is `policy-drift`, follow
   [Policy-drift mode](#policy-drift-mode--okta-ssopolicy-drift) instead of Steps 0–9.**
+- **App-usage** — `/trinity app-usage <app>`. One Okta app, one window, one verdict. **If the first
+  argument is `app-usage`, follow [App-usage mode](#app-usage-mode--is-this-okta-app-still-used)
+  instead of Steps 0–9.** Skidbladnir's decommission gate calls this.
 
 ---
 
@@ -181,6 +187,30 @@ surface it as INCOMPLETE with the cause:
 
 If Okta MCP tools ARE available, proceed directly to Step 2 — the MCP handles auth.
 
+#### Okta calls and rate limits
+
+Trinity's Okta API app shares the org rate limit with every other integration on the tenant, and a
+SIEM's Okta log ingest is usually the heavy one (`/api/v1/logs` is the hot endpoint). Route every
+Okta call through one client that waits on a 429 until `X-Rate-Limit-Reset` and retries a bounded
+number of times (3 retries, waits capped at about a minute, each wait logged as
+`okta 429 on GET /api/v1/...: sleeping Ns`). Nothing is added while you are under the limit, so do
+not pace or sleep yourself.
+
+- **Use the `mcp__okta__*` tools first.** Put the 429 policy in the MCP server's transport so every
+  tool call inherits it.
+- **For raw REST the MCP doesn't cover, use one GET-only wrapper** that handles auth and the same
+  429 policy and is limited to `/api/v1/` paths. If your runtime does not ship such a wrapper, use the
+  MCP tools only. **Never** write your own Okta HTTP client: no `requests`, `urllib`, `curl`, or
+  custom user agents. Those bypass the wrapper and are where rate-limit violations come from.
+- **Never burst parallel requests to the same Okta endpoint.** That includes parallel `mcp__okta__*`
+  calls, backgrounded wrapper runs, and thread pools. Concurrent requests trip the concurrency limit.
+  For many users, run one sequential batch.
+- **Always bound `/api/v1/logs` with `until`.** With `since` and no `until` it is a polling endpoint
+  whose next link never ends.
+- **A 429 is never fatal to the run.** If a call still returns 429 after its retries, mark only that
+  sub-check **INCOMPLETE — Okta rate limit on <endpoint>** and carry on with the rest of the audit.
+  Never report a count you didn't retrieve.
+
 ### GitHub (if in scope)
 
 Check for a GitHub token with `read:org` and `repo` scopes:
@@ -248,8 +278,9 @@ Okta stale users (no login > <N> days):
 Use `mcp__okta__list_users` with factor enrollment data, or query the MFA factors API:
 
 ```bash
-# Check MFA enrollment for a user via Okta MCP or REST
-# Endpoint: /api/v1/users/{userId}/factors
+# MFA enrollment for many users: ONE sequential batch through the rate-limited client (never a
+# loop of curls, never parallel). Endpoint per user: /api/v1/users/{userId}/factors.
+# One result per user; a rate-limited user is marked INCOMPLETE, not fatal.
 ```
 
 For each active user, check both enrollment and factor type. Classify factors as:
@@ -1054,3 +1085,50 @@ Report:
    Baseline: <rolled forward (confirmed intended) | unchanged (drift unacknowledged — will re-alert)>
    Findings emitted: <N> (handoffs: <slugs>)
 ```
+
+---
+
+## App-usage mode — is this Okta app still used?
+
+> Triggered by `/trinity app-usage <okta app label|id> [--days=N]`. The decommission question
+> is "has anyone signed in", and the Okta System Log answers it exactly. Read-only; the verdict
+> is evidence for `/skidbladnir decommission`, which never deactivates the app itself.
+
+### App-usage Step A — Resolve the app
+
+`mcp__okta__list_applications` with `q=<label>`; if several match (for example `[Dev]` and
+`[Prod]` variants), run the mode for each and report them side by side. Record `id`, `label`,
+`status`, `sign_on_mode`, `created`, and the `initiate_login_uri` / redirect URIs, which name the
+service the app fronts.
+
+### App-usage Step B — Count the events
+
+Window: `since = now − N days` (default 30). Two `mcp__okta__get_logs` passes per app, both
+`fetch_all=true`:
+
+1. **Sign-ins:** `filter: eventType eq "user.authentication.sso" and target.id eq "<app id>"`, plus
+   `filter: eventType sw "app.oauth2" and target.id eq "<app id>"` for OIDC clients. Count, and keep
+   the last event per actor (`actor.alternate_id`, `published`).
+2. **Everything else on the app:** `filter: target.id eq "<app id>"`. Bucket by `event_type`:
+   `application.user_membership.*` and `group.application_assignment.*` are **provisioning**
+   (joiner/leaver automation, IT edits); `application.lifecycle.*` and `application.provision.*` are
+   **admin changes**. None of these is use.
+
+If the Okta log scope is unavailable or a page fails, mark the run **INCOMPLETE — [reason]**; never
+report a zero you did not retrieve.
+
+### App-usage Step C — Verdict and report
+
+`used` when any sign-in landed in the window; otherwise `unused`. Print:
+
+```text
+🕶 Trinity app-usage — <label> (<id>) — window <from>..<to> (N days)
+   Sign-ins:        <count>   last: <actor> @ <published>   (0 → none)
+   Provisioning:    <count>   (<adds> membership adds, <removes> removes, <assign> group assignments — not use)
+   Admin changes:   <count>   (<event types>)
+   Verdict:         used | unused | INCOMPLETE — <reason>
+```
+
+Repeat the block per app when several matched. Put the exact filters and the window in the output
+so the caller can paste them into the ticket. No finding is emitted and no Slack post is made from
+this mode; the caller owns the follow-up.

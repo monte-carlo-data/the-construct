@@ -6,12 +6,17 @@ description: >
   grounds it in your infrastructure IaC repo's conventions, drafts the IaC PR, reads and interprets
   the Spacelift run logs (recognizing known OpenTofu/Terraform error patterns and their documented
   workarounds), verifies the resulting AWS state mid- and post-deploy, checks resource tagging
-  against the repo's conventions, and reports drift between Spacelift state and live AWS.
-  Draft-first by construction — never `terraform apply`, never a Spacelift confirm, never a merge;
-  humans confirm runs and approve the push. Use when: "deploy an account", "account creation
-  request", "new AWS account", "deploy the account baseline", "why did this Spacelift run fail",
-  "check for drift", "verify the deployment landed", "/skidbladnir". Accepts an account request
-  (form contents or a Linear ticket), an AWS account ID/name, or nothing (drift sweep).
+  against the repo's conventions, and reports drift between Spacelift state and live AWS. Also
+  decommissions an internal application end to end: runs a 30-day usage gate (Okta sign-ins, ALB
+  traffic, logs, API keys, secret reads, repo activity), inventories every resource and credential
+  it holds across the owning repos, drafts one PR per repo, and hands the deletes no repo expresses
+  to named humans. Draft-first by construction — never `terraform apply`, never a Spacelift
+  confirm, never a merge; humans confirm runs and approve the push. Use when: "deploy an account",
+  "account creation request", "new AWS account", "deploy the account baseline", "why did this
+  Spacelift run fail", "check for drift", "verify the deployment landed", "decommission this app",
+  "is anyone still using X", "tear down <app>", "/skidbladnir". Accepts an account request (form
+  contents or a Linear ticket), an AWS account ID/name, `decommission <app>`, or nothing (drift
+  sweep).
 user-invocable: true
 context: fork
 allowed-tools:
@@ -68,6 +73,11 @@ Optional — one of:
   deployed state, tagging, and drift for the modules Skidbladnir manages.
 - **`logs <stack-id|run-id>`** — interpret one Spacelift run against the known-pattern catalogue only
   (STEP 4); draft no PR.
+- **`decommission <app> [--days=N] [--gate-only]`** — retire an internal application: run the usage
+  gate over the last N days (default 30), inventory what it owns, draft one PR per owning repo, and
+  hand the rest to humans. See
+  [Application decommission requests](#application-decommission-requests--usage-gate-first-one-pr-per-repo-humans-do-the-deletes).
+  `--gate-only` stops after the verdict.
 
 If an argument is ambiguous, restate what you understood and confirm before proceeding.
 
@@ -76,8 +86,9 @@ If an argument is ambiguous, restate what you understood and confirm before proc
 ## GLOBAL RULES
 
 - **Drafts only — never apply, never confirm, never merge.** The only write surfaces are: a **drafted**
-  IaC-repo PR (branch first; a human merges), a **Linear ticket** (`Triage`), and Skidbladnir's
-  own **deployment log** under `review-*`. If you feel the need to mutate live AWS or confirm a
+  IaC-repo PR (branch first; a human merges), in `decommission` mode a drafted PR in each repo the
+  plan names, a **Linear ticket** (`Triage`), and Skidbladnir's own **deployment log** under
+  `review-*`. If you feel the need to mutate live AWS, Okta, Slack, a vendor console or confirm a
   Spacelift run, stop and draft instead. `mcp__spacelift__mutate` is not available to you.
 - **Every claim carries its evidence.** A "deployed" or "no drift" verdict must cite the Spacelift run
   id / plan output or the AWS API result that shows it. No evidence → say so; never report a green you
@@ -234,6 +245,76 @@ process. The order matters — config removed before the resources are destroyed
 
 Same guardrails: branch-first PR, human merges, no Spacelift mutation, evidence for every "deleted"
 claim.
+
+### Application decommission requests — usage gate first, one PR per repo, humans do the deletes
+
+`/skidbladnir decommission <app>` retires an internal application rather than an account. The app
+usually spans several repos and systems that different teams own, so the output is a **plan with one
+PR per owning repo plus a human checklist**, never a single teardown. Keep the first completed run's
+deployment log as the worked example every later run copies.
+
+**D1. Usage gate (read-only; stop here on `--gate-only`).** Default window 30 days. Fill every row;
+an empty row is `INCOMPLETE — <reason>`, never a zero.
+
+| Signal | How | Counts as use? |
+|---|---|---|
+| Okta sign-ins and provisioning events on the app's OIDC/SAML app(s) | `/trinity app-usage "<app label>" --days=N` (read-only; sign-ins vs joiner/leaver churn) | Sign-ins yes; provisioning no |
+| ALB `RequestCount` per day for every load balancer and target group the app owns | `aws` sub-agent → CloudWatch `AWS/ApplicationELB`, `Sum`, period 86400, by `LoadBalancer` (+ `TargetGroup`) | Yes. Health checks never count here, so 0 is conclusive for anything behind the ALB |
+| Direct-port and bot paths that bypass the ALB (service discovery, VPC peering, Slack socket mode, queue consumers) | `aws` sub-agent → Logs Insights on the app's log groups: request lines, handler lines, "responded" vs "skipped"; `ec2:DescribeVpcPeeringConnections` for the peering | A handled request or an answered message yes; session churn and "skip" lines no |
+| The app's own API keys (Anthropic and any vendor with a usage report) | Admin API `usage_report` grouped by `api_key_id`, by day | A human-sized burst yes; a flat daily heartbeat (its own cron) no |
+| Secrets the app reads | `secretsmanager:ListSecrets` → `LastAccessedDate` | Deploy-time self-reads no; a human principal in CloudTrail yes |
+| Human paths granted for the app in IaC (SSO permission sets, JIT roles, break-glass policies) | `iam:GetRole` → `RoleLastUsed`; CloudTrail `AssumeRoleWithSAML` | Yes |
+| Repo activity (commits, open PRs, deploys they triggered) | `gh api repos/<org>/<repo>/commits?since=` and `pulls?state=open` | Feature work yes; dependency and vuln bumps by bots or on-call no |
+
+Verdict: **`unused`** only when every "yes" row is zero for the whole window. Report each row with
+its query and date range in the ticket comment; name the self-traffic so nobody mistakes it for use
+later. **A request-form or ticket line that says "nobody uses it" is not evidence** (Zero-Trust rule).
+
+**D2. Inventory.** Grep every checkout for the app's names (`<app>`, `<app>_`, `<App>`, its DNS names,
+its secret prefixes) and list, per owning repo: the stack or Terraform that creates it, the identity
+objects (Okta apps and group assignments, IAM policies and permission-set entries), the network grants
+(VPN app connectors and ACL rows, security-group ingress, peerings, DNS and certificates), the data
+it holds (EFS, databases, warehouses, trace tables, buckets), **every non-human credential it was
+issued** (API keys, bot tokens, OAuth grants, GitHub Apps, vendor keys — the `wing` sensor lists the
+OAuth grants), the repo and its open bot PRs, the docs that list the app, and the open security
+tickets that only matter while it runs. Name the owning team per repo (your ownership records,
+CODEOWNERS, who merged the last change there).
+
+**D3. Gates before any draft.** The ticket's named human confirmation is recorded, and the data
+owner has answered **retention** (snapshot, export, or none) for every data store in D2. Blank → stop
+and ask, exactly like the account-removal flow.
+
+**D4. Draft, in this order, one PR per repo.** Identity off first (reversible), then the stack, then
+what the stack referenced, then the credentials, then the docs:
+
+1. Identity and traffic off: Okta app deactivation and group-assignment removal (**human, IT** when
+   Okta is not under IaC), the app's API keys set to inactive in each vendor's admin console, bot
+   removed from its channels.
+2. Soak: scale the services to zero in the owning deployment repo (a PR; the owning team deploys).
+   Keep the soak at least 7 days.
+3. Stack removal PR in the deployment repo (template, env `stacks:` lists and overrides, config
+   blocks, secret resources, domain and certificate entries, data-platform flags) — reviewed by
+   `/hamann`. Say which resources the repo's deploy will **not** delete (`Retain*` policies, stacks
+   that are only disabled, log groups, ECR repos with images) and put each on the human checklist
+   with the exact console or CLI action, the recovery window, and the owner.
+4. Infrastructure IaC repo PR for the IaC-granted human paths (policies, permission-set entries),
+   module version bumped; Spacelift runs human-confirmed.
+5. VPN / network-policy PR(s) removing app connectors and ACL rows; DNS removal where it is IaC,
+   console where it is not.
+6. Credential revocation at the source (vendor consoles — **human**), then key archive.
+7. Repo archive, bot PR closure, vuln-ticket cancellation (`/tank`), risk-entry closure
+   (`/keymaker`), docs PRs (wiki pages synced from a repo file go through the repo file, never the
+   wiki directly).
+
+Each PR: branch first in a throwaway clone when the shared checkout is busy, minimal diff, repo style,
+a "drafted by Skidbladnir (decommission mode)" line, the ticket link. Other teams' repos get a PR
+**for them to merge**; never route around their review.
+
+**D5. Verify and record.** Through the `aws` sub-agent and `/trinity app-usage`: stack and load
+balancer gone, DNS `NXDOMAIN` from every zone, Okta apps inactive then deleted, no app rows in the
+VPN policies, secrets scheduled for deletion, keys archived, your application/AI inventory no longer
+lists the app. Append the run to `review-cost/skidbladnir/deployments/<date>-<app>-decommission.md`.
+A row you could not verify is `pending`, never done.
 
 ---
 

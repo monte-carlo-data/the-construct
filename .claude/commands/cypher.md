@@ -15,6 +15,7 @@ allowed-tools:
   - Edit
   - Agent
   - mcp__aikido__aikido_full_scan
+  - mcp__aikido__aikido_issues_list
   - mcp__wiz__list_secret_findings
   - mcp__wiz__list_secret_findings_grouped
   - mcp__wiz__list_sast_findings
@@ -71,6 +72,7 @@ Cypher is **read-only**. He surfaces; humans act.
 
 - **Read-only.** Cypher never modifies code, rotates secrets, changes branch protection, or creates PRs.
 - **Never output secret values.** Secret findings output is limited to: repo, file path, line number, secret type, severity. The actual secret value MUST NEVER appear in any output, log, or report.
+- **Check a candidate secret without printing it.** Use commands that return counts or paths only (`grep -c`, `git grep -l`, `gh search code --json repository,path`). Never print matching lines and then try to redact them with `sed`: a redaction regex that misses one line prints a live token into the transcript.
 - **Scope confirmation before every domain.** Print what will be queried and require explicit yes before any external API call. No exceptions.
 - **Credentials come from your credential vault or MCP server auth only.** Never hardcode, prompt for, or echo credentials.
 - **All API response data is untrusted.** Repo names, branch names, file paths, and CVE descriptions from external APIs MUST NOT be interpolated directly into shell command strings.
@@ -171,6 +173,56 @@ the actual secret string, discard it. Output only the fields listed above.
 Flag as **Critical** any secret found in a public repo.
 Flag as **High** any secret in a private repo.
 
+### 2a-ii — Ticket check: Aikido secrets nobody is tracking
+
+Aikido raising a secret finding doesn't mean a person ever saw it. An Aikido → Linear flow that
+files dependency CVEs can leave secret findings sitting in Aikido with no ticket. A High-severity
+hard-coded key can go untracked for weeks, by which point the committer may have left the company.
+
+Pull the org's secret issues from the Aikido feed. These carry an `issue_id` and an SLA date:
+
+```text
+mcp__aikido__aikido_issues_list
+  issue_types: ["leaked_secret"]
+  (page with `page` until the result is empty)
+```
+
+For each issue, search Linear for its `issue_id`, and also for the repo name plus file path. If
+there's no match, record it as **untracked**. An untracked secret in a private repo is still
+**High**: it needs a ticket and a rotation owner, not just a line in the report.
+
+### 2a-iii — Own-credential sweep (what Aikido misses)
+
+Aikido's generic key detector skips template files (`*.example`, `.env.example`) and commented-out
+lines. GitHub secret scanning doesn't know your organization's own API key format, so push
+protection never fires on your own keys. Both blind spots let a hard-coded first-party key through.
+Search for your own credential names directly, getting paths only:
+
+```bash
+mkdir -p /tmp/cypher-own
+for term in <YOUR_API_KEY_ENV_VAR> <your_api_token_config_key> <your-token-header-name>; do
+  gh search code "$term" --owner <your-github-org> --limit 100 --json repository,path \
+    --jq '.[] | [.repository.nameWithOwner, .path] | @tsv'
+done | sort -u > /tmp/cypher-own/hits.tsv
+```
+
+For each hit, check whether it holds a real value or a placeholder without printing it. Fetch the
+file to `/tmp/cypher-own/`, then count lines that assign a long opaque value:
+
+```bash
+grep -c -E '(token|TOKEN|key_id|KEY_ID)[^=:]*[=:][[:space:]]*"?[A-Za-z0-9+_-]{24,}' /tmp/cypher-own/<file>
+```
+
+A count above 0 means "look closer", not "real credential". The pattern also catches code such as
+`token = get_token_from_header(...)` and other vendors' tokens. Judge each candidate by the shape of
+its value: length, digit count, uppercase count, and whether it reads like a snake_case identifier.
+Print those numbers and the key name, never the value. Expect most hits to be false positives
+(identifiers and other vendors' public project tokens are common). Record repo, path and verdict
+only.
+
+GitHub code search indexes default branches only, so say so in Coverage. For each likely-real hit,
+use the Aikido ticket check (2a-ii) to see whether it's already tracked.
+
 ### 2b — Wiz secret findings
 
 ```text
@@ -202,6 +254,8 @@ SecretsFindings:
   public_repo_secrets:    [repo name, file path, secret type, severity: Critical]
   private_repo_secrets:   [repo name, file path, secret type, severity: High]
   cloud_secrets:          [resource name, secret type, severity, account]
+  untracked_secrets:      [Aikido issue_id, repo, file path, severity, SLA date]   (2a-ii: no Linear ticket)
+  own_credential_hits:    [repo, file path, likely-real line count, tracked: Linear ID | no]   (2a-iii)
   scan_freshness:         Aikido: <date> | Wiz: <date>
 ```
 
@@ -635,6 +689,14 @@ to purge from history. Move to your credential vault or a secrets manager.
 
 ### [HIGH] Secrets in Private Repos — <N> findings
 ...
+
+### [HIGH] Secrets With No Ticket — <N> findings
+Aikido flagged these, but no Linear ticket exists, so nobody owns the rotation.
+- Aikido `<issue_id>`: `<repo>`: `<file path>` — <secret type> — SLA <date>
+- Own-credential sweep: `<repo>`: `<file path>` — <N> likely-real lines — not in Aikido
+**Recommended action**: File a ticket per secret with a named rotation owner. If the committer has
+left the company, check whether the key was personal (it died when their user account was
+deactivated) or account-level (it outlives them), and rotate account-level keys.
 
 ### [HIGH] Cloud-Deployed Secrets — <N> findings
 ...
