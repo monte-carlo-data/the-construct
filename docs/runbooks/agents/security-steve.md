@@ -159,7 +159,7 @@ same ledger + matrix and *proposes* routing improvements for a human to PR; it n
 
 **Recommended (score 5–14)**: Net-new service, new data stores expanding SOC 2 scope, new internal APIs across trust boundaries, monitoring changes, security-sensitive new dependencies.
 
-**Not Required (score 1–4)**: Internal tooling, Low/Medium data with existing controls, no new trust boundaries, purely additive changes (UI, metrics).
+**Not Required (score 1–4)**: Internal tooling, Low/Medium data with existing controls, no new trust boundaries, purely additive changes (UI, metrics). A self-declared one-row "No new threat-model surface" section in the design doc does not meet the no-new-boundaries criterion by itself; the reviewer scores the existing boundaries the change touches, and the row only counts when it states what was checked.
 
 ---
 
