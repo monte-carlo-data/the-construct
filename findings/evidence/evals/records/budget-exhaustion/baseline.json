@@ -1,0 +1,47 @@
+{
+  "record_version": 1,
+  "case_id": "budget-exhaustion",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "analyst",
+      "tool": "panther_get_alert",
+      "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+      "axis": "identity.activity"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "cf8bec649bdf6ab8eda507aa974760475a395c60a271b48d8e2e76d92379c173",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": [
+        "panther:alert/00000000-0000-4000-8000-000000000003"
+      ]
+    }
+  ],
+  "verdict": "svc-deploy",
+  "behaviour": "answer",
+  "grounding_stated": "partial",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "analyst": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

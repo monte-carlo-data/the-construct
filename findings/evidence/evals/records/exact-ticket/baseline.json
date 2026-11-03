@@ -1,0 +1,47 @@
+{
+  "record_version": 1,
+  "case_id": "exact-ticket",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "analyst",
+      "tool": "linear_get_issue",
+      "uri": "linear:issue/SEC-0001",
+      "axis": "triage.history"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "5daa9a405341bf94b4b2c168a6bb2a224df5e6552b2da6823176c647b76f9112",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": [
+        "linear:issue/SEC-0001"
+      ]
+    }
+  ],
+  "verdict": "not_fp",
+  "behaviour": "answer",
+  "grounding_stated": "verified",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "analyst": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

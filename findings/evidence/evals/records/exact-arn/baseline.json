@@ -1,0 +1,47 @@
+{
+  "record_version": 1,
+  "case_id": "exact-arn",
+  "label": "baseline",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "analyst",
+      "tool": "panther_get_alert",
+      "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+      "axis": "identity.activity"
+    }
+  ],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "f0b99495f04b394086ac2954e707c26443cbe6a36639d74e4b26516cb639be2e",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": [
+        "panther:alert/00000000-0000-4000-8000-000000000003"
+      ]
+    }
+  ],
+  "verdict": "svc-deploy",
+  "behaviour": "answer",
+  "grounding_stated": "verified",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "analyst": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

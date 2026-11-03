@@ -1,0 +1,89 @@
+{
+  "record_version": 1,
+  "case_id": "deleted-source",
+  "label": "bad-cites-deleted-source",
+  "mode": "on",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [],
+  "bundle": {
+    "contract_version": 1,
+    "bundle_id": "eb-eval-deleted-source-bad-cites-deleted-source",
+    "producer": "tank",
+    "receiver": "concierge",
+    "created_at": "2026-10-27T17:30:00Z",
+    "items": [
+      {
+        "evidence_id": "ev-60e9ba301253ba94",
+        "type": "live_observation",
+        "source": {
+          "system": "github",
+          "uri": "github:example-org/deploy-runner/blob/2026.10.01/docker/libxml2.lock",
+          "revision": "sha=7e1d0c4"
+        },
+        "observed_at": "2026-10-26T10:00:00Z",
+        "retrieved_at": "2026-10-26T10:00:05Z",
+        "scope": {
+          "accounts": [
+            "github:example-org"
+          ],
+          "resources": [
+            "github:example-org/deploy-runner/blob/2026.10.01/docker/libxml2.lock"
+          ]
+        },
+        "content": {
+          "ref": "github:example-org/deploy-runner/blob/2026.10.01/docker/libxml2.lock"
+        },
+        "authority": {
+          "level": "authoritative",
+          "principal": "agent:tank",
+          "access": "read-only",
+          "allowed_receivers": [
+            "*"
+          ]
+        },
+        "axes": [
+          "vuln.presence"
+        ],
+        "expires_at": "2026-10-26T12:00:00Z"
+      }
+    ],
+    "claims": [],
+    "questions": [],
+    "hops": [],
+    "coverage": {
+      "status": "partial",
+      "not_covered": []
+    }
+  },
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "9deb44d3a6335d0cd447b36bd706c5db8d2de30238daa81989cf9109486af8df",
+      "material": true,
+      "hedged": false,
+      "cites": [
+        "ev-60e9ba301253ba94"
+      ],
+      "keys": []
+    }
+  ],
+  "verdict": "not_present",
+  "behaviour": "answer",
+  "grounding_stated": "partial",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "tank": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

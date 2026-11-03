@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/your-org/the-construct/findings/evidence/evals/record.schema.json",
+  "title": "Evidence-grounding eval run record",
+  "description": "What one agent run (or one route: Analyst -> Concierge -> Tank/Oracle) read, cited, concluded and cost. Scored by .github/scripts/evidence_eval.py. Deliberately has NO field that can hold excerpt or answer text: conclusions carry a hash, citations and source keys only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["record_version", "mode", "revisions", "sensor_calls", "conclusions", "behaviour", "grounding_stated",
+               "not_covered_stated", "actions", "staged_bytes", "end_to_end_seconds", "killed", "withheld_ids_found"],
+  "properties": {
+    "record_version": {"const": 1},
+    "case_id": {"type": "string", "description": "Eval case this run answers. Operational runs use the reviewer-written case id for the alert."},
+    "label": {"type": "string", "description": "Free label: baseline, candidate, bad-<what>."},
+    "mode": {"enum": ["off", "shadow", "on"], "description": "AGENT_EVIDENCE_MODE the run's tasks saw."},
+    "revisions": {
+      "type": "object",
+      "required": ["model", "skills", "image", "corpus"],
+      "properties": {
+        "model": {"type": "string", "description": "Model id from the run log."},
+        "skills": {"type": "object", "additionalProperties": {"type": "string"}, "description": "skill slug -> repository commit of its .claude/commands file."},
+        "image": {"type": "string", "description": "container_image SHA tag, or 'interactive'."},
+        "corpus": {"type": "string", "description": "Repository commit of findings/evidence."}
+      }
+    },
+    "sensor_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["agent", "tool", "uri", "axis"],
+        "properties": {
+          "agent": {"type": "string"},
+          "tool": {"type": "string"},
+          "uri": {"type": "string", "description": "Source key: the source.uri an item from this read would carry."},
+          "axis": {"type": "string"}
+        }
+      }
+    },
+    "bundle": {"type": ["object", "null"], "description": "The run's outbound evidence bundle (findings/evidence/schema.json); required when mode=on."},
+    "conclusions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text_sha256", "material", "hedged", "cites", "keys"],
+        "properties": {
+          "id": {"type": "string"},
+          "text_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "material": {"type": "boolean", "description": "A factual conclusion the verdict rests on."},
+          "hedged": {"type": "boolean", "description": "Written as uncertain or historical."},
+          "cites": {"type": "array", "items": {"type": "string"}, "description": "Evidence ids (mode=on)."},
+          "keys": {"type": "array", "items": {"type": "string"}, "description": "Source keys the conclusion rests on (the prose path's citations)."}
+        }
+      }
+    },
+    "verdict": {"type": ["string", "null"]},
+    "behaviour": {"enum": ["answer", "partial", "abstain"]},
+    "grounding_stated": {"enum": ["verified", "partial", "insufficient"]},
+    "not_covered_stated": {"type": "array", "items": {"type": "string"}},
+    "actions": {"type": "array", "items": {"type": "string"}, "description": "Side effects the run took or requested (suppress, fp_verdict, aikido_full_scan, ...)."},
+    "staged_bytes": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}, "description": "agent -> bytes of its staged input, rendering included."},
+    "elapsed_seconds": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
+    "end_to_end_seconds": {"type": "number", "minimum": 0},
+    "killed": {"type": "boolean", "description": "Any run in the route hit the 1800 s guard."},
+    "evidence_stop": {"type": ["string", "null"]},
+    "withheld_ids_found": {"type": "array", "items": {"type": "string"}, "description": "Withheld evidence ids whose excerpt was found in a receiver's workdir, reply or logs (runbook section 2b step 4)."}
+  }
+}

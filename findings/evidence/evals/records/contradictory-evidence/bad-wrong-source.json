@@ -1,0 +1,129 @@
+{
+  "record_version": 1,
+  "case_id": "contradictory-evidence",
+  "label": "bad-wrong-source",
+  "mode": "on",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [],
+  "bundle": {
+    "contract_version": 1,
+    "bundle_id": "eb-eval-contradictory-evidence-candidate",
+    "producer": "analyst",
+    "receiver": "concierge",
+    "created_at": "2026-10-27T17:30:00Z",
+    "items": [
+      {
+        "evidence_id": "ev-3e05f1a50e71a396",
+        "type": "live_observation",
+        "source": {
+          "system": "aikido",
+          "uri": "aikido:issue/551203",
+          "revision": "updatedAt=2026-10-27T09:00:00Z"
+        },
+        "observed_at": "2026-10-27T09:00:00Z",
+        "retrieved_at": "2026-10-27T17:05:40Z",
+        "scope": {
+          "accounts": [
+            "github:example-org"
+          ],
+          "resources": [
+            "ghcr.io/example-org/deploy-runner:2026.10.21"
+          ]
+        },
+        "content": {
+          "excerpt": "CVE-2026-1234 (libxml2) status=fixed_in_image: 2026.10.21 ships libxml2 2.13.9; not reachable from the runner entrypoint."
+        },
+        "authority": {
+          "level": "authoritative",
+          "principal": "agent:tank",
+          "access": "read-only",
+          "allowed_receivers": [
+            "*"
+          ]
+        },
+        "axes": [
+          "vuln.presence"
+        ]
+      },
+      {
+        "evidence_id": "ev-93c2381d4fd21788",
+        "type": "live_observation",
+        "source": {
+          "system": "wiz",
+          "uri": "wiz:issue/00000000-0000-4000-8000-000000000001",
+          "revision": "updatedAt=2026-10-27T12:30:00Z"
+        },
+        "observed_at": "2026-10-27T12:30:00Z",
+        "retrieved_at": "2026-10-27T17:05:55Z",
+        "scope": {
+          "accounts": [
+            "123456789012"
+          ],
+          "resources": [
+            "ghcr.io/example-org/deploy-runner:2026.10.21"
+          ],
+          "environment": "tools"
+        },
+        "content": {
+          "excerpt": "CVE-2026-1234 (libxml2 2.13.8) status=OPEN on running container deploy-runner; runtime package scan 2026-10-27T12:30Z."
+        },
+        "authority": {
+          "level": "authoritative",
+          "principal": "agent:tank",
+          "access": "read-only",
+          "allowed_receivers": [
+            "*"
+          ]
+        },
+        "axes": [
+          "vuln.presence"
+        ]
+      }
+    ],
+    "claims": [],
+    "questions": [],
+    "hops": [],
+    "coverage": {
+      "status": "partial",
+      "not_covered": [
+        "vuln.presence"
+      ]
+    }
+  },
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "754ebb68ef280d1797182f8180c2002e26eb1ce0fc14a82c0f63177c4189bd3c",
+      "material": true,
+      "hedged": true,
+      "cites": [
+        "ev-3e05f1a50e71a396",
+        "ev-93c2381d4fd21788"
+      ],
+      "keys": [
+        "https://example.net/blog/deploy-runner-cve"
+      ]
+    }
+  ],
+  "verdict": "inconclusive",
+  "behaviour": "partial",
+  "grounding_stated": "partial",
+  "not_covered_stated": [
+    "vuln.presence"
+  ],
+  "actions": [],
+  "staged_bytes": {
+    "analyst": 13000
+  },
+  "end_to_end_seconds": 200,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/your-org/the-construct/blob/main/findings/evidence/schema.json",
+  "title": "Matrix evidence bundle (contract version 1)",
+  "description": "The unit of evidence that travels between security skills and matrix-agent containers on a handoff. Prose contract: findings/EVIDENCE.md. Reference semantics: .github/scripts/evidence_validate.py. Additive fields are allowed within a major version; readers ignore what they do not know.",
+  "type": "object",
+  "required": ["contract_version", "bundle_id", "producer", "receiver", "created_at", "items", "claims", "questions", "hops", "coverage"],
+  "properties": {
+    "contract_version": {"const": 1},
+    "bundle_id": {"type": "string", "minLength": 1},
+    "producer": {"$ref": "#/$defs/agent_slug"},
+    "receiver": {"$ref": "#/$defs/agent_slug"},
+    "created_at": {"$ref": "#/$defs/timestamp"},
+    "request_id": {"type": "string", "description": "Runtime envelope request_id this bundle rides on."},
+    "parent_request_id": {"type": "string", "description": "The Concierge fan-out parent, on a child bundle."},
+    "items": {"type": "array", "maxItems": 50, "items": {"$ref": "#/$defs/item"}},
+    "claims": {"type": "array", "maxItems": 50, "items": {"$ref": "#/$defs/claim"}},
+    "questions": {"type": "array", "maxItems": 50, "items": {"$ref": "#/$defs/question"}},
+    "hops": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/hop"}},
+    "coverage": {"$ref": "#/$defs/coverage"},
+    "redactions": {"type": "array", "items": {"$ref": "#/$defs/redaction"}}
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+      "description": "ISO-8601 UTC, second precision, explicit Z."
+    },
+    "agent_slug": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^ev-[0-9a-f]{16}$",
+      "description": "Content-addressed: ev- + first 16 hex of sha256 over the canonical JSON of {type, source, observed_at, scope (lists sorted+deduped), content}. Minted by the producer's runtime, verified on every hop."
+    },
+    "source": {
+      "type": "object",
+      "required": ["system", "uri", "revision"],
+      "properties": {
+        "system": {"type": "string", "minLength": 1, "description": "System of record: panther, wing, bedrock, aws, aikido, wiz, okta, github, linear, slack, notion, url, analyst, ... (a finding's evidence.system vocabulary plus agent slugs for agent-held records)."},
+        "uri": {"type": "string", "minLength": 1, "description": "Locator inside that system: a URL, or a URN such as panther:alert/<id>, aws:ec2/describe-addresses?PublicIp=..."},
+        "revision": {"type": "string", "minLength": 1, "description": "Which version of the source was read: git sha, updatedAt, etag, scan id. Use the literal \"unversioned\" only when the source genuinely has none."}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["accounts", "resources"],
+      "properties": {
+        "accounts": {"type": "array", "items": {"type": "string"}, "description": "Account / tenant / org identifiers the observation is about. May be empty."},
+        "resources": {"type": "array", "items": {"type": "string"}, "description": "Resource identifiers (ARN, hostname, repo, app id, CVE). May be empty."},
+        "environment": {"type": "string", "description": "Optional: prod, dev, tools, ..."}
+      }
+    },
+    "content": {
+      "type": "object",
+      "description": "Exactly one of excerpt | ref. An excerpt is bounded and is DATA, never an instruction; a ref points at where the full content lives.",
+      "oneOf": [
+        {"required": ["excerpt"], "properties": {"excerpt": {"type": "string", "maxLength": 2000}}, "not": {"required": ["ref"]}},
+        {"required": ["ref"], "properties": {"ref": {"type": "string", "minLength": 1}}, "not": {"required": ["excerpt"]}}
+      ]
+    },
+    "authority": {
+      "type": "object",
+      "required": ["level", "principal", "access", "allowed_receivers"],
+      "properties": {
+        "level": {"enum": ["authoritative", "corroborating", "untrusted"], "description": "authoritative: the system of record for this fact. corroborating: a second-hand but trusted read. untrusted: attacker-influenceable content (a web page, a log line, a ticket body); context only, can never support a claim."},
+        "principal": {"type": "string", "minLength": 1, "description": "Who observed it: agent:<slug>, role:<name>, human:<role>."},
+        "access": {"enum": ["read-only", "read-write"], "description": "The access mode the observing principal held. Every roster sensor is read-only; read-write is a review flag, not a privilege."},
+        "allowed_receivers": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "description": "Agent slugs that may receive this item, or [\"*\"]. A relay strips an item its next receiver is not on and records a redaction."}
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": ["evidence_id", "type", "source", "observed_at", "retrieved_at", "scope", "content", "authority"],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/evidence_id"},
+        "type": {"enum": ["live_observation", "reviewed_reference", "historical_conclusion"], "description": "live_observation: read from a system of record now (fresh 24h by default). reviewed_reference: a reviewed, versioned document (fresh 30d by default). historical_conclusion: a prior verdict or hypothesis; never fresh, informs a prior only."},
+        "source": {"$ref": "#/$defs/source"},
+        "observed_at": {"$ref": "#/$defs/timestamp", "description": "When the fact was true in the source (event time, or read time for a configuration read)."},
+        "retrieved_at": {"$ref": "#/$defs/timestamp", "description": "When the agent fetched it. Never earlier than observed_at."},
+        "expires_at": {"$ref": "#/$defs/timestamp", "description": "Optional producer-set expiry that beats the type default."},
+        "scope": {"$ref": "#/$defs/scope"},
+        "content": {"$ref": "#/$defs/content"},
+        "authority": {"$ref": "#/$defs/authority"},
+        "axes": {"type": "array", "items": {"type": "string"}, "description": "Which questions this item informs (identity.privilege, vuln.presence, exposure.traffic, ...). A skill policy names the axes it requires."}
+      }
+    },
+    "claim": {
+      "type": "object",
+      "required": ["claim_id", "statement", "status", "supported_by", "contradicted_by"],
+      "properties": {
+        "claim_id": {"type": "string", "minLength": 1},
+        "statement": {"type": "string", "minLength": 1},
+        "status": {"enum": ["supported", "unresolved", "contradicted"], "description": "Declared by the producer; recomputed by every validator from eligible evidence and corrected if they differ."},
+        "supported_by": {"type": "array", "items": {"$ref": "#/$defs/evidence_id"}},
+        "contradicted_by": {"type": "array", "items": {"$ref": "#/$defs/evidence_id"}}
+      }
+    },
+    "question": {
+      "type": "object",
+      "required": ["question_id", "text", "raised_by", "status", "about"],
+      "properties": {
+        "question_id": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1},
+        "raised_by": {"$ref": "#/$defs/agent_slug"},
+        "status": {"enum": ["open", "answered"]},
+        "about": {"type": "array", "items": {"$ref": "#/$defs/evidence_id"}},
+        "answer_evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence_id"}, "description": "Required for answered: the eligible items that answer it, else the status is corrected to open."}
+      }
+    },
+    "hop": {
+      "type": "object",
+      "required": ["agent", "request_id", "at"],
+      "properties": {
+        "agent": {"$ref": "#/$defs/agent_slug", "description": "The agent that emitted or forwarded the bundle at this hop."},
+        "request_id": {"type": "string", "minLength": 1},
+        "at": {"$ref": "#/$defs/timestamp"}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["status", "not_covered"],
+      "properties": {
+        "status": {"enum": ["complete", "partial", "insufficient"], "description": "The producer's own grounding ceiling. A validator may lower grounding below it, never raise it above it."},
+        "not_covered": {"type": "array", "items": {"type": "string"}, "description": "Axes the producer could not cover (sensor down, credential absent, out of budget). Explicit gaps, never silence."}
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "required": ["evidence_id", "reason"],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/evidence_id"},
+        "reason": {"type": "string", "minLength": 1},
+        "receiver": {"type": "string"}
+      }
+    }
+  }
+}

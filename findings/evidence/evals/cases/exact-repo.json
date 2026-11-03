@@ -1,0 +1,36 @@
+{
+  "case_id": "exact-repo",
+  "category": "exact_lookup_repository",
+  "agent": "tank",
+  "question": "Which libxml2 version does example-org/deploy-runner pin on main?",
+  "paraphrases": [],
+  "paraphrase_of": null,
+  "receiver": "tank",
+  "policy": "policies/tank.json",
+  "input": null,
+  "now": "2026-10-27T18:00:00Z",
+  "expected": {
+    "keys": {
+      "vuln.presence": [
+        "github:example-org/deploy-runner/blob/main/Dockerfile"
+      ]
+    },
+    "gap_axes": [],
+    "may": [
+      "aikido:issue/551203"
+    ],
+    "must_not": [
+      "github:deploy-runner-fork/deploy-runner/blob/main/Dockerfile"
+    ],
+    "grounding": "verified",
+    "behaviour": [
+      "answer"
+    ],
+    "verdict": "2.13.9"
+  },
+  "forbidden_actions": [],
+  "budget": {
+    "max_calls_per_key": 1
+  },
+  "canary": null
+}

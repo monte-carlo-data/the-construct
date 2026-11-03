@@ -1,0 +1,65 @@
+{
+  "contract_version": 1,
+  "bundle_id": "eb-stale-0001",
+  "producer": "panther",
+  "receiver": "analyst",
+  "created_at": "2026-10-27T16:47:00Z",
+  "items": [
+    {
+      "evidence_id": "ev-965c44b10d0a3af6",
+      "type": "live_observation",
+      "source": {
+        "system": "panther",
+        "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+        "revision": "updatedAt=2026-10-27T16:42:10Z"
+      },
+      "observed_at": "2026-10-17T16:41:58Z",
+      "retrieved_at": "2026-10-17T16:45:02Z",
+      "scope": {
+        "accounts": [
+          "123456789012"
+        ],
+        "resources": [
+          "arn:aws:iam::123456789012:role/deploy-runner"
+        ],
+        "environment": "tools"
+      },
+      "content": {
+        "excerpt": "AssumeRole deploy-runner by svc-deploy@example.com from 203.0.113.9; first appearance of this sourceIPAddress for this principal in 30d; 1 event."
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:panther",
+        "access": "read-only",
+        "allowed_receivers": [
+          "analyst",
+          "concierge",
+          "tank",
+          "oracle",
+          "trinity"
+        ]
+      },
+      "axes": [
+        "identity.activity",
+        "exposure.traffic"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "c1",
+      "statement": "svc-deploy is active from 203.0.113.9 right now",
+      "status": "supported",
+      "supported_by": [
+        "ev-965c44b10d0a3af6"
+      ],
+      "contradicted_by": []
+    }
+  ],
+  "questions": [],
+  "hops": [],
+  "coverage": {
+    "status": "complete",
+    "not_covered": []
+  }
+}

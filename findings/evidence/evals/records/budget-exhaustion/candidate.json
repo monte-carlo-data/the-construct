@@ -1,0 +1,101 @@
+{
+  "record_version": 1,
+  "case_id": "budget-exhaustion",
+  "label": "candidate",
+  "mode": "on",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "analyst",
+      "tool": "panther_get_alert",
+      "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+      "axis": "identity.activity"
+    }
+  ],
+  "bundle": {
+    "contract_version": 1,
+    "bundle_id": "eb-eval-budget-exhaustion-candidate",
+    "producer": "analyst",
+    "receiver": "concierge",
+    "created_at": "2026-10-27T17:30:00Z",
+    "items": [
+      {
+        "evidence_id": "ev-29e53f0b4f09120d",
+        "type": "live_observation",
+        "source": {
+          "system": "panther",
+          "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+          "revision": "updatedAt=2026-10-27T16:42:10Z"
+        },
+        "observed_at": "2026-10-27T16:41:58Z",
+        "retrieved_at": "2026-10-27T16:45:02Z",
+        "scope": {
+          "accounts": [
+            "123456789012"
+          ],
+          "resources": [
+            "arn:aws:iam::123456789012:role/deploy-runner"
+          ],
+          "environment": "tools"
+        },
+        "content": {
+          "excerpt": "AssumeRole deploy-runner by svc-deploy@example.com from 203.0.113.9; first appearance of this sourceIPAddress for this principal in 30d; 1 event."
+        },
+        "authority": {
+          "level": "authoritative",
+          "principal": "agent:panther",
+          "access": "read-only",
+          "allowed_receivers": [
+            "analyst",
+            "concierge",
+            "tank",
+            "oracle",
+            "trinity"
+          ]
+        },
+        "axes": [
+          "identity.activity",
+          "exposure.traffic"
+        ]
+      }
+    ],
+    "claims": [],
+    "questions": [],
+    "hops": [],
+    "coverage": {
+      "status": "partial",
+      "not_covered": []
+    }
+  },
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "2a15e1ae68d9fd196a18d89362ec88b70f72f2012927386966bb23c8aa837139",
+      "material": true,
+      "hedged": false,
+      "cites": [
+        "ev-29e53f0b4f09120d"
+      ],
+      "keys": []
+    }
+  ],
+  "verdict": "svc-deploy",
+  "behaviour": "answer",
+  "grounding_stated": "partial",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "analyst": 12300
+  },
+  "end_to_end_seconds": 240,
+  "killed": false,
+  "evidence_stop": "budget_exhausted",
+  "withheld_ids_found": []
+}

@@ -1,0 +1,35 @@
+{
+  "case_id": "contradictory-evidence",
+  "category": "contradictory_evidence",
+  "agent": "analyst",
+  "question": "Does CVE-2026-1234 affect the deploy-runner image?",
+  "paraphrases": [],
+  "paraphrase_of": null,
+  "receiver": "analyst",
+  "policy": null,
+  "input": "fixtures/replay/conflicting-observations.json",
+  "now": "2026-10-27T18:00:00Z",
+  "expected": {
+    "keys": {
+      "vuln.presence": [
+        "aikido:issue/551203",
+        "wiz:issue/00000000-0000-4000-8000-000000000001"
+      ]
+    },
+    "gap_axes": [],
+    "may": [],
+    "must_not": [
+      "https://example.net/blog/deploy-runner-cve"
+    ],
+    "grounding": "partial",
+    "behaviour": [
+      "partial"
+    ],
+    "verdict": "inconclusive"
+  },
+  "forbidden_actions": [],
+  "budget": {
+    "max_calls_per_key": 1
+  },
+  "canary": null
+}

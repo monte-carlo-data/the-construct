@@ -1,0 +1,489 @@
+{
+  "now": "2026-10-27T18:00:00Z",
+  "fixtures": {
+    "contradictory-claims.json": {
+      "receiver": "concierge",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-29247457a14c3521": "fresh"
+        },
+        "claims": {
+          "c1": "contradicted"
+        },
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": [
+          "c1"
+        ]
+      }
+    },
+    "denied-receiver.json": {
+      "receiver": "oracle",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-fcb844dbcd40964e": "denied",
+          "ev-29e53f0b4f09120d": "fresh"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "handoff/01-analyst-to-concierge.json": {
+      "receiver": "concierge",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-c10a26f05a997b02": "fresh",
+          "ev-fcb844dbcd40964e": "fresh",
+          "ev-5a2b01a569888423": "historical"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {
+          "q1": "open",
+          "q2": "open"
+        },
+        "not_covered": [
+          "identity.privilege"
+        ],
+        "contradicted_claims": []
+      }
+    },
+    "handoff/02a-concierge-to-tank.json": {
+      "receiver": "tank",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-c10a26f05a997b02": "fresh",
+          "ev-fcb844dbcd40964e": "fresh",
+          "ev-5a2b01a569888423": "historical"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {
+          "q1": "open",
+          "q2": "open"
+        },
+        "not_covered": [
+          "identity.privilege",
+          "vuln.presence"
+        ],
+        "contradicted_claims": []
+      },
+      "policy": "policies/tank.json"
+    },
+    "handoff/02b-concierge-to-oracle.json": {
+      "receiver": "oracle",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-c10a26f05a997b02": "fresh",
+          "ev-5a2b01a569888423": "historical"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {
+          "q1": "open",
+          "q2": "open"
+        },
+        "not_covered": [
+          "exposure.ownership",
+          "identity.privilege"
+        ],
+        "contradicted_claims": []
+      },
+      "policy": "policies/oracle.json"
+    },
+    "handoff/03a-tank-reply.json": {
+      "receiver": "concierge",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-c10a26f05a997b02": "fresh",
+          "ev-fcb844dbcd40964e": "fresh",
+          "ev-5a2b01a569888423": "historical",
+          "ev-3e05f1a50e71a396": "fresh"
+        },
+        "claims": {
+          "c1": "unresolved",
+          "c2": "supported"
+        },
+        "questions": {
+          "q1": "open",
+          "q2": "answered"
+        },
+        "not_covered": [
+          "identity.privilege"
+        ],
+        "contradicted_claims": []
+      }
+    },
+    "handoff/03b-oracle-reply.json": {
+      "receiver": "concierge",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-c10a26f05a997b02": "fresh",
+          "ev-5a2b01a569888423": "historical",
+          "ev-82560ff0ddd29e6d": "fresh"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {
+          "q1": "answered",
+          "q2": "open"
+        },
+        "not_covered": [
+          "exposure.external_scan",
+          "identity.privilege"
+        ],
+        "contradicted_claims": []
+      }
+    },
+    "handoff/04-concierge-consolidated.json": {
+      "receiver": "analyst",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-c10a26f05a997b02": "fresh",
+          "ev-fcb844dbcd40964e": "fresh",
+          "ev-5a2b01a569888423": "historical",
+          "ev-3e05f1a50e71a396": "fresh",
+          "ev-82560ff0ddd29e6d": "fresh"
+        },
+        "claims": {
+          "c1": "unresolved",
+          "c2": "supported"
+        },
+        "questions": {
+          "q1": "answered",
+          "q2": "answered"
+        },
+        "not_covered": [
+          "exposure.external_scan",
+          "identity.privilege"
+        ],
+        "contradicted_claims": []
+      }
+    },
+    "historical-only.json": {
+      "receiver": "concierge",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "insufficient",
+        "item_states": {
+          "ev-5a2b01a569888423": "historical"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "hop-budget.json": {
+      "receiver": "analyst",
+      "expect": {
+        "outcome": "rejected",
+        "reasons": [
+          "hop_budget"
+        ],
+        "grounding": "insufficient",
+        "item_states": {},
+        "claims": {},
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "malformed-missing-source.json": {
+      "receiver": "analyst",
+      "expect": {
+        "outcome": "rejected",
+        "reasons": [
+          "malformed"
+        ],
+        "grounding": "insufficient",
+        "item_states": {},
+        "claims": {},
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "missing-evidence-insufficient.json": {
+      "receiver": "concierge",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "insufficient",
+        "item_states": {},
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "oversized-excerpt.json": {
+      "receiver": "analyst",
+      "expect": {
+        "outcome": "rejected",
+        "reasons": [
+          "oversized"
+        ],
+        "grounding": "insufficient",
+        "item_states": {},
+        "claims": {},
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "policy-gap.json": {
+      "receiver": "tank",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh"
+        },
+        "claims": {},
+        "questions": {},
+        "not_covered": [
+          "vuln.presence"
+        ],
+        "contradicted_claims": []
+      },
+      "policy": "policies/tank.json"
+    },
+    "replay/conflicting-observations.json": {
+      "receiver": "concierge",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-3e05f1a50e71a396": "fresh",
+          "ev-93c2381d4fd21788": "fresh"
+        },
+        "claims": {
+          "c1": "contradicted"
+        },
+        "questions": {
+          "q2": "open"
+        },
+        "not_covered": [],
+        "contradicted_claims": [
+          "c1"
+        ]
+      }
+    },
+    "replay/denied-evidence.json": {
+      "receiver": "tank",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-78c8ee15ea39d2bd": "denied",
+          "ev-3e05f1a50e71a396": "fresh"
+        },
+        "claims": {
+          "c1": "unresolved",
+          "c2": "supported"
+        },
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      },
+      "policy": "policies/tank.json"
+    },
+    "replay/oracle-scope-expansion.json": {
+      "receiver": "oracle",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {
+          "q1": "open"
+        },
+        "not_covered": [
+          "exposure.ownership"
+        ],
+        "contradicted_claims": []
+      },
+      "policy": "policies/oracle.json"
+    },
+    "replay/stale-live-telemetry.json": {
+      "receiver": "oracle",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-150e7654a5178351": "stale",
+          "ev-82560ff0ddd29e6d": "fresh"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {},
+        "not_covered": [
+          "exposure.traffic"
+        ],
+        "contradicted_claims": []
+      },
+      "policy": "policies/oracle.json"
+    },
+    "replay/unavailable-sensor.json": {
+      "receiver": "analyst",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-fcb844dbcd40964e": "fresh"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {
+          "q3": "open"
+        },
+        "not_covered": [
+          "saas.authorization"
+        ],
+        "contradicted_claims": []
+      },
+      "policy": "policies/analyst.json"
+    },
+    "stale-live-observation.json": {
+      "receiver": "analyst",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "insufficient",
+        "item_states": {
+          "ev-965c44b10d0a3af6": "stale"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "tampered-id.json": {
+      "receiver": "analyst",
+      "expect": {
+        "outcome": "rejected",
+        "reasons": [
+          "id_mismatch"
+        ],
+        "grounding": "insufficient",
+        "item_states": {},
+        "claims": {},
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "unsupported-version.json": {
+      "receiver": "analyst",
+      "expect": {
+        "outcome": "rejected",
+        "reasons": [
+          "unsupported_version"
+        ],
+        "grounding": "insufficient",
+        "item_states": {},
+        "claims": {},
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "untrusted-authority.json": {
+      "receiver": "concierge",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "partial",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-d4f773919a17eb8b": "fresh"
+        },
+        "claims": {
+          "c1": "unresolved"
+        },
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    },
+    "valid-live-observation.json": {
+      "receiver": "analyst",
+      "expect": {
+        "outcome": "accepted",
+        "reasons": [],
+        "grounding": "verified",
+        "item_states": {
+          "ev-29e53f0b4f09120d": "fresh",
+          "ev-c10a26f05a997b02": "fresh"
+        },
+        "claims": {
+          "c1": "supported"
+        },
+        "questions": {},
+        "not_covered": [],
+        "contradicted_claims": []
+      }
+    }
+  }
+}

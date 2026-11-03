@@ -1,0 +1,38 @@
+{
+  "record_version": 1,
+  "case_id": "missing-facts",
+  "label": "bad-asserts-without-evidence",
+  "mode": "off",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [],
+  "bundle": null,
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "4ddd4665401aaa06523bb52344d191e774a3123e968bd169d8e08281b0433900",
+      "material": true,
+      "hedged": false,
+      "cites": [],
+      "keys": []
+    }
+  ],
+  "verdict": "mc_owned",
+  "behaviour": "answer",
+  "grounding_stated": "verified",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "concierge": 12000
+  },
+  "end_to_end_seconds": 300,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

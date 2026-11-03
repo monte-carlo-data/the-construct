@@ -1,0 +1,95 @@
+{
+  "record_version": 1,
+  "case_id": "exact-repo",
+  "label": "candidate",
+  "mode": "on",
+  "revisions": {
+    "model": "synthetic",
+    "skills": {
+      "synthetic": "synthetic"
+    },
+    "image": "synthetic",
+    "corpus": "synthetic"
+  },
+  "sensor_calls": [
+    {
+      "agent": "tank",
+      "tool": "github_get_file",
+      "uri": "github:example-org/deploy-runner/blob/main/Dockerfile",
+      "axis": "vuln.presence"
+    }
+  ],
+  "bundle": {
+    "contract_version": 1,
+    "bundle_id": "eb-eval-exact-repo-candidate",
+    "producer": "tank",
+    "receiver": "concierge",
+    "created_at": "2026-10-27T17:30:00Z",
+    "items": [
+      {
+        "evidence_id": "ev-a406f358b9151687",
+        "type": "live_observation",
+        "source": {
+          "system": "github",
+          "uri": "github:example-org/deploy-runner/blob/main/Dockerfile",
+          "revision": "read=2026-10-27T17:01:00Z"
+        },
+        "observed_at": "2026-10-27T17:01:00Z",
+        "retrieved_at": "2026-10-27T17:01:00Z",
+        "scope": {
+          "accounts": [
+            "github:example-org"
+          ],
+          "resources": [
+            "github:example-org/deploy-runner/blob/main/Dockerfile"
+          ]
+        },
+        "content": {
+          "excerpt": "FROM base:2026.10 ... libxml2=2.13.9-r0"
+        },
+        "authority": {
+          "level": "authoritative",
+          "principal": "agent:github",
+          "access": "read-only",
+          "allowed_receivers": [
+            "*"
+          ]
+        },
+        "axes": [
+          "vuln.presence"
+        ]
+      }
+    ],
+    "claims": [],
+    "questions": [],
+    "hops": [],
+    "coverage": {
+      "status": "complete",
+      "not_covered": []
+    }
+  },
+  "conclusions": [
+    {
+      "id": "k1",
+      "text_sha256": "a4ad1513c3c4c35f45ffc189e4528fe69ebba5467997ffdeeffb6e63d267478b",
+      "material": true,
+      "hedged": false,
+      "cites": [
+        "ev-a406f358b9151687"
+      ],
+      "keys": []
+    }
+  ],
+  "verdict": "2.13.9",
+  "behaviour": "answer",
+  "grounding_stated": "verified",
+  "not_covered_stated": [],
+  "actions": [],
+  "staged_bytes": {
+    "tank": 12300
+  },
+  "end_to_end_seconds": 270,
+  "killed": false,
+  "evidence_stop": null,
+  "withheld_ids_found": []
+}

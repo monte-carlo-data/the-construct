@@ -1,0 +1,86 @@
+{
+  "contract_version": 1,
+  "bundle_id": "eb-replay-oracle-scope-0001",
+  "producer": "concierge",
+  "receiver": "oracle",
+  "created_at": "2026-10-27T16:49:00Z",
+  "items": [
+    {
+      "evidence_id": "ev-29e53f0b4f09120d",
+      "type": "live_observation",
+      "source": {
+        "system": "panther",
+        "uri": "panther:alert/00000000-0000-4000-8000-000000000003",
+        "revision": "updatedAt=2026-10-27T16:42:10Z"
+      },
+      "observed_at": "2026-10-27T16:41:58Z",
+      "retrieved_at": "2026-10-27T16:45:02Z",
+      "scope": {
+        "accounts": [
+          "123456789012"
+        ],
+        "resources": [
+          "arn:aws:iam::123456789012:role/deploy-runner"
+        ],
+        "environment": "tools"
+      },
+      "content": {
+        "excerpt": "AssumeRole deploy-runner by svc-deploy@example.com from 203.0.113.9; first appearance of this sourceIPAddress for this principal in 30d; 1 event."
+      },
+      "authority": {
+        "level": "authoritative",
+        "principal": "agent:panther",
+        "access": "read-only",
+        "allowed_receivers": [
+          "analyst",
+          "concierge",
+          "tank",
+          "oracle",
+          "trinity"
+        ]
+      },
+      "axes": [
+        "identity.activity",
+        "exposure.traffic"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "c1",
+      "statement": "203.0.113.9 is a org-owned egress address",
+      "status": "unresolved",
+      "supported_by": [],
+      "contradicted_by": []
+    }
+  ],
+  "questions": [
+    {
+      "question_id": "q1",
+      "text": "Is 203.0.113.9 a org-owned egress address or an unknown host?",
+      "raised_by": "analyst",
+      "status": "open",
+      "about": [
+        "ev-29e53f0b4f09120d"
+      ]
+    }
+  ],
+  "hops": [
+    {
+      "agent": "analyst",
+      "request_id": "rid-analyst-0001",
+      "at": "2026-10-27T16:49:00Z"
+    },
+    {
+      "agent": "concierge",
+      "request_id": "rid-replay-oracle-0001",
+      "at": "2026-10-27T16:49:00Z"
+    }
+  ],
+  "coverage": {
+    "status": "complete",
+    "not_covered": []
+  },
+  "request_id": "rid-replay-oracle-0001",
+  "parent_request_id": "rid-replay-parent-0001"
+}

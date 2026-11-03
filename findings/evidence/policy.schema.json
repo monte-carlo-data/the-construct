@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/your-org/the-construct/blob/main/findings/evidence/policy.schema.json",
+  "title": "Skill evidence policy (contract version 1)",
+  "description": "What a skill requires before it may conclude: the axes it needs evidence on, from which sources, how fresh, and what it does without them. Lives next to the skill in this repository; the runtime applies it at the receiving seam. See findings/EVIDENCE.md section Skill policy.",
+  "type": "object",
+  "required": ["contract_version", "skill", "required", "insufficient_evidence"],
+  "properties": {
+    "contract_version": {"const": 1},
+    "skill": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+    "required": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["axis"],
+        "properties": {
+          "axis": {"type": "string", "minLength": 1},
+          "types": {"type": "array", "items": {"enum": ["live_observation", "reviewed_reference", "historical_conclusion"]}},
+          "sources": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "description": "Source systems whose evidence satisfies this axis (the skill's trusted authority for it)."},
+          "max_age_seconds": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "properties": {
+        "live_observation": {"type": "integer", "minimum": 1},
+        "reviewed_reference": {"type": "integer", "minimum": 1},
+        "historical_conclusion": {"const": null}
+      },
+      "additionalProperties": false
+    },
+    "insufficient_evidence": {
+      "const": "partial",
+      "description": "The only legal value. A skill may never declare that a missing axis is assumed; it answers partial and names the gap."
+    }
+  }
+}
