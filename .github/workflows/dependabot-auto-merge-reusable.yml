@@ -1,0 +1,753 @@
+# Dependabot auto-merge — Lane 1. Vendored copy of the security team's reusable lane: a public repo cannot call a reusable workflow that lives in a private one, so this repo carries its own copy and the local caller uses it. Refreshed by the security repo's mirror sync; do not edit here.
+#
+# One job, three routes, picked from the event:
+#   policy   a Dependabot `pull_request` (opened/synchronize/reopened): fetch the bump
+#            metadata, run the policy, and in `live` mode arm GitHub auto-merge for an
+#            allowed patch/minor bump or label the PR `dependabot:needs-review` for a human
+#            (and Lane 2, /tank dependabot). Majors and `hold-dependencies` are always held.
+#   release  a human applies `automerge:approved`: verify the sender is a real User with
+#            write access and the PR is Dependabot's, then arm auto-merge.
+#   sweep    schedule / workflow_dispatch: `@dependabot rebase` conflicting PRs; label PRs
+#            that have been red longer than `stale-days`.
+#
+# Why this is safe (FR-001, FR-002):
+#   * `gh pr merge --auto` only ENABLES auto-merge. GitHub merges only once every required
+#     status check on the base branch is green. Preflight reads the branch rules and
+#     refuses to arm when there are none (that would be the "merge on nothing"
+#     pattern) or when the repo has auto-merge switched off.
+#   * Triggered on `pull_request`, never `pull_request_target`, and it never checks out the
+#     PR: every step is `gh` against the API, so Dependabot's code is not executed here.
+#   * The only credential is GITHUB_TOKEN with the `permissions` below. Dependabot-triggered
+#     runs cannot read repository secrets, and this workflow needs none. No agent, bot, or
+#     shared service gains a GitHub write (the no-agent-writes rule).
+#   * The policy is a verbatim copy of .github/scripts/dependabot_automerge_policy.py
+#     (a Dependabot run can't check out this internal repo to fetch it);
+#     tests/test_dependabot_automerge_policy.py fails if the two drift.
+#
+# Caller: .github/workflows/dependabot-auto-merge.yml in this repo (uses: ./.github/workflows/...).
+name: dependabot auto-merge (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        description: "`shadow` posts the decision as a comment and changes nothing; `live` labels, approves, and arms"
+        type: string
+        default: shadow
+      update-types:
+        description: "Comma list of semver levels that may arm: patch, minor. `major` is ignored (always held)"
+        type: string
+        default: patch,minor
+      hold-dependencies:
+        description: "Newline list of dependency-name globs that are always held for a human (e.g. @anthropic-ai/claude-code)"
+        type: string
+        default: ""
+      major-ecosystems:
+        description: "Comma list of package ecosystems whose MAJOR bumps may arm (meant for github-actions, where a major is a runtime bump that CI passes or fails). Empty = every major waits for a human"
+        type: string
+        default: ""
+      deploy-workflow:
+        description: "File name of the workflow to dispatch on the base branch after a Dependabot PR merges (e.g. launchpad-deploy.yml). GitHub runs no `on: push` workflow for a merge made under GITHUB_TOKEN; `workflow_dispatch` always runs. Empty = a merge deploys nothing"
+        type: string
+        default: ""
+      approve:
+        description: "Also approve a PR that passed policy, for repos that keep a 1-approval ruleset for humans"
+        type: boolean
+        default: false
+      merge-method:
+        description: "squash | merge | rebase"
+        type: string
+        default: squash
+      stale-days:
+        description: "Sweep: label a Dependabot PR that has had failing checks for longer than this"
+        type: number
+        default: 7
+      review-label:
+        type: string
+        default: "dependabot:needs-review"
+      release-label:
+        type: string
+        default: "automerge:approved"
+    outputs:
+      action:
+        description: "arm | hold (policy route only)"
+        value: ${{ jobs.lane.outputs.action }}
+
+jobs:
+  lane:
+    name: dependabot auto-merge
+    # Dependabot PR events, a human `labeled` event, or the scheduled sweep. Anything else
+    # (a human's own PR being opened, Dependabot's own `labeled` on open) is routed to
+    # `none` below and every step skips.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.actor == 'dependabot[bot]' ||
+      github.event.action == 'labeled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write        # gh pr merge --auto
+      pull-requests: write   # review, label, comment, auto-merge
+      issues: write          # gh label create (labels are an Issues resource)
+      checks: read           # sweep: `gh pr list --json statusCheckRollup` (check runs)
+      statuses: read         # sweep: same field, commit statuses
+      actions: write         # sweep: same field; gh also asks for checkSuite.workflowRun.workflow.name.
+                             # write: `gh workflow run <deploy-workflow>` after a merge (no-op when unset).
+                             # Callers must grant all three too.
+    outputs:
+      action: ${{ steps.decide.outputs.action }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      MODE: ${{ inputs.mode }}
+      REVIEW_LABEL: ${{ inputs.review-label }}
+      RELEASE_LABEL: ${{ inputs.release-label }}
+      MERGE_METHOD: ${{ inputs.merge-method }}
+      APPROVE: ${{ inputs.approve }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      BASE: ${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}
+    steps:
+      - name: Route
+        id: route
+        env:
+          EVENT: ${{ github.event_name }}
+          ACTOR: ${{ github.actor }}
+          PR_ACTION: ${{ github.event.action }}
+          LABEL: ${{ github.event.label.name }}
+        run: |
+          lane=none
+          case "$EVENT" in
+            pull_request)
+              if [ "$ACTOR" = "dependabot[bot]" ] && { [ "$PR_ACTION" = opened ] || [ "$PR_ACTION" = synchronize ] || [ "$PR_ACTION" = reopened ]; }; then
+                lane=policy
+              elif [ "$PR_ACTION" = labeled ] && [ "$LABEL" = "$RELEASE_LABEL" ]; then
+                lane=release
+              fi ;;
+            schedule|workflow_dispatch) lane=sweep ;;
+          esac
+          echo "lane=$lane" >> "$GITHUB_OUTPUT"
+          echo "route: $lane ($EVENT/$PR_ACTION by $ACTOR, mode=$MODE)"
+
+      - name: Write arm helper
+        # Both arm sites (policy and release) go through this. `gh pr merge --auto` merges
+        # at once when the PR is already green; if a sibling PR lands in that same second
+        # GitHub answers "Base branch was modified" and a plain call under `set -e` kills the
+        # step before anything is armed (system-health#186, 2026-11-02). Retry a few times,
+        # and treat a PR GitHub merged meanwhile as success.
+        if: steps.route.outputs.lane != 'none'
+        run: |
+          cat > "$RUNNER_TEMP/arm.sh" <<'SH'
+          set -u
+          for attempt in 1 2 3 4; do
+            if out=$(gh pr merge --auto "--$MERGE_METHOD" "$PR_URL" 2>&1); then
+              echo "$out"; exit 0
+            fi
+            echo "$out"
+            state=$(gh pr view "$PR_URL" --json state --jq .state 2>/dev/null || echo "")
+            if [ "$state" = MERGED ]; then
+              echo "already merged"; exit 0
+            fi
+            case "$out" in
+              *"Base branch was modified"*|*"try the merge again"*|*"is not mergeable"*) ;;
+              *) exit 1 ;;
+            esac
+            [ "$attempt" = 4 ] && exit 1
+            echo "arm attempt $attempt: base branch moved; retrying in 15s"
+            sleep 15
+          done
+          SH
+
+      - name: Write policy script
+        # Verbatim copy of .github/scripts/dependabot_automerge_policy.py (see header).
+        if: steps.route.outputs.lane != 'none'
+        run: |
+          cat > "$RUNNER_TEMP/policy.py" <<'PY'
+          #!/usr/bin/env python3
+          """Dependabot auto-merge policy (Lane 1).
+
+          The decision logic behind .github/workflows/dependabot-auto-merge-reusable.yml.
+          The workflow runs on Dependabot-triggered `pull_request` events, which cannot
+          read repository secrets and cannot check out a sibling internal repo, so the
+          workflow carries a verbatim copy of this file in a heredoc. tests/
+          test_dependabot_automerge_policy.py asserts the two copies are identical; edit
+          this file, then paste it into the workflow step "Write policy script".
+
+          Stdlib only. Every subcommand reads env vars (and JSON on stdin where noted)
+          and writes `key=value` lines to $GITHUB_OUTPUT, or stdout when unset.
+
+            decide     UPDATE_TYPE DEPENDENCY_NAMES ALLOWED_TYPES HOLD_DEPENDENCIES [ECOSYSTEM MAJOR_ECOSYSTEMS]
+                       -> action (arm|hold), rule, reason
+            infer      stdin: gh pr diff;  (range bumps, where fetch-metadata has no update-type)
+                       -> update_type (version-update:semver-<level> or empty), reason
+            preflight  stdin: GET /repos/{r}/rules/branches/{b};  AUTO_MERGE_ALLOWED
+                       -> preflight_ok, preflight_reason, checks
+            release    SENDER_TYPE SENDER_PERMISSION PR_AUTHOR
+                       -> release_ok, reason
+            sweep      stdin: gh pr list --json ...;  STALE_DAYS REVIEW_LABEL [NOW]
+                       -> actions (one-line JSON list), count
+            deploy-needed  stdin: {"merged": gh pr list --state merged --json number,mergedAt,mergeCommit,
+                                  "runs": gh run list -w <deploy> --json createdAt,headSha,status,conclusion};
+                                  HEAD_SHA
+                       -> needed (true|false), reason
+            comment    MODE ACTION RULE REASON PREFLIGHT_OK PREFLIGHT_REASON CHECKS OUTCOME
+                       -> writes the PR comment body to COMMENT_FILE (or stdout)
+
+          Rules the policy enforces (spec FR-002, FR-005, FR-007, FR-008):
+            * semver-major is always `hold`, even if a caller lists it in ALLOWED_TYPES, unless the
+              PR's package ecosystem is in the caller's MAJOR_ECOSYSTEMS (meant for github-actions)
+            * a dependency matching any HOLD_DEPENDENCIES glob is `hold`
+            * an unrecognised update type is `hold` (fail closed)
+            * preflight refuses unless the base branch has >=1 required status check
+              AND the repo allows auto-merge
+            * a release label counts only from a User with write/maintain/admin access
+          """
+          from __future__ import annotations
+
+          import fnmatch
+          import json
+          import os
+          import re
+          import sys
+          from dataclasses import dataclass
+          from datetime import datetime, timezone
+
+          SEMVER_PREFIX = "version-update:semver-"
+          SEMVER_LEVELS = ("patch", "minor", "major")
+          DEPENDABOT = "dependabot[bot]"
+          WRITE_ROLES = {"admin", "maintain", "write"}
+          FAILED_STATES = {"FAILURE", "ERROR", "TIMED_OUT", "CANCELLED", "ACTION_REQUIRED", "STARTUP_FAILURE"}
+          COMMENT_MARKER = "<!-- dependabot-auto-merge -->"
+
+
+          @dataclass(frozen=True)
+          class Decision:
+              action: str  # arm | hold
+              rule: str
+              reason: str
+
+
+          def _split_csv(value: str) -> list[str]:
+              return [v.strip() for v in (value or "").split(",") if v.strip()]
+
+
+          def _split_lines(value: str) -> list[str]:
+              out = []
+              for line in (value or "").splitlines():
+                  line = line.strip()
+                  if line and not line.startswith("#"):
+                      out.append(line)
+              return out
+
+
+          def _ecosystem(value: str) -> str:
+              # fetch-metadata derives it from the branch (`dependabot/github_actions/...`); callers
+              # write it the dependabot.yml way (`github-actions`). Compare one normalised form.
+              return (value or "").strip().lower().replace("-", "_")
+
+
+          def decide(update_type: str, dependency_names: str, allowed_types: str, hold_dependencies: str,
+                     ecosystem: str = "", major_ecosystems: str = "") -> Decision:
+              deps = _split_csv(dependency_names)
+              allowed = {t.lower() for t in _split_csv(allowed_types)}
+              allowed.discard("major")  # FR-005: majors always wait for a human ...
+              # ... except in an ecosystem the caller names explicitly (2026-11-02: github-actions,
+              # where a major is a runtime bump that CI either passes or fails; the required checks
+              # still gate the merge). A Python or npm major breaks code without failing tests.
+              major_ok = {_ecosystem(e) for e in _split_csv(major_ecosystems)}
+              holds = _split_lines(hold_dependencies)
+
+              for dep in deps:
+                  for pat in holds:
+                      if fnmatch.fnmatchcase(dep, pat):
+                          return Decision("hold", "hold-dependency", f"{dep} matches hold pattern {pat!r}")
+
+              update_type = (update_type or "").strip()
+              if not update_type.startswith(SEMVER_PREFIX):
+                  return Decision("hold", "unknown-update-type", f"update type {update_type!r} is not a semver update")
+              level = update_type[len(SEMVER_PREFIX):]
+              if level == "major":
+                  eco = _ecosystem(ecosystem)
+                  if not eco or eco not in major_ok:
+                      return Decision("hold", "major", f"{', '.join(deps) or 'dependency'}: major version update")
+                  if not deps:
+                      return Decision("hold", "no-dependencies", "Dependabot metadata lists no dependency names")
+                  return Decision("arm", "major-allowed-ecosystem",
+                                  f"{', '.join(deps)}: major update in {eco}, which this repo allows")
+              if level not in allowed:
+                  return Decision("hold", "update-type-not-allowed", f"{level} is not in allowed types {sorted(allowed)}")
+              if not deps:
+                  return Decision("hold", "no-dependencies", "Dependabot metadata lists no dependency names")
+              return Decision("arm", f"{level}-allowed", f"{', '.join(deps)}: {level} update, allowed types {sorted(allowed)}")
+
+
+          # Range bumps ("permit the latest version": `anthropic>=1.15.0` -> `>=2.3.0`) and
+          # grouped requirement bumps carry no update-type in Dependabot's commit metadata,
+          # so fetch-metadata returns nothing and decide() holds them as unknown (matrix-agent#42,
+          # 2026-11-02). The diff still says exactly what changed. infer_update_type reads pip
+          # requirement files out of a unified diff and returns the highest semver level across
+          # every changed requirement, or "" (hold) the moment anything is not understood: a
+          # non-requirements file, a line that is not `name op version`, a dependency added or
+          # removed rather than bumped. Fail closed, like decide().
+          _REQ_FILE_RE = re.compile(r"^(?:.*/)?(?:requirements[^/]*\.(?:txt|in)|constraints[^/]*\.txt)$")
+          _REQ_LINE_RE = re.compile(
+              r"^([A-Za-z0-9][A-Za-z0-9._-]*)(?:\[[^\]]*\])?\s*(==|>=|~=|<=|>|<)\s*([0-9][0-9A-Za-z.+-]*)\s*(?:;.*)?$"
+          )
+
+
+          def _version_numbers(version: str) -> list[int]:
+              out: list[int] = []
+              for part in version.split("."):
+                  m = re.match(r"\d+", part)
+                  if not m:
+                      break
+                  out.append(int(m.group()))
+              return out
+
+
+          def _bump_level(old: str, new: str) -> str:
+              a, b = _version_numbers(old), _version_numbers(new)
+              if not a or not b:
+                  return ""
+              a, b = a + [0] * (3 - len(a)), b + [0] * (3 - len(b))
+              if a[0] != b[0]:
+                  return "major"
+              if a[1] != b[1]:
+                  return "minor"
+              return "patch"
+
+
+          def infer_update_type(diff: str) -> tuple[str, str]:
+              """(update_type, reason) from a unified diff of pip requirement files; ("", why) to hold."""
+              files: dict[str, dict[str, dict[str, str]]] = {}
+              current = ""
+              for raw in (diff or "").splitlines():
+                  if raw.startswith("diff --git "):
+                      current = raw.split(" b/", 1)[1].strip() if " b/" in raw else raw[len("diff --git "):].strip()
+                      if not _REQ_FILE_RE.match(current):
+                          return "", f"{current} is not a pip requirements file"
+                      files.setdefault(current, {"-": {}, "+": {}})
+                      continue
+                  if raw.startswith(("--- ", "+++ ")) or not raw or raw[0] not in "+-":
+                      continue
+                  line = raw[1:].strip()
+                  if not line or line.startswith("#"):
+                      continue
+                  if not current:
+                      return "", "diff has changed lines before any file header"
+                  m = _REQ_LINE_RE.match(line)
+                  if not m:
+                      return "", f"unparsed requirement line in {current}: {line.split()[0]}"
+                  files[current][raw[0]][m.group(1).lower()] = m.group(3)
+              if not files:
+                  return "", "empty diff"
+              levels: dict[str, str] = {}
+              for path, sides in files.items():
+                  if set(sides["-"]) != set(sides["+"]):
+                      return "", f"{path}: a dependency was added or removed, not bumped"
+                  for name, old in sides["-"].items():
+                      level = _bump_level(old, sides["+"][name])
+                      if not level:
+                          return "", f"{path}: cannot compare versions for {name}"
+                      if SEMVER_LEVELS.index(level) >= SEMVER_LEVELS.index(levels.get(name, "patch")):
+                          levels[name] = level
+              if not levels:
+                  return "", "no requirement changed"
+              top = max(levels.values(), key=SEMVER_LEVELS.index)
+              detail = ", ".join(f"{n} {lvl}" for n, lvl in sorted(levels.items()))
+              return SEMVER_PREFIX + top, f"inferred from the diff ({detail})"
+
+
+          def required_checks(rules: list[dict]) -> list[str]:
+              out: list[str] = []
+              for rule in rules or []:
+                  if rule.get("type") != "required_status_checks":
+                      continue
+                  for check in (rule.get("parameters") or {}).get("required_status_checks") or []:
+                      ctx = check.get("context")
+                      if ctx and ctx not in out:
+                          out.append(ctx)
+              return out
+
+
+          def preflight(rules: list[dict], auto_merge_allowed: bool) -> tuple[bool, str, list[str]]:
+              checks = required_checks(rules)
+              if not checks:
+                  return False, "base branch has no required status checks: auto-merge would merge on nothing", checks
+              if not auto_merge_allowed:
+                  return False, "repository setting allow_auto_merge is off", checks
+              return True, f"{len(checks)} required check(s) on base branch, auto-merge allowed", checks
+
+
+          def release_allowed(sender_type: str, sender_role: str, pr_author: str) -> tuple[bool, str]:
+              if pr_author != DEPENDABOT:
+                  return False, f"PR author is {pr_author!r}, not {DEPENDABOT}; the release label only applies to Dependabot PRs"
+              if sender_type != "User":
+                  return False, f"label applied by a {sender_type or 'unknown'}, not a User"
+              role = (sender_role or "").lower()
+              if role not in WRITE_ROLES:
+                  return False, f"sender role {role!r} is below write"
+              return True, f"label applied by a User with {role} access"
+
+
+          def _parse_iso(value: str) -> datetime:
+              return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+          def sweep(prs: list[dict], stale_days: float, review_label: str, now: datetime) -> list[dict]:
+              actions: list[dict] = []
+              for pr in prs:
+                  number = pr.get("number")
+                  labels = {(lbl or {}).get("name") for lbl in pr.get("labels") or []}
+                  if pr.get("mergeable") == "CONFLICTING":
+                      actions.append({"number": number, "action": "rebase", "reason": "merge conflict with base branch"})
+                      continue
+                  failing = []
+                  for check in pr.get("statusCheckRollup") or []:
+                      state = (check.get("conclusion") or check.get("state") or "").upper()
+                      if state in FAILED_STATES:
+                          failing.append(check.get("name") or check.get("context") or "check")
+                  if not failing or review_label in labels:
+                      continue
+                  age_days = (now - _parse_iso(pr["createdAt"])).total_seconds() / 86400
+                  if age_days > stale_days:
+                      actions.append({
+                          "number": number,
+                          "action": "stale",
+                          "reason": f"open {age_days:.0f}d with failing checks: {', '.join(sorted(set(failing)))}",
+                      })
+              return actions
+
+
+          # GitHub runs no `on: push` workflow for a merge made under GITHUB_TOKEN, and the lane
+          # arms auto-merge under GITHUB_TOKEN, so a Dependabot merge in a repo that deploys on
+          # push never deployed until a human pushed next (system-health, 2026-11-02: five merges,
+          # zero deploy runs). `workflow_dispatch` always creates a run, so the lane dispatches the
+          # deploy workflow itself: right after a merge it saw land, and from the daily sweep for
+          # merges that landed later. deploy_needed is the sweep's rule.
+          def deploy_needed(merged: list[dict], runs: list[dict], head_sha: str) -> tuple[bool, str]:
+              """True when the newest Dependabot merge has no deploy run (success or still running)
+              created after it. A failed run does not count as coverage; a run on the current head
+              that is green or in flight does."""
+              dates = [p.get("mergedAt") for p in merged or [] if p.get("mergedAt")]
+              if not dates:
+                  return False, "no merged Dependabot PRs"
+              latest = max(dates)
+              latest_pr = next(p for p in merged if p.get("mergedAt") == latest)
+              live = {"success", "in_progress", "queued", "waiting", "pending", "requested"}
+              for run in runs or []:
+                  state = (run.get("conclusion") or run.get("status") or "").lower()
+                  if state not in live:
+                      continue
+                  if run.get("headSha") == head_sha and head_sha:
+                      return False, f"a {state} deploy run already covers head {head_sha[:7]}"
+                  if (run.get("createdAt") or "") >= latest:
+                      return False, f"a {state} deploy run started after Dependabot #{latest_pr.get('number')} merged"
+              return True, f"no deploy run since Dependabot #{latest_pr.get('number')} merged at {latest}"
+
+
+          def render_comment(mode: str, action: str, rule: str, reason: str, preflight_ok: bool,
+                             preflight_reason: str, checks: list[str], outcome: str) -> str:
+              verdict = "would arm auto-merge" if action == "arm" else "would hold for a human"
+              if mode == "live":
+                  verdict = "auto-merge armed" if action == "arm" else "held for a human"
+              lines = [
+                  COMMENT_MARKER,
+                  f"**Dependabot auto-merge** ({mode}): {verdict}.",
+                  "",
+                  f"- Rule: `{rule}` ({reason})",
+                  f"- Preflight: {'ok' if preflight_ok else 'REFUSED'} ({preflight_reason})",
+                  f"- Required checks: {', '.join(f'`{c}`' for c in checks) if checks else 'none'}",
+                  f"- Outcome: {outcome}",
+                  "",
+                  "_Policy: patch/minor on green required checks merge themselves; majors and held dependencies "
+                  "wait for a human, who releases with the `automerge:approved` label._",
+              ]
+              return "\n".join(lines) + "\n"
+
+
+          def _emit(key: str, value: str) -> None:
+              path = os.environ.get("GITHUB_OUTPUT")
+              line = f"{key}={value}\n"
+              if path:
+                  with open(path, "a", encoding="utf-8") as fh:
+                      fh.write(line)
+              else:
+                  sys.stdout.write(line)
+
+
+          def _env(name: str, default: str = "") -> str:
+              return os.environ.get(name, default)
+
+
+          def main(argv: list[str]) -> int:
+              cmd = argv[1] if len(argv) > 1 else ""
+              if cmd == "decide":
+                  d = decide(_env("UPDATE_TYPE"), _env("DEPENDENCY_NAMES"), _env("ALLOWED_TYPES", "patch,minor"),
+                             _env("HOLD_DEPENDENCIES"), _env("ECOSYSTEM"), _env("MAJOR_ECOSYSTEMS"))
+                  _emit("action", d.action)
+                  _emit("rule", d.rule)
+                  _emit("reason", d.reason)
+                  return 0
+              if cmd == "infer":
+                  diff = sys.stdin.read() if not sys.stdin.isatty() else ""
+                  update_type, reason = infer_update_type(diff)
+                  _emit("update_type", update_type)
+                  _emit("reason", reason)
+                  return 0
+              if cmd == "preflight":
+                  rules = json.load(sys.stdin) if not sys.stdin.isatty() else []
+                  ok, reason, checks = preflight(rules, _env("AUTO_MERGE_ALLOWED").lower() == "true")
+                  _emit("preflight_ok", "true" if ok else "false")
+                  _emit("preflight_reason", reason)
+                  _emit("checks", ",".join(checks))
+                  return 0
+              if cmd == "release":
+                  ok, reason = release_allowed(_env("SENDER_TYPE"), _env("SENDER_PERMISSION"), _env("PR_AUTHOR"))
+                  _emit("release_ok", "true" if ok else "false")
+                  _emit("reason", reason)
+                  return 0
+              if cmd == "sweep":
+                  prs = json.load(sys.stdin) if not sys.stdin.isatty() else []
+                  now = _parse_iso(_env("NOW")) if _env("NOW") else datetime.now(timezone.utc)
+                  actions = sweep(prs, float(_env("STALE_DAYS", "7")), _env("REVIEW_LABEL", "dependabot:needs-review"), now)
+                  _emit("actions", json.dumps(actions, separators=(",", ":")))
+                  _emit("count", str(len(actions)))
+                  return 0
+              if cmd == "deploy-needed":
+                  data = json.load(sys.stdin) if not sys.stdin.isatty() else {}
+                  needed, reason = deploy_needed(data.get("merged") or [], data.get("runs") or [], _env("HEAD_SHA"))
+                  _emit("needed", "true" if needed else "false")
+                  _emit("reason", reason)
+                  return 0
+              if cmd == "comment":
+                  body = render_comment(
+                      _env("MODE", "shadow"), _env("ACTION"), _env("RULE"), _env("REASON"),
+                      _env("PREFLIGHT_OK").lower() == "true", _env("PREFLIGHT_REASON"),
+                      _split_csv(_env("CHECKS")), _env("OUTCOME"),
+                  )
+                  target = _env("COMMENT_FILE")
+                  if target:
+                      with open(target, "w", encoding="utf-8") as fh:
+                          fh.write(body)
+                  else:
+                      sys.stdout.write(body)
+                  return 0
+              sys.stderr.write(__doc__)
+              return 2
+
+
+          if __name__ == "__main__":
+              sys.exit(main(sys.argv))
+          PY
+
+      - name: Preflight (required checks + auto-merge allowed)
+        id: preflight
+        if: steps.route.outputs.lane == 'policy' || steps.route.outputs.lane == 'release'
+        run: |
+          allowed=$(gh api "repos/$REPO" --jq '.allow_auto_merge')
+          gh api "repos/$REPO/rules/branches/$BASE" > "$RUNNER_TEMP/rules.json"
+          AUTO_MERGE_ALLOWED="$allowed" python3 "$RUNNER_TEMP/policy.py" preflight < "$RUNNER_TEMP/rules.json"
+
+      # ---- policy route -----------------------------------------------------------------
+      - name: Dependabot metadata
+        id: md
+        if: steps.route.outputs.lane == 'policy'
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Range bumps and grouped requirement bumps carry no update-type in Dependabot's
+      # metadata (matrix-agent#42, 2026-11-02); the diff still says what changed. The
+      # policy reads pip requirement lines only and holds the moment it cannot read one.
+      - name: Infer the update type from the diff
+        id: infer
+        if: steps.route.outputs.lane == 'policy' && steps.md.outputs.update-type == ''
+        run: gh pr diff "$PR_URL" | python3 "$RUNNER_TEMP/policy.py" infer
+
+      - name: Decide
+        id: decide
+        if: steps.route.outputs.lane == 'policy'
+        env:
+          UPDATE_TYPE: ${{ steps.md.outputs.update-type || steps.infer.outputs.update_type }}
+          DEPENDENCY_NAMES: ${{ steps.md.outputs.dependency-names }}
+          ALLOWED_TYPES: ${{ inputs.update-types }}
+          HOLD_DEPENDENCIES: ${{ inputs.hold-dependencies }}
+          ECOSYSTEM: ${{ steps.md.outputs.package-ecosystem }}
+          MAJOR_ECOSYSTEMS: ${{ inputs.major-ecosystems }}
+        run: |
+          echo "ecosystem=${ECOSYSTEM:-?} update_type=${UPDATE_TYPE:-?} deps=${DEPENDENCY_NAMES:-?}"
+          python3 "$RUNNER_TEMP/policy.py" decide
+
+      - name: Act on the decision
+        id: act
+        if: steps.route.outputs.lane == 'policy'
+        env:
+          ACTION: ${{ steps.decide.outputs.action }}
+          RULE: ${{ steps.decide.outputs.rule }}
+          REASON: ${{ steps.decide.outputs.reason }}
+          PREFLIGHT_OK: ${{ steps.preflight.outputs.preflight_ok }}
+        run: |
+          if [ "$MODE" != live ]; then
+            outcome="shadow mode: nothing labelled, approved, or armed"
+          elif [ "$PREFLIGHT_OK" != true ]; then
+            outcome="refused: preflight failed, nothing armed (FR-002); fix the branch rules, then re-run"
+          elif [ "$ACTION" = arm ]; then
+            if [ "$APPROVE" = true ]; then
+              gh pr review "$PR_URL" --approve --body "Dependabot auto-merge: approved by policy rule \`$RULE\` ($REASON)."
+            fi
+            bash "$RUNNER_TEMP/arm.sh"
+            outcome="auto-merge armed ($MERGE_METHOD); GitHub merges once every required check is green"
+          else
+            gh label create "$REVIEW_LABEL" -R "$REPO" --color D93F0B --description "Dependabot PR held for a human" --force
+            gh pr edit "$PR_URL" --add-label "$REVIEW_LABEL"
+            outcome="labelled \`$REVIEW_LABEL\`: Lane 2 (/tank dependabot) reads it; a human releases with \`$RELEASE_LABEL\`"
+          fi
+          echo "outcome=$outcome" >> "$GITHUB_OUTPUT"
+
+      # ---- release route ----------------------------------------------------------------
+      - name: Verify the release label
+        id: release
+        if: steps.route.outputs.lane == 'release'
+        env:
+          SENDER: ${{ github.event.sender.login }}
+          SENDER_TYPE: ${{ github.event.sender.type }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          role=$(gh api "repos/$REPO/collaborators/$SENDER/permission" --jq '.role_name // .permission' 2>/dev/null || echo none)
+          SENDER_PERMISSION="$role" python3 "$RUNNER_TEMP/policy.py" release
+
+      - name: Act on the release
+        id: release-act
+        if: steps.route.outputs.lane == 'release'
+        env:
+          RELEASE_OK: ${{ steps.release.outputs.release_ok }}
+          REASON: ${{ steps.release.outputs.reason }}
+          PREFLIGHT_OK: ${{ steps.preflight.outputs.preflight_ok }}
+          SENDER: ${{ github.event.sender.login }}
+        run: |
+          if [ "$RELEASE_OK" != true ]; then
+            action=hold
+            if [ "$MODE" = live ]; then
+              gh pr edit "$PR_URL" --remove-label "$RELEASE_LABEL" || true
+              outcome="release refused and label removed: $REASON"
+            else
+              outcome="shadow mode: would refuse the release and remove the label ($REASON)"
+            fi
+          elif [ "$PREFLIGHT_OK" != true ]; then
+            action=hold
+            outcome="release refused: preflight failed, nothing armed (FR-002)"
+          else
+            action=arm
+            if [ "$MODE" = live ]; then
+              if [ "$APPROVE" = true ]; then
+                gh pr review "$PR_URL" --approve --body "Dependabot auto-merge: released by @$SENDER with \`$RELEASE_LABEL\`."
+              fi
+              bash "$RUNNER_TEMP/arm.sh"
+              outcome="released by @$SENDER: auto-merge armed ($MERGE_METHOD)"
+            else
+              outcome="shadow mode: would arm auto-merge, released by @$SENDER"
+            fi
+          fi
+          echo "action=$action" >> "$GITHUB_OUTPUT"
+          echo "outcome=$outcome" >> "$GITHUB_OUTPUT"
+
+      # ---- shared: one idempotent PR comment + job summary --------------------------------
+      - name: Comment
+        if: steps.route.outputs.lane == 'policy' || steps.route.outputs.lane == 'release'
+        env:
+          LANE: ${{ steps.route.outputs.lane }}
+          ACTION: ${{ steps.decide.outputs.action || steps.release-act.outputs.action }}
+          RULE: ${{ steps.decide.outputs.rule || 'release-label' }}
+          REASON: ${{ steps.decide.outputs.reason || steps.release.outputs.reason }}
+          PREFLIGHT_OK: ${{ steps.preflight.outputs.preflight_ok }}
+          PREFLIGHT_REASON: ${{ steps.preflight.outputs.preflight_reason }}
+          CHECKS: ${{ steps.preflight.outputs.checks }}
+          OUTCOME: ${{ steps.act.outputs.outcome || steps.release-act.outputs.outcome }}
+        run: |
+          COMMENT_FILE="$RUNNER_TEMP/comment.md" python3 "$RUNNER_TEMP/policy.py" comment
+          marker='<!-- dependabot-auto-merge -->'
+          existing=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n1)
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" -F body=@"$RUNNER_TEMP/comment.md" > /dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -F body=@"$RUNNER_TEMP/comment.md" > /dev/null
+          fi
+          { echo "### Dependabot auto-merge ($LANE)"; cat "$RUNNER_TEMP/comment.md"; } >> "$GITHUB_STEP_SUMMARY"
+
+      # GitHub runs no `on: push` workflow for a merge made under GITHUB_TOKEN, and the arm
+      # above is under GITHUB_TOKEN, so in a repo that deploys on push the merge would sit
+      # undeployed until a human pushed next (system-health, 2026-11-02: five merges, zero
+      # deploy runs). `workflow_dispatch` always creates a run, so dispatch the deploy once
+      # the merge lands. A PR still waiting on checks is picked up by the sweep's catch-up.
+      - name: Deploy once the merge lands
+        if: >-
+          inputs.deploy-workflow != '' && inputs.mode == 'live' &&
+          (steps.act.outputs.action == 'arm' || steps.release-act.outputs.action == 'arm')
+        env:
+          DEPLOY_WORKFLOW: ${{ inputs.deploy-workflow }}
+        run: |
+          for i in $(seq 1 18); do
+            state=$(gh pr view "$PR_URL" --json state --jq .state)
+            if [ "$state" = MERGED ]; then
+              gh workflow run "$DEPLOY_WORKFLOW" -R "$REPO" --ref "$BASE"
+              echo "- dispatched \`$DEPLOY_WORKFLOW\` on \`$BASE\` after #$PR_NUMBER merged" | tee -a "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "- #$PR_NUMBER not merged within 3 min (checks still running); the daily sweep dispatches \`$DEPLOY_WORKFLOW\` once it lands" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # ---- sweep route ------------------------------------------------------------------
+      - name: Sweep open Dependabot PRs
+        id: sweep
+        if: steps.route.outputs.lane == 'sweep'
+        env:
+          STALE_DAYS: ${{ inputs.stale-days }}
+        run: |
+          gh pr list -R "$REPO" --author 'app/dependabot' --state open --limit 100 \
+            --json number,url,mergeable,createdAt,labels,statusCheckRollup > "$RUNNER_TEMP/prs.json"
+          python3 "$RUNNER_TEMP/policy.py" sweep < "$RUNNER_TEMP/prs.json"
+
+      - name: Apply sweep actions
+        if: steps.route.outputs.lane == 'sweep'
+        env:
+          ACTIONS: ${{ steps.sweep.outputs.actions }}
+          COUNT: ${{ steps.sweep.outputs.count }}
+        run: |
+          echo "### Dependabot sweep ($MODE): $COUNT action(s)" >> "$GITHUB_STEP_SUMMARY"
+          printf '%s' "$ACTIONS" | python3 -c 'import json,sys; [print(a["number"], a["action"], a["reason"]) for a in json.load(sys.stdin)]' |
+          while read -r num act reason; do
+            echo "- #$num $act: $reason" >> "$GITHUB_STEP_SUMMARY"
+            [ "$MODE" = live ] || continue
+            case "$act" in
+              rebase) gh pr comment "$num" -R "$REPO" --body "@dependabot rebase" ;;
+              stale)
+                gh label create "$REVIEW_LABEL" -R "$REPO" --color D93F0B --description "Dependabot PR held for a human" --force
+                gh pr edit "$num" -R "$REPO" --add-label "$REVIEW_LABEL" ;;
+            esac
+          done
+
+      # A merge that landed after its lane run ended (checks still running at arm time)
+      # had no deploy dispatched. Dispatch one if the newest Dependabot merge has no
+      # deploy run (green or still running) created after it.
+      - name: Deploy catch-up
+        if: steps.route.outputs.lane == 'sweep' && inputs.deploy-workflow != '' && inputs.mode == 'live'
+        env:
+          DEPLOY_WORKFLOW: ${{ inputs.deploy-workflow }}
+        run: |
+          merged=$(gh pr list -R "$REPO" --author 'app/dependabot' --state merged --base "$BASE" --limit 30 \
+            --json number,mergedAt,mergeCommit)
+          runs=$(gh run list -R "$REPO" -w "$DEPLOY_WORKFLOW" -b "$BASE" --limit 20 \
+            --json createdAt,headSha,status,conclusion)
+          head=$(gh api "repos/$REPO/commits/$BASE" --jq .sha)
+          printf '{"merged": %s, "runs": %s}' "$merged" "$runs" > "$RUNNER_TEMP/deploy.json"
+          HEAD_SHA="$head" python3 "$RUNNER_TEMP/policy.py" deploy-needed < "$RUNNER_TEMP/deploy.json" > "$RUNNER_TEMP/deploy.out"
+          cat "$RUNNER_TEMP/deploy.out"
+          if grep -q '^needed=true' "$RUNNER_TEMP/deploy.out"; then
+            gh workflow run "$DEPLOY_WORKFLOW" -R "$REPO" --ref "$BASE"
+            echo "- deploy catch-up: dispatched \`$DEPLOY_WORKFLOW\` ($(sed -n 's/^reason=//p' "$RUNNER_TEMP/deploy.out"))" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- deploy catch-up: nothing to do ($(sed -n 's/^reason=//p' "$RUNNER_TEMP/deploy.out"))" >> "$GITHUB_STEP_SUMMARY"
+          fi

@@ -1,0 +1,39 @@
+# Dependabot auto-merge for this repo.
+#
+# Calls the vendored lane in dependabot-auto-merge-reusable.yml locally: a public repo
+# cannot use a reusable workflow stored in a private one, so the lane ships here as a copy
+# and is refreshed by the security repo's mirror sync.
+#
+# Live from day one: a merge here deploys nothing (CI, docs, a template repo), the `main`
+# ruleset requires the three CI jobs, and allow_auto_merge is on. Patch and minor bumps
+# that pass those checks merge themselves; majors wait for a human, except GitHub Actions
+# majors, which are a runtime bump the same checks gate. Flip `mode: shadow` to stop
+# everything on the next event.
+name: dependabot auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  schedule:
+    - cron: '17 6 * * *'   # 06:17 UTC daily: rebase conflicting PRs, label stale red ones
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: read      # the daily sweep reads statusCheckRollup (check runs,
+  statuses: read    # commit statuses, and each check's workflow run)
+  actions: read     # nothing deploys on merge, so no `gh workflow run`
+
+jobs:
+  lane:
+    uses: ./.github/workflows/dependabot-auto-merge-reusable.yml
+    with:
+      mode: live
+      update-types: patch,minor
+      hold-dependencies: ""
+      major-ecosystems: github-actions
+      approve: false
+      merge-method: squash
+      stale-days: 7
