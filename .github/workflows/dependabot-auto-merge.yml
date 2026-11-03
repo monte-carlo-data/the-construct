@@ -5,10 +5,12 @@
 # and is refreshed by the security repo's mirror sync.
 #
 # Live from day one: a merge here deploys nothing (CI, docs, a template repo), the `main`
-# ruleset requires the three CI jobs, and allow_auto_merge is on. Patch and minor bumps
-# that pass those checks merge themselves; majors wait for a human, except GitHub Actions
-# majors, which are a runtime bump the same checks gate. Flip `mode: shadow` to stop
-# everything on the next event.
+# ruleset requires the three CI jobs, and allow_auto_merge is on. The classic branch
+# protection on main also asks for one approving review, so the lane approves the
+# Dependabot PRs that pass policy (`approve: true`); it never approves anything else.
+# Patch and minor bumps that pass those checks merge themselves; majors wait for a human,
+# except GitHub Actions majors, which are a runtime bump the same checks gate. Flip
+# `mode: shadow` to stop everything on the next event.
 name: dependabot auto-merge
 
 on:
@@ -35,6 +37,6 @@ jobs:
       update-types: patch,minor
       hold-dependencies: ""
       major-ecosystems: github-actions
-      approve: false
+      approve: true
       merge-method: squash
       stale-days: 7
