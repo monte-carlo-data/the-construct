@@ -71,7 +71,10 @@ it is too thin the skill says so and stops, because an invented architecture loo
 3. **Sub-calls** feed the *existing mitigation* and *residual* columns (see below).
 4. **Update** — classify each design change (new component, new boundary, new data class,
    mitigation removed/added, refactor, LLM introduced), run the matching pass, append to the
-   change log, summarize the delta.
+   change log, summarize the delta. A change with no new component or boundary still gets walked
+   across the existing boundaries it touches; the "no new threat-model surface" short form is one
+   row that lists those boundaries, the data in motion, and that authz and external integrations
+   are unchanged — never a bare assertion.
 5. **Review** — spot-check every claimed mitigation; list components in code but absent from the
    model, and open threats with no owner.
 6. **Report** threat counts, highest residual, which sub-calls ran, any escalation.

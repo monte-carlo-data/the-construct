@@ -204,6 +204,25 @@ The mode that makes the model *living*. Do not regenerate — **diff**.
 4. Append to the change log, update `Last reviewed`, and **summarize the delta** — new, reopened,
    newly mitigated, unchanged-but-verified.
 
+### 3a. The short form — "no new threat-model surface"
+
+"No new trust boundary" is a *conclusion* of the delta pass, never its starting assumption. Most
+real findings come from widening a boundary that already exists, not adding one — so a change with
+no new component or boundary still gets walked across the existing boundaries it touches. When that
+walk turns up nothing new, emit **one row** that shows the work, not a bare assertion:
+
+```markdown
+| Delta | Existing boundaries touched | Data in motion | Authz | External integrations | Verdict |
+|---|---|---|---|---|---|
+| <change, one line> | <boundary ids from the model, e.g. B2 app→db, B4 app→vendor> | <classification, e.g. Medium (tenant config)> | unchanged | unchanged | No new threat-model surface — existing threats T-03, T-07 still apply, mitigations verified |
+```
+
+The row is only valid when every cell is filled from the model. If any of **Authz** or **External
+integrations** is not "unchanged", or **Data in motion** rises in classification, the short form
+does not apply — fall back to the full STRIDE pass on that boundary (the table above). Never emit
+the short form from the design doc alone without reading the existing model; a self-declared
+"no new surface" row with empty cells is the thing `/security-steve` is told to score as unverified.
+
 **A new attack path worth a full review → route to `/security-steve`.** Say so; your model is not
 the review.
 

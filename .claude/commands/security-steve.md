@@ -398,6 +398,16 @@ Score **Likelihood (1–5)** × **Impact (1–5)** = Risk Score (1–25).
 - No new trust boundaries, external integrations, or authentication changes
 - Purely additive change (new UI, metric, dashboard) with no infrastructure changes
 
+**The author's threat section does not score itself.** A design doc whose STRIDE / threat-model
+section is a single self-declared row ("No new threat-model surface" or similar) does **not**
+satisfy the "no new trust boundaries" criterion on its own. Treat it as an unverified claim: score
+the *existing* boundaries the change touches (existing endpoint returning more fields, existing
+role reused, new tenant-scoped query on an existing API, data-classification bump with no
+infrastructure change). The row only counts when it states what was checked — the existing
+boundaries touched, the data in motion, and that authz and external integrations are unchanged
+(the form `/persephone` emits). Otherwise score at least **Recommended** and list the missing
+threat analysis as a gap.
+
 #### 3A-3. Structured analysis
 
 Work through the following lenses against the SDD content.
