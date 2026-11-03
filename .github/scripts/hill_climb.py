@@ -101,7 +101,7 @@ MIN_FP_HITS_DEFAULT = 10
 
 # Doc files + examples/ are not live findings — same exclusion the digest,
 # validator, and orchestrator use.
-DOC_FILES = {"README.md", "SCHEMA.md", "HANDOFF_PROTOCOL.md"}
+DOC_FILES = {"README.md", "SCHEMA.md", "HANDOFF_PROTOCOL.md", "EVIDENCE.md"}
 
 # A finding-type needs at least this many findings before its routing outcome is
 # a signal rather than noise. Overridable via --min-signal.

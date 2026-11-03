@@ -146,6 +146,44 @@ correlation fields (indexed for exactly this):
 | **Exposed asset / shadow AI** — public endpoint, unsanctioned app/integration | endpoint, host, app name | **oracle** |
 | **Crypto / secrets / architecture** — weak cipher, exposed secret, trust-boundary/Zero-Trust gap | secret finding, TLS/kms config, resource | **niobe** |
 
+### Bedrock DSPM findings (your Bedrock DSPM finding rule)
+
+A Bedrock Security (DSPM) finding reaches you as a Panther alert: a poller in your detections-as-code
+repo forwards unresolved CRITICAL and HIGH findings into a custom log type (e.g.
+`Custom.BedrockSecurity.Finding`), and a rule turns them into alerts. The event isn't CloudTrail, so
+`p_any_*` is mostly empty. Read the entities from the record itself: `finding_name`, `severity`,
+`entity_type`, `entity_id`, `entity_name`, `datastore_type`, `cloud_arn`, `account_key`,
+`account_name`, `environment_tags`, `impact_severity`, `finding_id`.
+
+The `bedrock` sensor is the specialist, and it's in the container's sensor tier. Hand it `finding_id`
+and let it check the finding against its
+[known false-positive patterns](../agents/bedrock.md#known-false-positive-patterns).
+Route by the finding name:
+
+| `finding_name` | What decides the verdict | Real → consult (STEP 2b) |
+|---|---|---|
+| *Third party access to datastores containing sensitive data* | The principal's `assumeRolesConnection`. If it reaches only roles a vendor integration assumes through a conditioned wildcard trust (e.g. Databricks Unity Catalog / external-access roles), it's a false positive (Bedrock ignores the trust policy's `aws:PrincipalArn` condition). If it reaches any other role, the third party is real. | `trinity` (who granted it) + `merovingian` (what it reaches) |
+| *Datastore containing clear text password* | The store's datasets carrying `Clear Text Password`. If they're only Spark/Glue log prefixes, it's a false positive (Spark redacts the values). If it's anything else, treat it as a secret in a datastore. | `niobe` (secret handling) + `merovingian` |
+| *Datastore containing sensitive data is publicly accessible* | `publiclyAccessible` plus the flagged datasets. If the bucket is on the intentional-public list and the data is package metadata or templates, it's a false positive. | `oracle` (exposure) + `merovingian` |
+| *Sensitive data in lower environment* | Never a false positive from Bedrock data alone. Whether dev holds real customer data or fixtures is Merovingian's dev-vs-prod check (its Step 7h). | `merovingian` |
+
+Most real third-party findings are expected access: customer or partner integration roles, security
+and SaaS vendor roles, warehouse storage integrations, and data-platform control-plane roles. Call
+these **confirmed, expected access**, not an incident: recommend a risk-acceptance decision
+(`keymaker`) and name the vendor or customer. Escalate only when the role or account matches nothing
+known, or when the vendor is one your organization no longer uses.
+
+Write the [scoped suppression signature](#the-scoped-suppression-signature-required-on-every-fp-card)
+for a Bedrock false positive like this:
+- `detection:` your Bedrock DSPM finding rule id
+- `action:` the `finding_name`
+- `resource:` the `entity_name`, or for a third party, the role-name pattern it reaches through
+- `principal:` the `ThirdPartyPrincipal` (third-party findings only)
+
+Never key it on `finding_name` alone. That way a new store or a new role still reaches you. An
+`environment_tags: []` on a dev account is a tagging gap: put it on the card, but don't let it change
+the verdict.
+
 Two specialists are **not** entity-keyed — they act on the *verdict itself*, so they are not in the
 table above; declare them in STEP 2b when the verdict calls for it:
 - **seraph** — when the alert's asserted severity is contested or a dollar figure is needed: a FAIR
@@ -446,6 +484,12 @@ alert as JSON, and runs `/analyst <alert.json>` headless. The queue — not the 
 so a burst of detections can never overwhelm the agent and there is no public inbound surface. The
 pre-gate matters as much as the queue: a full run is a headless Claude call that fans out to more
 calls, so gate cheaply first. A Slack card posted by the consumer is optional.
+
+**Sources outside Panther come in through Panther.** A tool that doesn't log to Panther gets a poller
+that writes its findings to a Panther log source, and a rule that turns them into alerts. That keeps
+the queue, the gates and "work comes from Panther" unchanged. The first one is Bedrock DSPM: unresolved
+CRITICAL and HIGH findings become alerts from your Bedrock DSPM finding rule, and that rule needs to be
+on the Analyst's SQS destination. STEP 1 covers how to judge these alerts.
 
 Keeping the container's credential surface small is the reason for the two consult tiers: in-process
 consults use the read-only sensor tier (`panther`/`bedrock`/`wing`); posture agents are reached

@@ -9,7 +9,7 @@
 
 ## What it does
 
-Oracle monitors your organization's external attack surface and internal AI deployment activity. She scans for exposed subdomains, shadow AI tools in GitHub and Slack, cloud misconfigurations, and unauthorized integrations. She runs daily in scheduled mode and on-demand.
+Oracle monitors your organization's external attack surface and internal AI deployment activity. She scans for exposed subdomains, shadow AI tools in GitHub and Slack, AI agents deployed straight into your AWS accounts (via CloudTrail in Panther), cloud misconfigurations, and unauthorized integrations. Before drafting any outreach to an owner, she runs a sensor sweep to settle whether real sensitive data is involved. She runs daily in scheduled mode and on-demand.
 
 Oracle feeds the rest of the agent roster — surfacing Critical findings for John Wick, compliance findings for Keymaker, and shadow IT findings for Morpheus.
 
@@ -69,8 +69,10 @@ All API keys must be available in the environment. Missing keys degrade scan cov
 | 2c — Aikido | Cloud misconfigs, public S3 buckets, exposed secrets |
 | 3a — GitHub org | AI library signals in repos and Actions workflows |
 | 3b — Slack | AI adoption signals in your AI, engineering-wide, product, and hackathon channels |
+| 3c — AWS accounts | Bedrock callers not in the approved inventory, plus the Lambdas, roles and secrets their owners created (Panther CloudTrail lake); sandbox / customer-PoC accounts first |
 | 4 — Cross-reference | Approves assets against Centralized Internal Apps and the Approved Vendor List (both read from Git via the GitHub App) |
 | 4b–4d — Sensors | Panther (is the endpoint actually hit?), Wing (is the SaaS/AI app authorized, who connected it?), Bedrock (is real sensitive data behind it?) |
+| 4e — Sensor sweep | Before outreach: the deployment's secret reads, its source repo, the owner's data-platform access, HRIS/CRM integrations (Wing), and DSPM (Bedrock). Demo results downgrade to Low with no outreach; outreach asks only what the sensors couldn't answer |
 
 ---
 

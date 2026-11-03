@@ -60,7 +60,7 @@ PROTOCOL_MD = FINDINGS_DIR / "HANDOFF_PROTOCOL.md"
 # Doc files are not findings (same exclusion the orchestrator uses). The examples/
 # dir holds reference/negative fixtures; they are excluded from the live sweep and
 # exercised by tests/test_findings_validate.py through validate_finding() directly.
-DOC_FILES = {"README.md", "SCHEMA.md", "HANDOFF_PROTOCOL.md"}
+DOC_FILES = {"README.md", "SCHEMA.md", "HANDOFF_PROTOCOL.md", "EVIDENCE.md"}
 
 REQUIRED_FIELDS = {
     "schema_version", "id", "agent", "timestamp", "severity", "domain",

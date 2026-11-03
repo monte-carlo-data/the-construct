@@ -112,7 +112,7 @@ Check whether the user specified a scope:
 > "What should I scan? I can run:
 >
 > - External attack surface (subdomains, exposed endpoints)
-> - Shadow AI detection (GitHub, Slack)
+> - Shadow AI detection (GitHub, Slack, AI deployed in your AWS accounts)
 > - Cloud misconfig check (Aikido)
 > - All of the above (recommended)
 >
@@ -365,6 +365,46 @@ For each signal, record:
 - URL if shared
 - Slack permalink
 
+### 3c — AI deployed in your AWS accounts (CloudTrail via Panther)
+
+3a and 3b only see AI that someone commits to an org repo or talks about in Slack. An employee can
+deploy a working agent straight into an AWS account from a laptop and leave neither trace: a
+Bedrock-backed Lambda with a data-platform credential in Secrets Manager, dropped into a sandbox or
+customer-PoC account, whose code lives in no org repo and that turns up only by accident during an
+IAM review. CloudTrail does see these deployments, so this step looks there.
+
+Dispatch the [**Panther sub-agent**](../../.claude/agents/panther.md) once, covering the scan
+window (7 days on-demand, 24 hours scheduled):
+
+> *"cloud AI: in `panther_logs.public.aws_cloudtrail`, list principals that called Bedrock
+> (`eventsource ILIKE 'bedrock%'`: `InvokeModel*`, `Converse*`, `CreateAgent`,
+> `CreateKnowledgeBase`, `CreateFlow`) in the window. Group by account, principal and event name,
+> and return count, first and last seen. For each principal, also list the `CreateFunction*`,
+> `CreateRole`, `CreateSecret` and `PutSecretValue` calls made by the same human in that account
+> over the past 30 days, with the request's `tags` and `description`. Read-only."*
+
+Query gotchas:
+
+- Group by role, not by session. Use
+  `REGEXP_REPLACE(useridentity:arn::string, '/[^/]+$', '/*')` to strip the session name. Grouped
+  this way a 7-day window returns a short list of roles instead of one row per session, and a
+  role a human created for an app stands out.
+- Lambda event names carry version suffixes (`CreateFunction20150331`), so match them with `ILIKE`
+  prefixes.
+- `LISTAGG` aborts this table, so use `MIN`, `MAX` or `ANY_VALUE` instead.
+
+Triage the result:
+
+- **Expected:** platform and agent-runtime roles in the approved inventory (Step 4). Mark these
+  known.
+- **Flag:** any principal not in the inventory, especially a role a human created for an app, in a
+  sandbox or customer-PoC account. Any account where a broad group of humans holds `iam:*` and
+  `secretsmanager:*` (a field or sales-engineering sandbox, typically) comes first.
+- **Owner:** the session name in an `AWSReservedSSO_*` ARN is the deployer's email. Terraform
+  `Owner` and `Project` tags on `CreateRole` and `CreateFunction` usually name the owner as well.
+- **What it holds:** read the secret descriptions and Lambda descriptions. Text like "warehouse
+  OAuth credentials" or "HR tables" says what data the agent can reach. Carry it into Step 4e.
+
 ---
 
 ## Step 4 — Cross-Reference Against Approved Inventory
@@ -506,6 +546,46 @@ Record the Bedrock summary (console link) in the finding's `evidence` — report
 records or PII. If the sub-agent is unavailable, say so and classify on discovery signal alone —
 don't silently skip.
 
+## Step 4e — Sensor sweep before any owner outreach
+
+A finding with a person behind it raises one question that decides everything else: **does this
+touch real sensitive data, or is it a demo?** Answer it from the sensors before anyone contacts the
+owner. Outreach costs the owner time and reads as suspicion, and the sweep below can usually settle
+the question without them: an agent built from a synthetic-data template, by an owner with no
+access to the internal data platform, holding a credential that has never been read, is a demo.
+
+Run this for every finding headed to `[morpheus]` (Step 5), and for any cloud deployment from 3c
+that holds a credential. Dispatch `panther`, `wing` and `bedrock` **in parallel**:
+
+1. **Credentials it holds.** List the secrets it created (CloudTrail `CreateSecret` and
+   `PutSecretValue`), then check `GetSecretValue` on each one. Before you read a zero as "never
+   used", confirm the account's trail logs `GetSecretValue` at all: count those calls on any other
+   secret in the same window.
+2. **Where the code came from.** Use the Panther GitHub audit for the owner's clones and pushes
+   around the creation time. A `GitHub.Repo.InitialAccess` alert right before the deploy points
+   at the source repo. Read that repo's loaders and seed scripts: a seeded random generator or a
+   vendor sample dataset means synthetic data.
+3. **Whether the owner can reach real data.** Use Panther Okta logs for the owner's app
+   assignments, removals and sign-ins on your data platforms (warehouse, lakehouse). Also check
+   workspace (GSuite) logs for sign-ins from non-SSO workspaces: an alias that maps to a shared
+   demo workspace points at demo data.
+4. **Links from sensitive systems.** Use Wing: does the source system (HRIS, CRM, support desk)
+   have any OAuth or app connection to where the agent runs, and does the owner hold admin or API
+   access to it?
+5. **What data is there.** Use Bedrock DSPM on any datastore the deployment names. Say outright
+   which platforms and accounts your DSPM does not cover, so a gap there is not a "clean".
+
+Act on the result:
+
+| Sweep shows | Effect |
+|---|---|
+| **Demo / synthetic** (template data, no internal-data access, credential unused) | Downgrade to **Low**. Record the evidence and send no outreach. If a live credential is sitting unused where a broad group can read it, file a hygiene ticket to delete it. |
+| **Real sensitive data, or a real route to it** | Keep or raise severity. Route per Step 5, and send `[john-wick]` if the data is reached live. |
+| **Still open** | Outreach may go ahead, but it asks **only the remaining question** (for example "which workspace does the `<app>/<secret>` credential point at?") and cites what the sensors already showed. |
+
+Record what each sensor did and did not cover in the finding's `evidence`. If a sensor is
+unavailable, say so. Never skip the sweep and go straight to outreach.
+
 ---
 
 ## Step 5 — Classify & Prioritize Findings
@@ -593,9 +673,10 @@ reviewable drafts/tickets, not a flat `suggested_next` list. Iterate the priorit
 
 ### Person-behavior → Morpheus draft
 
-A finding a *person* shipped (committer/owner resolved to an employee in Step 3a, `suggested_next`
-includes `morpheus`). Map the Oracle finding type to a Morpheus scenario and invoke Morpheus to **draft**
-outreach to that owner:
+A finding a *person* shipped (committer/owner resolved to an employee in Step 3a or 3c, `suggested_next`
+includes `morpheus`) **that Step 4e left open**. If the 4e sweep settled it as a demo, there is no draft;
+if 4e found real data, route by severity first. Map the Oracle finding type to a Morpheus scenario and
+invoke Morpheus to **draft** outreach to that owner, scoped to the question 4e could not answer:
 
 | Oracle finding | Morpheus scenario |
 |---|---|

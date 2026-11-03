@@ -133,7 +133,7 @@ query BedrockDataStore($ids: [ID!]!) {
     impactSeverity
     numRecords
     numSensitiveRecords
-    dataTypeSets { name }
+    dataTypeSets { dataTypeCategory numRecords dataTypes { label } }
     principals(pagination: { limit: 25, offset: 0 }) {
       edges {
         accessPermissionType
@@ -162,17 +162,77 @@ query BedrockPrincipal {
   }
 }
 
-# finding: read one Bedrock finding by id
+# finding: read one Bedrock finding by id, with the entity it is about
 query BedrockFinding($id: ID!) {
   getFinding(id: $id) {
     id
     name
     severity
+    status
     associatedRuleId
     controlViolationTypes
+    associatedEntities(pagination: { limit: 3, offset: 0 }) {
+      result {
+        edges {
+          node {
+            __typename
+            ... on DataStore { id name dataStoreType accountName impactSeverity cloudAccountEnvironmentTypeTags { value } }
+            ... on ThirdPartyPrincipal { id name }
+          }
+        }
+      }
+    }
+  }
+}
+
+# count: maxOffset is the number of matching findings
+query BedrockFindingCount {
+  listFindings(
+    filters: [{ id: "severity", values: ["CRITICAL"] }, { id: "status", values: ["UNRESOLVED"] }]
+    pagination: { limit: 1, offset: 0 }
+  ) { maxOffset }
+}
+
+# datastore: which objects/tables carry one data type (e.g. the ones behind a password finding).
+# Page through every dataset and keep those whose dataTypeSets include the label — see the note below.
+query BedrockDataSetsWithTypes($ids: [ID!]!, $o: Int!) {
+  getDataStore(ids: $ids) {
+    name
+    dataSetsConnection(pagination: { limit: 500, offset: $o }) {
+      maxOffset
+      edges { node { name dataTypeSets { dataTypes { label } } } }
+    }
   }
 }
 ```
+
+Filter ids that work (the SDL doesn't list them): `listFindings` takes `severity`, `status` and
+`name` (the rule's display name, e.g. `"Sensitive data in lower environment"`). `offset` is required
+in every `pagination`. **`dataSetsConnection` ignores a `dataTypes` filter** and returns every
+dataset, so filter on `dataTypeSets` yourself; otherwise you'll "confirm" a pattern from the wrong
+datasets. A `ThirdPartyPrincipal`'s `assumeRolesConnection` shows *which of your roles* it reaches
+through, and its `accessibleDataStoresConnection` edges carry `conditionalAccess`. Read both before
+you call a third party real.
+
+### Known false-positive patterns
+
+Bedrock raises these at CRITICAL/HIGH and they are noise in a typical setup. When a finding matches a
+pattern **and** the confirming read below holds, report it as a false positive with that read as the
+evidence. When the read doesn't hold, it is a real finding. Never match on the finding name alone.
+
+| Finding | Confirming read | Why it's noise |
+|---|---|---|
+| **Third party access to datastores containing sensitive data**, principal `AWS:<12-digit account>` | Its `assumeRolesConnection` lists only roles that a vendor integration assumes through a conditioned wildcard trust (e.g. Databricks Unity Catalog / external-access roles). | Those roles trust `Principal: {"AWS":"*"}`, narrowed by `sts:ExternalId` and an `aws:PrincipalArn` ArnEquals that allows only the vendor's documented control-plane role and the role itself. Bedrock ignores the PrincipalArn condition, so it lists every AWS account it has seen as having admin/write. A principal that *also* reaches any other role is a real third party — customer or partner integration roles, security/SaaS vendor roles, warehouse storage integrations, data-platform control-plane roles. Those findings aren't false positives, even when the access is expected. |
+| **Datastore containing clear text password** on a Spark log store | Every dataset whose `dataTypeSets` include `Clear Text Password` is under a Spark log prefix: Databricks cluster logs, Glue Spark UI logs. | Spark event logs carry every conf key. Keys such as `spark.hadoop.hive.server2.keystore.password` and `spark.databricks.token` match the classifier, but Spark redacts their values to `*********(redacted)` (confirm against a live cluster's event log and driver logs). Check that the bucket also expires those logs. |
+| **Datastore containing sensitive data is publicly accessible** on a bucket from your intentional-public list | The flagged datasets are package files (`PKG-INFO`, `*.rst`, `AUTHORS.md` inside `*.tar.gz`) or published infrastructure templates (`cloudformation/*.yaml`). | These buckets are public on purpose: a package index or the templates customers deploy. The "PII" is open-source author names and emails. |
+
+Not on this list, so judge them on the evidence each time:
+- *Clear text password* on a production database or an application data bucket.
+- *Publicly accessible* on a bucket where only a sub-prefix is readable and user-shared content could carry credentials.
+- Every *Sensitive data in lower environment* finding.
+
+An account with no environment tag in Bedrock shows by id, with no name. Report that as a tagging gap
+to fix alongside the finding; it doesn't make the finding a false positive.
 
 ---
 

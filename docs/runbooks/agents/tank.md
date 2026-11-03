@@ -64,6 +64,11 @@ approved.
 
 ## Disposition paths
 
+Every Aikido, Linear, or GitHub write below is **proposed first and runs only after the human
+confirms** in the same session. Headless (container) runs only propose, and their tokens are
+read-only anyway. Tank never terminates EC2 instances. For a stopped instance ≥ 90 days old it
+recommends termination and gives the exact command for a human to run.
+
 ### False positive
 
 1. Suppress in Aikido. Default to **per-issue** (`PUT /api/public/v1/issues/{id}/ignore`)
