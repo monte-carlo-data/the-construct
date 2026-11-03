@@ -24,7 +24,8 @@ permissions:
   issues: write
   checks: read      # the daily sweep reads statusCheckRollup (check runs,
   statuses: read    # commit statuses, and each check's workflow run)
-  actions: read     # nothing deploys on merge, so no `gh workflow run`
+  actions: write    # the lane's job declares write (for `gh workflow run` of a deploy
+                    # workflow, unset here) and a called workflow cannot exceed its caller
 
 jobs:
   lane:
